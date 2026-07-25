@@ -1,0 +1,12 @@
+{
+  "name": "@begabot/shared-contracts",
+  "version": "1.0.0",
+  "description": "Paquete compartido base para BegaBot 3.0",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  }
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1785009030396" clover="3.2.0">
+  <project timestamp="1785009030396" name="All files">
+    <metrics statements="43" coveredstatements="34" conditionals="42" coveredconditionals="34" methods="4" coveredmethods="2" elements="89" coveredelements="70" complexity="0" loc="43" ncloc="43" packages="1" files="1" classes="1"/>
+    <file name="ai-gemini-agent.js" path="/home/tu_correo/aiagent/ai-gemini-agent.js">
+      <metrics statements="43" coveredstatements="34" conditionals="42" coveredconditionals="34" methods="4" coveredmethods="2"/>
+      <line num="1" count="2" type="stmt"/>
+      <line num="3" count="2" type="stmt"/>
+      <line num="4" count="2" type="stmt"/>
+      <line num="5" count="2" type="stmt"/>
+      <line num="7" count="2" type="stmt"/>
+      <line num="8" count="2" type="stmt"/>
+      <line num="10" count="2" type="cond" truecount="1" falsecount="1"/>
+      <line num="12" count="2" type="stmt"/>
+      <line num="13" count="2" type="cond" truecount="1" falsecount="1"/>
+      <line num="15" count="2" type="stmt"/>
+      <line num="16" count="0" type="stmt"/>
+      <line num="19" count="2" type="stmt"/>
+      <line num="20" count="3" type="stmt"/>
+      <line num="31" count="3" type="stmt"/>
+      <line num="33" count="3" type="cond" truecount="2" falsecount="0"/>
+      <line num="34" count="3" type="cond" truecount="4" falsecount="0"/>
+      <line num="36" count="3" type="cond" truecount="6" falsecount="0"/>
+      <line num="37" count="1" type="stmt"/>
+      <line num="42" count="2" type="stmt"/>
+      <line num="44" count="2" type="stmt"/>
+      <line num="53" count="2" type="stmt"/>
+      <line num="54" count="2" type="stmt"/>
+      <line num="56" count="2" type="stmt"/>
+      <line num="58" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="64" count="2" type="stmt"/>
+      <line num="65" count="2" type="stmt"/>
+      <line num="77" count="0" type="stmt"/>
+      <line num="80" count="2" type="stmt"/>
+      <line num="99" count="0" type="stmt"/>
+      <line num="100" count="0" type="stmt"/>
+      <line num="107" count="2" type="stmt"/>
+      <line num="108" count="2" type="stmt"/>
+      <line num="116" count="2" type="stmt"/>
+      <line num="118" count="2" type="cond" truecount="3" falsecount="1"/>
+      <line num="119" count="0" type="stmt"/>
+      <line num="124" count="2" type="stmt"/>
+      <line num="133" count="2" type="stmt"/>
+      <line num="142" count="0" type="stmt"/>
+      <line num="143" count="0" type="stmt"/>
+      <line num="150" count="2" type="cond" truecount="1" falsecount="1"/>
+      <line num="151" count="0" type="stmt"/>
+      <line num="152" count="0" type="stmt"/>
+      <line num="156" count="2" type="stmt"/>
+    </file>
+  </project>
+</coverage>
