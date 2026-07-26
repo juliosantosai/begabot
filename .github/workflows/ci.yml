@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test services
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+        service: [
+          "ai-agent-service",
+          "buffer-service",
+          "core-service",
+          "gateway-service",
+          "packages/shared-contracts"
+        ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install & run tests if present
+        run: |
+          if [ -f "${{ matrix.service }}/package.json" ]; then
+            echo "Running tests for ${{ matrix.service }}"
+            cd "${{ matrix.service }}"
+            npm ci
+            npm test
+          else
+            echo "No package.json in ${{ matrix.service }}, skipping"
+          fi
