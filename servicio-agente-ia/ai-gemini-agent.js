@@ -7,6 +7,40 @@ const { GoogleGenAI } = require('@google/genai');
 const aplicacion = express();
 aplicacion.use(express.json());
 
+/**
+ * Contrato del servicio de agente de IA.
+ *
+ * Endpoint principal:
+ *   POST /api/ai/generate-response
+ *
+ * Request body esperado:
+ * {
+ *   "sender": "usuario123",
+ *   "remoteJid": "1234567890@whatsapp.net",
+ *   "systemPrompt": "Eres un asistente útil",
+ *   "userConcatenatedMessage": "Hola, necesito ayuda"
+ * }
+ *
+ * Response body:
+ * {
+ *   "status": "success",
+ *   "output": {
+ *     "response": "Respuesta generada por IA",
+ *     "destination": {
+ *       "sender": "usuario123",
+ *       "remoteJid": "1234567890@whatsapp.net"
+ *     },
+ *     "metrics": {
+ *       "latenciaMs": 120,
+ *       "tokens": {
+ *         "prompt": 10,
+ *         "completion": 20,
+ *         "total": 30
+ *       }
+ *     }
+ *   }
+ * }
+ */
 const puerto = process.env.PORT || 3003;
 
 const clienteIa = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });

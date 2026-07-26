@@ -1,6 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const express = require('express');
+const { once } = require('node:events');
 const { acumularMensajeEnBuffer, redis } = require('../controllers/controladorBufferMensajes');
+const router = require('../routes/rutaBuffer');
 
 test('acumularMensajeEnBuffer devuelve texto acumulado y marca primer mensaje', async () => {
   const result = await acumularMensajeEnBuffer('test-buffer@whatsapp.net', 'hola');
@@ -17,4 +20,29 @@ test('acumularMensajeEnBuffer acumula mensajes consecutivos', async () => {
 test('redis expone la conexión del buffer', async () => {
   assert.ok(redis);
   assert.equal(typeof redis.get, 'function');
+});
+
+test('la ruta acepta un JSON simple con jid y text', async () => {
+  const app = express();
+  app.use(express.json());
+  app.use('/', router);
+
+  const servidor = app.listen(0);
+  await once(servidor, 'listening');
+
+  try {
+    const direccion = servidor.address();
+    const respuesta = await fetch(`http://127.0.0.1:${direccion.port}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jid: 'test@whatsapp.net', text: 'hola desde el nuevo contrato' })
+    });
+
+    const cuerpo = await respuesta.json();
+    assert.equal(respuesta.status, 200);
+    assert.equal(cuerpo.remoteJid, 'test@whatsapp.net');
+    assert.match(cuerpo.accumulatedText, /hola desde el nuevo contrato/);
+  } finally {
+    servidor.close();
+  }
 });
