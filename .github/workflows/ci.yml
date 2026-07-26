@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  test-services:
     name: Test services
     runs-on: ubuntu-latest
     strategy:
@@ -18,6 +18,10 @@ jobs:
           "buffer-service",
           "core-service",
           "gateway-service",
+          "media-switcher-service",
+          "audit-metrics-service",
+          "scheduler-service",
+          "dispatcher-service",
           "packages/shared-contracts"
         ]
     steps:
@@ -27,14 +31,37 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
-      - name: Install & run tests if present
+      - name: Run service tests if present
         run: |
           if [ -f "${{ matrix.service }}/package.json" ]; then
             echo "Running tests for ${{ matrix.service }}"
             cd "${{ matrix.service }}"
             npm ci
-            npm test
+            npm test --if-present
           else
             echo "No package.json in ${{ matrix.service }}, skipping"
           fi
+
+  root-test:
+    name: Test root workspace
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Run root workspace tests
+        run: npm test --if-present
+
