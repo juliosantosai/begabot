@@ -147,6 +147,44 @@ app.post('/api/ai/generate-from-prompts', async (req, res) => {
   }
 });
 
+// Endpoint genérico para integración con n8n: acepta prompt, systemInstruction, history y tenantId
+app.post('/run', async (req, res) => {
+  try {
+    const { tenantId, prompt, systemInstruction, history, model, temperature, sender, remoteJid } = req.body;
+
+    if (!prompt || !systemInstruction) {
+      return res.status(400).json({ error: 'Se requieren prompt y systemInstruction' });
+    }
+
+    const start = Date.now();
+    const response = await ai.models.generateContent({
+      model: model || (process.env.DEFAULT_AI_MODEL || 'models/gemini-3.1-flash-lite'),
+      contents: prompt,
+      config: {
+        systemInstruction: systemInstruction,
+        temperature: temperature !== undefined ? temperature : 0.7,
+      }
+    });
+
+    const end = Date.now();
+    const latenciaMs = end - start;
+
+    const aiResponseText = response.text;
+
+    return res.status(200).json({
+      status: 'success',
+      tenantId,
+      output: {
+        response: aiResponseText,
+        metrics: { latenciaMs }
+      }
+    });
+  } catch (error) {
+    console.error('Error en /run:', error);
+    return res.status(500).json({ error: 'Error interno en AI service' });
+  }
+});
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`✨ AI Agent Service (Gemini Flash 2.5) corriendo en el puerto ${PORT}`);

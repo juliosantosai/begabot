@@ -160,6 +160,49 @@ function crearAplicacion(prismaCliente = prisma) {
     }
   });
 
+  // Endpoint genérico de consulta/operación para n8n: { action, entity, where, data }
+  aplicacionLocal.post('/api/query', async (peticion, respuesta) => {
+    try {
+      const { action, entity, where, data, options } = peticion.body;
+
+      if (!action || !entity) {
+        return respuesta.status(400).json({ error: 'Se requieren action y entity' });
+      }
+
+      // Lista blanca de entidades expuestas
+      const allowed = ['company', 'conversationSession', 'messageHistory', 'interactionLog', 'botConfig', 'promptPerformanceLog'];
+      if (!allowed.includes(entity)) {
+        return respuesta.status(403).json({ error: 'Entidad no permitida' });
+      }
+
+      let result;
+      switch (action) {
+        case 'findUnique':
+          result = await prismaCliente[entity].findUnique({ where });
+          break;
+        case 'findMany':
+          result = await prismaCliente[entity].findMany({ where, ...(options || {}) });
+          break;
+        case 'create':
+          result = await prismaCliente[entity].create({ data });
+          break;
+        case 'update':
+          result = await prismaCliente[entity].update({ where, data });
+          break;
+        case 'delete':
+          result = await prismaCliente[entity].delete({ where });
+          break;
+        default:
+          return respuesta.status(400).json({ error: 'Action no soportada' });
+      }
+
+      return respuesta.status(200).json({ status: 'success', data: result });
+    } catch (error) {
+      console.error('Error en /api/query:', error);
+      return respuesta.status(500).json({ error: 'Error interno en query endpoint' });
+    }
+  });
+
   aplicacionLocal.post('/api/log-interaction', async (peticion, respuesta) => {
     try {
       const { sender, remoteJid, userQuery, aiResponse, intent, modelUsed, promptTokens, completionTokens, latencyMs } = peticion.body;

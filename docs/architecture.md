@@ -70,3 +70,12 @@ Puertos asignados (entorno de desarrollo):
 | 5432 | `postgres` | Puerto nativo de PostgreSQL |
 | 6379 | `redis` | Puerto nativo de Redis |
 
+Integración con n8n:
+
+- Configure en las variables de entorno de los servicios:
+  - `N8N_WEBHOOK_URL` — URL del webhook de n8n que recibirá eventos (p. ej. https://tu-n8n/webhook/begabot-router)
+  - `N8N_TOKEN` — token compartido que se envía en header `X-N8N-Token` para validar requests desde n8n
+
+Uso recomendado:
+- Los servicios pueden reenviar eventos a n8n vía `POST /n8n/forward` en `gateway-service` o llamar directamente a `N8N_WEBHOOK_URL`.
+
