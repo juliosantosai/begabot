@@ -1,29 +1,71 @@
 const express = require('express');
-const PrismaEmpresaRepositorio = require('../../infraestructura/adaptadores/prismaEmpresaRepositorio');
-const RegistrarEmpresa = require('../../aplicacion/casos-uso/registrarEmpresa');
+const PrismaMensajeRepositorio = require('../../infraestructura/repositorios/prismaMensajeRepositorio');
+const PrismaEvolutionApiRepositorio = require('../../infraestructura/repositorios/prismaEvolutionApiRepositorio');
+const FetchHttpClient = require('../../infraestructura/http/fetchHttpClient');
+const ProcesarMensaje = require('../../aplicacion/casos-de-uso/procesarMensaje');
+const ListarMensajesPorJid = require('../../aplicacion/casos-de-uso/listarMensajesPorJid');
+const RegistrarInstanciaEvolutionApi = require('../../aplicacion/casos-de-uso/registrarInstanciaEvolutionApi');
+const ConsultarInstanciaEvolutionApi = require('../../aplicacion/casos-de-uso/consultarInstanciaEvolutionApi');
+const EnviarMensajeEvolutionApi = require('../../aplicacion/casos-de-uso/enviarMensajeEvolutionApi');
 
 function crearAplicacion({ prisma }) {
   const app = express();
   app.use(express.json());
 
-  const empresaRepositorio = new PrismaEmpresaRepositorio(prisma);
-  const registrarEmpresa = new RegistrarEmpresa(empresaRepositorio);
+  const mensajeRepositorio = new PrismaMensajeRepositorio(prisma);
+  const evolutionApiRepositorio = new PrismaEvolutionApiRepositorio(prisma);
+  const httpClient = new FetchHttpClient();
 
-  app.get('/', (_req, res) => {
-    res.status(200).json({
-      status: 'servicio-core listo para DDD',
-      capas: ['dominio', 'aplicacion', 'infraestructura', 'interfaz'],
-    });
-  });
+  const procesarMensaje = new ProcesarMensaje({ mensajeRepositorio });
+  const listarMensajesPorJid = new ListarMensajesPorJid({ mensajeRepositorio });
+  const registrarInstanciaEvolutionApi = new RegistrarInstanciaEvolutionApi({ evolutionApiRepositorio });
+  const consultarInstanciaEvolutionApi = new ConsultarInstanciaEvolutionApi({ evolutionApiRepositorio });
+  const enviarMensajeEvolutionApi = new EnviarMensajeEvolutionApi({ evolutionApiRepositorio, httpClient });
 
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'servicio-core healthy' });
   });
 
-  app.post('/ddd/empresas', async (req, res) => {
+  app.post('/core/mensajes', async (req, res) => {
     try {
-      const empresa = await registrarEmpresa.ejecutar(req.body);
-      res.status(201).json({ data: empresa });
+      const resultado = await procesarMensaje.ejecutar(req.body);
+      res.status(201).json({ data: resultado });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get('/core/mensajes/:jid', async (req, res) => {
+    try {
+      const mensajes = await listarMensajesPorJid.ejecutar(req.params.jid);
+      res.status(200).json({ data: mensajes });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.post('/core/evolution-api/configuracion', async (req, res) => {
+    try {
+      const resultado = await registrarInstanciaEvolutionApi.ejecutar(req.body);
+      res.status(201).json({ data: resultado });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get('/core/evolution-api/configuracion/:ownerJid', async (req, res) => {
+    try {
+      const resultado = await consultarInstanciaEvolutionApi.ejecutar(req.params.ownerJid);
+      res.status(200).json({ data: resultado });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.post('/core/evolution-api/enviar', async (req, res) => {
+    try {
+      const resultado = await enviarMensajeEvolutionApi.ejecutar(req.body);
+      res.status(200).json({ data: resultado });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }

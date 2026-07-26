@@ -1,3 +1,4 @@
+const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const { crearAplicacion } = require('./src/interfaz/http/app');
 
@@ -8,8 +9,11 @@ const app = crearAplicacion({ prisma });
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`🚀 Core listo para DDD en puerto ${PORT}`);
+    console.log(`🚀 Core listo para mensajes en puerto ${PORT}`);
   });
 }
 
-module.exports = app;
+module.exports = {
+  crearAplicacion,
+  prisma,
+};
