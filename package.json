@@ -19,9 +19,17 @@
     "dispatcher-service",
     "packages/*"
   ],
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "syncpack": "^10.0.0"
+  },
   "scripts": {
     "install:all": "npm install",
     "test": "npm run test --workspaces --if-present",
+    "check-deps": "npx syncpack list-mismatches",
     "dev:webhook": "npm --workspace gateway-service run dev",
     "dev:buffer": "npm --workspace buffer-service run dev",
     "dev:ai": "npm --workspace ai-agent-service run start"
