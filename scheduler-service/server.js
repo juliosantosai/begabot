@@ -10,7 +10,8 @@ setInterval(() => {
   // Aquí se podrían invocar endpoints internos (core-service) o ejecutar scripts de limpieza.
 }, 60000);
 
-app.get('/health', (req, res) => res.status(200).json({ status: 'scheduler online' }));
+app.get('/', (_req, res) => res.status(200).json({ status: 'scheduler-service online' }));
+app.get('/health', (_req, res) => res.status(200).json({ status: 'scheduler-service healthy' }));
 
 const PORT = process.env.PORT || 3006;
 app.listen(PORT, () => {

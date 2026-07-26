@@ -1,9 +1,7 @@
 FROM node:18-alpine
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
+WORKDIR /app/audit-metrics-service
+COPY audit-metrics-service/package*.json ./
 RUN npm install --production --silent
-
-COPY . .
+COPY audit-metrics-service ./
 EXPOSE 3005
 CMD ["node", "server.js"]

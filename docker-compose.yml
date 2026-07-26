@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tu_password_seguro_aqui}
       POSTGRES_DB: ${POSTGRES_DB:-begabot_saas}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -21,7 +21,7 @@ services:
     image: redis:7-alpine
     container_name: begabot-redis
     ports:
-      - "6379:6379"
+      - "6381:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -31,8 +31,8 @@ services:
 
   gateway-service:
     build:
-      context: ./gateway-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./gateway-service/Dockerfile
     container_name: begabot-webhook
     ports:
       - "3001:3001"
@@ -50,8 +50,8 @@ services:
 
   buffer-service:
     build:
-      context: ./buffer-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./buffer-service/Dockerfile
     container_name: begabot-buffer
     ports:
       - "3002:3002"
@@ -66,8 +66,8 @@ services:
 
   core-service:
     build:
-      context: ./core-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./core-service/Dockerfile
     container_name: begabot-pg
     ports:
       - "3003:3003"
@@ -81,8 +81,8 @@ services:
 
   ai-agent-service:
     build:
-      context: ./ai-agent-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./ai-agent-service/Dockerfile
     container_name: begabot-aiagent
     ports:
       - "3008:3008"
@@ -97,8 +97,8 @@ services:
 
   media-switcher-service:
     build:
-      context: ./media-switcher-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./media-switcher-service/Dockerfile
     container_name: begabot-media-switcher
     ports:
       - "3004:3004"
@@ -112,8 +112,8 @@ services:
 
   audit-metrics-service:
     build:
-      context: ./audit-metrics-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./audit-metrics-service/Dockerfile
     container_name: begabot-audit-metrics
     ports:
       - "3005:3005"
@@ -126,8 +126,8 @@ services:
 
   scheduler-service:
     build:
-      context: ./scheduler-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./scheduler-service/Dockerfile
     container_name: begabot-scheduler
     ports:
       - "3006:3006"
@@ -140,8 +140,8 @@ services:
 
   dispatcher-service:
     build:
-      context: ./dispatcher-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./dispatcher-service/Dockerfile
     container_name: begabot-dispatcher
     ports:
       - "3007:3007"

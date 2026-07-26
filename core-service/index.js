@@ -161,6 +161,14 @@ function crearAplicacion(prismaCliente = prisma) {
   });
 
   // Endpoint genérico de consulta/operación para n8n: { action, entity, where, data }
+  aplicacionLocal.get('/', (_peticion, respuesta) => {
+    return respuesta.status(200).json({ status: 'core-service online' });
+  });
+
+  aplicacionLocal.get('/health', (_peticion, respuesta) => {
+    return respuesta.status(200).json({ status: 'core-service healthy' });
+  });
+
   aplicacionLocal.post('/api/query', async (peticion, respuesta) => {
     try {
       const { action, entity, where, data, options } = peticion.body;

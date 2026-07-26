@@ -1,7 +1,6 @@
 /**
  * Motor de Acciones y Envío de Mensajes - Dispatcher
  */
-const fetch = require('node-fetch');
 
 async function dispatchMessage(req, res) {
   try {

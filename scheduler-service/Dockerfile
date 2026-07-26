@@ -1,9 +1,7 @@
 FROM node:18-alpine
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
+WORKDIR /app/scheduler-service
+COPY scheduler-service/package*.json ./
 RUN npm install --production --silent
-
-COPY . .
+COPY scheduler-service ./
 EXPOSE 3006
 CMD ["node", "server.js"]

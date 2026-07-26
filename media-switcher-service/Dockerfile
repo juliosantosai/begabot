@@ -1,9 +1,7 @@
 FROM node:18-alpine
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
+WORKDIR /app/media-switcher-service
+COPY media-switcher-service/package*.json ./
 RUN npm install --production --silent
-
-COPY . .
+COPY media-switcher-service ./
 EXPOSE 3004
 CMD ["node", "server.js"]

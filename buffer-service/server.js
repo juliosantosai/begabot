@@ -5,6 +5,14 @@ const bufferRoute = require('./routes/bufferRoute');
 const app = express();
 app.use(express.json());
 
+app.get('/', (_req, res) => {
+  res.status(200).json({ status: 'buffer-service online' });
+});
+
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'buffer-service healthy' });
+});
+
 app.use('/api/buffer', bufferRoute);
 
 app.use((req, res) => {

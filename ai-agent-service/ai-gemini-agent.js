@@ -12,8 +12,12 @@ const PORT = process.env.PORT || 3002;
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const CORE_SERVICE_URL = process.env.CORE_SERVICE_URL || 'http://localhost:3001';
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'AI Agent Service UP', timestamp: new Date() });
+app.get('/', (_req, res) => {
+  res.status(200).json({ status: 'ai-agent-service online' });
+});
+
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ai-agent-service healthy', timestamp: new Date() });
 });
 
 app.post('/api/ai/generate-response', async (req, res) => {

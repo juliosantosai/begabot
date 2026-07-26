@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const webhookRoutes = require('./routes/webhookRoutes');
-const fetch = require('node-fetch');
 const n8nAuth = require('./middleware/n8nAuth');
 
 const app = express();
