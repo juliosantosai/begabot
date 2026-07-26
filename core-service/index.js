@@ -54,6 +54,40 @@ function crearAplicacion(prismaCliente = prisma) {
         cuerpoMensaje: messageBody,
       });
 
+      // Manejo de comandos especiales antes de evaluar la sesión
+      const textoLimpio = (messageBody || '').toString().trim();
+
+      // Comandos puntuales: '.', '@', ','
+      if (textoLimpio === '.' || textoLimpio === '@' || textoLimpio === ',') {
+        try {
+          await maquinaEstados.procesarComandoOperador(empresa.id, remoteJid, textoLimpio);
+
+          const replies = {
+            '.': 'Bot bloqueado permanentemente para este usuario.',
+            '@': 'Interacciones reiniciadas. El bot está activo nuevamente.',
+            ',': 'Bot desbloqueado y reactivado.',
+          };
+
+          return respuesta.status(200).json({ status: 'success', reply: replies[textoLimpio] });
+        } catch (cmdError) {
+          console.error('Error procesando comando operador:', cmdError);
+          return respuesta.status(500).json({ error: 'Error procesando comando operador' });
+        }
+      }
+
+      // Pausa dinámica: formato $N (ej. $15 para 15 minutos)
+      const pausaMatch = textoLimpio.match(/^\$(\d+)$/);
+      if (pausaMatch) {
+        const minutos = parseInt(pausaMatch[1], 10) || 0;
+        try {
+          await maquinaEstados.pausarBotPorMinutos(empresa.id, remoteJid, minutos);
+          return respuesta.status(200).json({ status: 'success', reply: `Bot pausado por ${minutos} minutos` });
+        } catch (pauseError) {
+          console.error('Error al pausar bot:', pauseError);
+          return respuesta.status(500).json({ error: 'Error al pausar bot' });
+        }
+      }
+
       const estadoSesion = await maquinaEstados.evaluarEstadoSesion(empresa.id, remoteJid);
 
       if (!estadoSesion.allowed) {

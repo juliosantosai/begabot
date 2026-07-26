@@ -54,10 +54,10 @@ services:
       dockerfile: Dockerfile
     container_name: begabot-buffer
     ports:
-      - "3000:3000"
+      - "3002:3002"
     environment:
       NODE_ENV: ${NODE_ENV:-production}
-      PORT: ${BUFFER_PORT:-3000}
+      PORT: ${BUFFER_PORT:-3002}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       MESSAGE_BUFFER_MS: ${MESSAGE_BUFFER_MS:-250}
     depends_on:
@@ -70,10 +70,10 @@ services:
       dockerfile: Dockerfile
     container_name: begabot-pg
     ports:
-      - "3002:3002"
+      - "3003:3003"
     environment:
       NODE_ENV: ${NODE_ENV:-production}
-      PORT: ${CORE_PORT:-3002}
+      PORT: ${CORE_PORT:-3003}
       DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-begabot_user}:${POSTGRES_PASSWORD:-tu_password_seguro_aqui}@postgres:5432/${POSTGRES_DB:-begabot_saas}}
     depends_on:
       postgres:
@@ -85,12 +85,70 @@ services:
       dockerfile: Dockerfile
     container_name: begabot-aiagent
     ports:
-      - "3003:3003"
+      - "3008:3008"
     environment:
       NODE_ENV: ${NODE_ENV:-production}
-      PORT: ${AI_PORT:-3003}
+      PORT: ${AI_PORT:-3008}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-demo-key}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  media-switcher-service:
+    build:
+      context: ./media-switcher-service
+      dockerfile: Dockerfile
+    container_name: begabot-media-switcher
+    ports:
+      - "3004:3004"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${MEDIA_SWITCHER_PORT:-3004}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-demo-key}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  audit-metrics-service:
+    build:
+      context: ./audit-metrics-service
+      dockerfile: Dockerfile
+    container_name: begabot-audit-metrics
+    ports:
+      - "3005:3005"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${AUDIT_METRICS_PORT:-3005}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  scheduler-service:
+    build:
+      context: ./scheduler-service
+      dockerfile: Dockerfile
+    container_name: begabot-scheduler
+    ports:
+      - "3006:3006"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${SCHEDULER_PORT:-3006}
+    restart: unless-stopped
+    depends_on:
+      - core-service
+
+  dispatcher-service:
+    build:
+      context: ./dispatcher-service
+      dockerfile: Dockerfile
+    container_name: begabot-dispatcher
+    ports:
+      - "3007:3007"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${DISPATCHER_PORT:-3007}
+    restart: unless-stopped
     depends_on:
       redis:
         condition: service_healthy
