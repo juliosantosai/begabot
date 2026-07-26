@@ -8,21 +8,19 @@ Pasos para iniciar el entorno de desarrollo local.
 Instalar dependencias por servicio (ejemplo):
 
 ```bash
-cd core-service && npm install
-cd ../gateway-service && npm install
+cd servicio-core && npm install
 ```
 
 Ejecutar tests (por servicio):
 
 ```bash
-cd core-service && npm test
-cd ../media-switcher-service && npm test
+cd servicio-core && npm test
 ```
 
 Ejecutar un solo servicio durante el desarrollo:
 
 ```bash
-cd gateway-service
+cd servicio-buffer
 npm install
 npm run dev
 ```

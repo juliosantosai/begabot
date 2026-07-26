@@ -7,21 +7,16 @@ Resumen de alto nivel:
 
 Servicios principales:
 
-- `ai-agent-service`: agente que integra modelos de IA para tareas conversacionales.
-- `buffer-service`: gestiona el buffer de mensajes y la agregación para Redis.
-- `core-service`: lógica central del dominio y orquestación entre servicios.
-- `gateway-service`: punto de entrada HTTP/webhook que normaliza y valida payloads.
+- `servicio-agente-ia`: agente que integra modelos de IA para tareas conversacionales.
+- `servicio-buffer`: gestiona el buffer de mensajes y la agregación para Redis.
+- `servicio-core`: lógica central del dominio y orquestación entre servicios.
 - `packages/shared-contracts`: utilidades y contratos compartidos entre servicios.
-- `media-switcher-service`: servicio independiente que procesa y normaliza medios (notas de voz, ubicaciones).
-- `scheduler-service`: motor de tareas programadas para jobs periódicos y limpiezas.
-- `dispatcher-service`: motor de envío y acciones salientes (pasarela a Evolution API / WhatsApp).
 
 Flujo básico:
 
-1. `gateway-service` recibe webhooks y normaliza payloads.
-2. Mensajes normalizados se envían a `buffer-service` para agregación/persistencia temporal.
-3. `core-service` aplica reglas de negocio y puede invocar `ai-agent-service` para análisis/decisión.
-4. `ai-agent-service` procesa consultas de IA y devuelve respuestas/actions.
+1. Mensajes entrantes se envían a `servicio-buffer` para agregación/persistencia temporal.
+2. `servicio-core` aplica reglas de negocio y puede invocar `servicio-agente-ia` para análisis/decisión.
+4. `servicio-agente-ia` procesa consultas de IA y devuelve respuestas/actions.
 
 Diagrama simple (Mermaid):
 
@@ -40,10 +35,9 @@ graph LR
 
 Dónde buscar código relevante:
 
-- [ai-agent-service](ai-agent-service)
-- [buffer-service](buffer-service)
-- [core-service](core-service)
-- [gateway-service](gateway-service)
+- [servicio-agente-ia](servicio-agente-ia)
+- [servicio-buffer](servicio-buffer)
+- [servicio-core](servicio-core)
 - [packages/shared-contracts](packages/shared-contracts)
 
 Consejos para ejecutar localmente:
@@ -59,14 +53,9 @@ Puertos asignados (entorno de desarrollo):
 
 | Puerto | Servicio | Descripción |
 |---:|---|---|
-| 3001 | `gateway-service` | Ingestión, recepción de webhooks de Evolution API y sanitización inicial |
-| 3002 | `buffer-service` | Control de estado y búfer temporal de mensajes en Redis |
-| 3003 | `core-service` | Núcleo de Prisma ORM, PostgreSQL y Máquina de Estados |
-| 3004 | `media-switcher-service` | Procesamiento y enrutamiento de notas de voz y multimedia |
-| 3005 | `audit-metrics-service` | Registro asíncrono de latencia y consumo de tokens |
-| 3006 | `scheduler-service` | Tareas programadas y limpiezas periódicas |
-| 3007 | `dispatcher-service` | Motor de envío hacia Evolution API / WhatsApp |
-| 3008 | `ai-agent-service` | Integración con Gemini / motor de IA |
+| 3001 | `servicio-buffer` | Control de estado y búfer temporal de mensajes en Redis |
+| 3002 | `servicio-core` | Núcleo de Prisma ORM, PostgreSQL y Máquina de Estados |
+| 3003 | `servicio-agente-ia` | Integración con Gemini / motor de IA |
 | 5432 | `postgres` | Puerto nativo de PostgreSQL |
 | 6379 | `redis` | Puerto nativo de Redis |
 
@@ -77,5 +66,5 @@ Integración con n8n:
   - `N8N_TOKEN` — token compartido que se envía en header `X-N8N-Token` para validar requests desde n8n
 
 Uso recomendado:
-- Los servicios pueden reenviar eventos a n8n vía `POST /n8n/forward` en `gateway-service` o llamar directamente a `N8N_WEBHOOK_URL`.
+- Los servicios pueden reenviar eventos a n8n vía `POST /n8n/forward` o llamar directamente a `N8N_WEBHOOK_URL`.
 

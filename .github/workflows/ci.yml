@@ -14,14 +14,9 @@ jobs:
       matrix:
         node-version: [18.x]
         service: [
-          "ai-agent-service",
-          "buffer-service",
-          "core-service",
-          "gateway-service",
-          "media-switcher-service",
-          "audit-metrics-service",
-          "scheduler-service",
-          "dispatcher-service",
+          "servicio-agente-ia",
+          "servicio-buffer",
+          "servicio-core",
           "packages/shared-contracts"
         ]
     steps:

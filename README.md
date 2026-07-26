@@ -4,14 +4,9 @@ BegaBot 3.0 es un monorepo de microservicios Node.js diseñado para recibir webh
 
 ## Servicios incluidos
 
-- `gateway-service` — entrada de webhooks, validación de tenant y normalización de payload.
-- `buffer-service` — buffer y agregador de mensajes usando Redis.
-- `core-service` — lógica de negocio y persistencia con Prisma/PostgreSQL.
-- `ai-agent-service` — integración con Gemini AI y generación de respuestas.
-- `media-switcher-service` — procesamiento de mensajes multimedia (voz, ubicación, archivos).
-- `audit-metrics-service` — métricas de auditoría, latencia y uso de tokens.
-- `scheduler-service` — tareas programadas y recordatorios.
-- `dispatcher-service` — entrega de mensajes salientes a canales externos.
+- `servicio-buffer` — buffer y agregador de mensajes usando Redis.
+- `servicio-core` — lógica de negocio y persistencia con Prisma/PostgreSQL.
+- `servicio-agente-ia` — integración con Gemini AI y generación de respuestas.
 - `packages/shared-contracts` — contratos y utilidades compartidas entre servicios.
 
 ## Requisitos
@@ -51,15 +46,15 @@ docker compose up -d --build
 5. Ver logs de un servicio:
 
 ```bash
-docker compose logs -f gateway-service
+docker compose logs -f servicio-buffer
 ```
 
 ## Ejecutar servicios individualmente
 
-Ejemplo para `media-switcher-service`:
+Ejemplo para `servicio-buffer`:
 
 ```bash
-cd media-switcher-service
+cd servicio-buffer
 npm install
 npm test
 npm start

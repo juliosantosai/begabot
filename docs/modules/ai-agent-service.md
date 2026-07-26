@@ -1,4 +1,4 @@
-# Módulo: ai-agent-service
+# Módulo: servicio-agente-ia
 
 Propósito:
 
@@ -11,14 +11,14 @@ Archivos clave:
 Cómo ejecutar en desarrollo:
 
 ```bash
-cd ai-agent-service
+cd servicio-agente-ia
 npm install
 npm start
 ```
 
 Pruebas:
 
-- Hay tests en `ai-agent-service/tests/` (si existen). Ejecutar `npm test` desde el directorio.
+- Hay tests en `servicio-agente-ia/tests/` (si existen). Ejecutar `npm test` desde el directorio.
 
 Notas:
 

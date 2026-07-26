@@ -44,7 +44,10 @@ function createWhatsAppNormalizedMessage(rawPayload = {}) {
     messageType,
     messageBody,
     timestamp: eventData?.messageTimestamp || Date.now(),
-    rawPayload: eventData,
+    instance: rawPayload?.instance || rawPayload?.data?.instance || null,
+    instanceId: rawPayload?.instanceId || rawPayload?.data?.instanceId || null,
+    serverUrl: rawPayload?.server_url || rawPayload?.serverUrl || rawPayload?.data?.server_url || rawPayload?.data?.serverUrl || null,
+    rawPayload: rawPayload,
   };
 }
 

@@ -5,7 +5,7 @@ Este documento describe cómo desplegar BegaBot 3.0 usando `docker compose` y co
 Requisitos mínimos:
 - Docker Engine
 - Docker Compose
-- Acceso a un host Linux con puertos libres 3001-3008, 5432, 6379
+- Acceso a un host Linux con puertos libres 3001-3003, 5432, 6379
 
 Despliegue básico (single-host):
 
@@ -20,7 +20,7 @@ docker compose up -d --build
 
 ```bash
 docker compose ps
-docker compose logs -f gateway-service
+docker compose logs -f servicio-buffer
 ```
 
 Consideraciones de producción:
@@ -28,7 +28,7 @@ Consideraciones de producción:
 - Usar una instancia Redis gestionada o cluster para persistencia temporal.
 - Configurar secretos en un gestor (Vault, AWS Secrets Manager) y pasar variables de entorno al contenedor.
 - Habilitar monitoreo (Prometheus / Grafana) y logs centralizados (ELK / Loki).
-- Ejecutar replicas de `ai-agent-service` y `dispatcher-service` detrás de un load balancer si el tráfico crece.
+- Ejecutar replicas de `servicio-agente-ia` detrás de un load balancer si el tráfico crece.
 
 Rollback:
 

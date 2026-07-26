@@ -6,15 +6,13 @@ Ejecutar todos los tests en un servicio concreto:
 
 ```bash
 # Desde la raíz del repositorio
-cd media-switcher-service && npm install && npm test
-cd audit-metrics-service && npm install && npm test
-cd core-service && npm install && npm test
+cd servicio-core && npm install && npm test
 ```
 
 Detalles:
 - Cada servicio nuevo incluye tests unitarios (`test/*.unit.test.js`) y tests de integración (`test/*.integration.test.js`).
 - Los tests usan `node --test` (Node 18+) y no requieren dependencias externas para ejecución básica.
-- Las pruebas de integración arrancan el servidor del servicio en el puerto configurado (3004 y 3005). Asegúrate de que los puertos estén libres.
+- Las pruebas de integración arrancan el servidor del servicio en el puerto configurado (3001-3004). Asegúrate de que los puertos estén libres.
 
 Recomendación para CI:
 

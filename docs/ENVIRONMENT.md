@@ -4,9 +4,9 @@ Lista de variables importantes (añadir a un `.env` local y nunca comitear):
 
 - `NODE_ENV` — `production` | `development`
 - `PORT` — puerto del servicio (cada servicio puede tener su propio `*_PORT`)
-- `DATABASE_URL` — URL de conexión PostgreSQL (core-service)
+- `DATABASE_URL` — URL de conexión PostgreSQL (servicio-core)
 - `REDIS_URL` — URL de Redis
-- `GEMINI_API_KEY` — API key de Google GenAI (ai-agent-service)
+- `GEMINI_API_KEY` — API key de Google GenAI (servicio-agente-ia)
 - `N8N_WEBHOOK_URL` — URL pública del webhook de n8n
 - `N8N_TOKEN` — token compartido para validar requests desde n8n
 - `EVOLUTION_API_KEY` — token para Evolution API (gateway/dispatcher)

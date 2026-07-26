@@ -1,4 +1,4 @@
-# Módulo: buffer-service
+# Módulo: servicio-buffer
 
 Propósito:
 
@@ -11,15 +11,15 @@ Archivos clave:
 Cómo ejecutar en desarrollo:
 
 ```bash
-cd buffer-service
+cd servicio-buffer
 npm install
 npm start
 ```
 
 Pruebas:
 
-- Tests en `buffer-service/test/`. Ejecutar `npm test`.
+- Tests en `servicio-buffer/test/`. Ejecutar `npm test`.
 
 Consideraciones:
 
-- Revisar `buffer-service/.env` para variables de Redis/puertos antes de iniciar.
+- Revisar `servicio-buffer/.env` para variables de Redis/puertos antes de iniciar.

@@ -1,4 +1,4 @@
-# Módulo: core-service
+# Módulo: servicio-core
 
 Propósito:
 
@@ -11,15 +11,15 @@ Archivos clave:
 Cómo ejecutar en desarrollo:
 
 ```bash
-cd core-service
+cd servicio-core
 npm install
 npm start
 ```
 
 Pruebas:
 
-- Tests en `core-service/tests/`. Ejecutar `npm test`.
+- Tests en `servicio-core/tests/`. Ejecutar `npm test`.
 
 Consideraciones:
 
-- Verificar migraciones en `core-service/prisma/migrations/` si se modifica el esquema.
+- Verificar migraciones en `servicio-core/prisma/migrations/` si se modifica el esquema.
