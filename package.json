@@ -3,11 +3,20 @@
   "private": true,
   "version": "1.0.0",
   "description": "Monorepo para BegaBot 3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juliosantosai/begabot.git"
+  },
+  "homepage": "https://github.com/juliosantosai/begabot#readme",
   "workspaces": [
     "gateway-service",
     "buffer-service",
     "core-service",
     "ai-agent-service",
+    "media-switcher-service",
+    "audit-metrics-service",
+    "scheduler-service",
+    "dispatcher-service",
     "packages/*"
   ],
   "scripts": {
