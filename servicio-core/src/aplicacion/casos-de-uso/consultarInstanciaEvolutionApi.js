@@ -3,8 +3,8 @@ class ConsultarInstanciaEvolutionApi {
     this.instanciaRepositorio = instanciaRepositorio;
   }
 
-  async ejecutar(ownerJid) {
-    const entidad = await this.instanciaRepositorio.buscarPorOwnerJid(ownerJid);
+  async ejecutar(sender) {
+    const entidad = await this.instanciaRepositorio.buscarPorSender(sender);
 
     if (!entidad) {
       return null;
@@ -20,7 +20,7 @@ class ConsultarInstanciaEvolutionApi {
           'Content-Type': 'application/json',
         },
         body: {
-          number: entidad.ownerJid,
+          number: entidad.sender,
           text: '',
           delay: 1000,
         },

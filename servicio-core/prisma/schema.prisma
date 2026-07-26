@@ -8,95 +8,21 @@ generator client {
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
-model BusinessTemplate {
-  id           String      @id @default(uuid())
-  name         String      @unique
-  description  String?     @db.Text
-  systemPrompt String      @db.Text
-  aiModel      String      @default("gemini-2.5-flash")
-  temperature  Float       @default(0.7)
-  companies    Company[]
-  botConfigs   BotConfig[]
-}
-
-model Company {
-  id                    String                 @id @default(uuid())
-  name                  String
-  sender                String                 @unique
-  status                String                 @default("active_trial")
-  businessTemplateId    String?
-  businessTemplate      BusinessTemplate?      @relation(fields: [businessTemplateId], references: [id])
-  botConfigId           String?
-  botConfig             BotConfig?             @relation(fields: [botConfigId], references: [id])
-  sessions              ConversationSession[]
-  messages              MessageHistory[]
-  interactionLogs       InteractionLog[]
-  promptPerformanceLogs PromptPerformanceLog[]
-  createdAt             DateTime               @default(now())
-}
-
-model BotConfig {
-  id                    String                 @id @default(uuid())
-  templateName          String                 @unique
-  businessTemplateId    String?
-  businessTemplate      BusinessTemplate?     @relation(fields: [businessTemplateId], references: [id])
-  systemPrompt          String                 @db.Text
-  aiModel               String                 @default("gemini-2.5-flash")
-  companies             Company[]
-  promptPerformanceLogs PromptPerformanceLog[]
-}
-
-model ConversationSession {
-  id               String   @id @default(uuid())
-  companyId        String
-  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  remoteJid        String
-  interactionCount Int      @default(0)
-  contextJson      Json?
-
-  @@unique([companyId, remoteJid])
-}
-
 model MessageHistory {
-  id          String   @id @default(uuid())
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  remoteJid   String
-  direction   String
-  messageBody String   @db.Text
-  createdAt   DateTime @default(now())
-
-  @@index([companyId, remoteJid])
+  id           String   @id @default(uuid())
+  jid          String
+  texto        String   @db.Text
+  isFromClient Boolean
+  source       String
+  creadoEn     DateTime @default(now())
 }
 
-model InteractionLog {
-  id         String   @id @default(uuid())
-  companyId  String
-  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  remoteJid  String
-  intent     String?
-  userQuery  String   @db.Text
-  aiResponse String   @db.Text
-  createdAt  DateTime @default(now())
-
-  @@index([companyId, remoteJid])
-  @@index([intent])
-}
-
-model PromptPerformanceLog {
-  id               String     @id @default(uuid())
-  companyId        String
-  company          Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  botConfigId      String?
-  botConfig        BotConfig? @relation(fields: [botConfigId], references: [id])
-  modelUsed        String
-  promptTokens     Int        @default(0)
-  completionTokens Int        @default(0)
-  totalTokens      Int        @default(0)
-  latencyMs        Int
-  status           String     @default("success")
-  createdAt        DateTime   @default(now())
-
-  @@index([companyId])
-  @@index([modelUsed])
+model EvolutionApiConfig {
+  id            String  @id @default(uuid())
+  sender        String  @unique
+  serverUrl     String
+  apiKey        String
+  instancia     String
+  negocioNombre String?
+  activo        Boolean @default(true)
 }

@@ -4,11 +4,11 @@ class EnviarMensajeEvolutionApi {
     this.httpClient = httpClient;
   }
 
-  async ejecutar({ ownerJid, texto, destino }) {
-    const configuracion = await this.evolutionApiRepositorio.buscarPorOwnerJid(ownerJid);
+  async ejecutar({ sender, texto, destino }) {
+    const configuracion = await this.evolutionApiRepositorio.buscarPorSender(sender);
 
     if (!configuracion) {
-      throw new Error('No existe configuración de Evolution API para este ownerJid.');
+      throw new Error('No existe configuración de Evolution API para este sender.');
     }
 
     const request = {

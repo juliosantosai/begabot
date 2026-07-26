@@ -8,14 +8,13 @@ class PrismaEvolutionApiRepositorio extends EvolutionApiRepositorio {
 
   async guardar(instancia) {
     const existente = await this.prisma.evolutionApiConfig.findFirst({
-      where: { ownerJid: instancia.ownerJid },
+      where: { sender: instancia.sender },
     });
 
     if (existente) {
       return this.prisma.evolutionApiConfig.update({
         where: { id: existente.id },
         data: {
-          ownerJid: instancia.ownerJid,
           sender: instancia.sender,
           serverUrl: instancia.serverUrl,
           apiKey: instancia.apiKey,
@@ -28,7 +27,7 @@ class PrismaEvolutionApiRepositorio extends EvolutionApiRepositorio {
 
     return this.prisma.evolutionApiConfig.create({
       data: {
-        ownerJid: instancia.ownerJid,
+        id: instancia.id,
         sender: instancia.sender,
         serverUrl: instancia.serverUrl,
         apiKey: instancia.apiKey,
@@ -39,9 +38,9 @@ class PrismaEvolutionApiRepositorio extends EvolutionApiRepositorio {
     });
   }
 
-  async buscarPorOwnerJid(ownerJid) {
+  async buscarPorSender(sender) {
     return this.prisma.evolutionApiConfig.findFirst({
-      where: { ownerJid },
+      where: { sender },
     });
   }
 }

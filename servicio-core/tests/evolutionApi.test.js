@@ -6,8 +6,8 @@ const EnviarMensajeEvolutionApi = require('../src/aplicacion/casos-de-uso/enviar
 test('debe enviar un mensaje usando la configuración de Evolution API', async () => {
   const requests = [];
   const repositorio = {
-    buscarPorOwnerJid: async () => ({
-      ownerJid: '5491112345678',
+    buscarPorSender: async () => ({
+      sender: 'bot',
       serverUrl: 'https://example.com',
       apiKey: 'secret',
       instancia: 'mi-instancia',
@@ -27,7 +27,7 @@ test('debe enviar un mensaje usando la configuración de Evolution API', async (
   });
 
   const resultado = await caso.ejecutar({
-    ownerJid: '5491112345678',
+    sender: 'bot',
     texto: 'Hola desde el core',
     destino: '549999999999',
   });

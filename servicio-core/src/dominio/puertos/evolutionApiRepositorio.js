@@ -3,8 +3,8 @@ class EvolutionApiRepositorio {
     throw new Error('Debe implementar guardar().');
   }
 
-  async buscarPorOwnerJid(_ownerJid) {
-    throw new Error('Debe implementar buscarPorOwnerJid().');
+  async buscarPorSender(_sender) {
+    throw new Error('Debe implementar buscarPorSender().');
   }
 }
 

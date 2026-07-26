@@ -15,6 +15,10 @@ function createServiceEvent(service, payload) {
   };
 }
 
+function generateUuid() {
+  return require('crypto').randomUUID();
+}
+
 function createWhatsAppNormalizedMessage(rawPayload = {}) {
   const eventData = rawPayload?.data || rawPayload;
   const message = eventData?.message || eventData?.messages?.[0] || {};
@@ -81,4 +85,5 @@ module.exports = {
   createServiceEvent,
   createWhatsAppNormalizedMessage,
   createRedisBufferState,
+  generateUuid,
 };

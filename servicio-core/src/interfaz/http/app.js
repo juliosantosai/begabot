@@ -18,8 +18,8 @@ function crearAplicacion({ prisma }) {
 
   const procesarMensaje = new ProcesarMensaje({ mensajeRepositorio });
   const listarMensajesPorJid = new ListarMensajesPorJid({ mensajeRepositorio });
-  const registrarInstanciaEvolutionApi = new RegistrarInstanciaEvolutionApi({ evolutionApiRepositorio });
-  const consultarInstanciaEvolutionApi = new ConsultarInstanciaEvolutionApi({ evolutionApiRepositorio });
+  const registrarInstanciaEvolutionApi = new RegistrarInstanciaEvolutionApi({ instanciaRepositorio: evolutionApiRepositorio });
+  const consultarInstanciaEvolutionApi = new ConsultarInstanciaEvolutionApi({ instanciaRepositorio: evolutionApiRepositorio });
   const enviarMensajeEvolutionApi = new EnviarMensajeEvolutionApi({ evolutionApiRepositorio, httpClient });
 
   app.get('/health', (_req, res) => {
@@ -53,9 +53,9 @@ function crearAplicacion({ prisma }) {
     }
   });
 
-  app.get('/core/evolution-api/configuracion/:ownerJid', async (req, res) => {
+  app.get('/core/evolution-api/configuracion/:sender', async (req, res) => {
     try {
-      const resultado = await consultarInstanciaEvolutionApi.ejecutar(req.params.ownerJid);
+      const resultado = await consultarInstanciaEvolutionApi.ejecutar(req.params.sender);
       res.status(200).json({ data: resultado });
     } catch (error) {
       res.status(400).json({ error: error.message });

@@ -7,7 +7,6 @@
 ### Request body
 ```json
 {
-  "ownerJid": "5491112345678",
   "sender": "5491112345678",
   "serverUrl": "https://mi-servidor.com",
   "apiKey": "mi-api-key",
@@ -18,8 +17,7 @@
 ```
 
 ### Campos
-- ownerJid: string obligatorio. Identifica al propietario o empresa.
-- sender: string opcional. Número o remitente asociado.
+- sender: string obligatorio. Número o remitente asociado.
 - serverUrl: string obligatorio. URL base del servidor Evolution API.
 - apiKey: string obligatorio. API key para autenticación.
 - instancia: string obligatorio. Nombre de la instancia.
@@ -30,7 +28,6 @@
 ```json
 {
   "data": {
-    "ownerJid": "5491112345678",
     "sender": "5491112345678",
     "serverUrl": "https://mi-servidor.com",
     "apiKey": "mi-api-key",
@@ -43,7 +40,7 @@
 
 ## Consultar configuración
 
-### GET /core/evolution-api/configuracion/:ownerJid
+### GET /core/evolution-api/configuracion/:sender
 
 ### Response exitosa
 ```json
@@ -74,6 +71,6 @@
 ```
 
 ## Comportamiento
-- Si la configuración para el ownerJid ya existe, se actualiza.
+- Si la configuración para el sender ya existe, se actualiza.
 - Si no existe, se crea.
 - La respuesta incluye una configuración HTTP lista para construir el request a Evolution API.

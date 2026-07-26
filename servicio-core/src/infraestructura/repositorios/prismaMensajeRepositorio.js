@@ -9,18 +9,18 @@ class PrismaMensajeRepositorio extends MensajeRepositorio {
   async guardar(mensaje) {
     return this.prisma.messageHistory.create({
       data: {
-        companyId: 'default-company',
-        remoteJid: mensaje.jid,
-        direction: mensaje.isFromClient ? 'incoming' : 'outgoing',
-        messageBody: mensaje.texto,
+        jid: mensaje.jid,
+        texto: mensaje.texto,
+        isFromClient: mensaje.isFromClient,
+        source: mensaje.source,
       },
     });
   }
 
   async listarPorJid(jid) {
     return this.prisma.messageHistory.findMany({
-      where: { remoteJid: jid },
-      orderBy: { createdAt: 'asc' },
+      where: { jid },
+      orderBy: { creadoEn: 'asc' },
     });
   }
 }

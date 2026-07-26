@@ -5,21 +5,25 @@ class RegistrarInstanciaEvolutionApi {
     this.instanciaRepositorio = instanciaRepositorio;
   }
 
-  async ejecutar({ ownerJid, sender, serverUrl, apiKey, instancia, negocioNombre, activo }) {
+  async ejecutar({ sender, serverUrl, apiKey, instancia, negocioNombre, activo }) {
+    const activoBoolean = typeof activo === 'string' ? activo.toLowerCase() === 'true' : Boolean(activo);
     const entidad = new InstanciaEvolutionApi({
-      ownerJid,
       sender,
       serverUrl,
       apiKey,
       instancia,
       negocioNombre,
-      activo,
+      activo: activoBoolean,
     });
 
-    const existente = await this.instanciaRepositorio.buscarPorOwnerJid(ownerJid);
+    const existente = await this.instanciaRepositorio.buscarPorSender(sender);
 
     if (existente) {
-      return this.instanciaRepositorio.guardar({ ...existente, ...entidad, configuracionHttp: entidad.construirConfiguracionHttp() });
+      return this.instanciaRepositorio.guardar({
+        ...existente,
+        ...entidad,
+        configuracionHttp: entidad.construirConfiguracionHttp(),
+      });
     }
 
     return this.instanciaRepositorio.guardar({

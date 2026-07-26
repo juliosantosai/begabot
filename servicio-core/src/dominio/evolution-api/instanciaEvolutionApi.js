@@ -1,7 +1,9 @@
+const { generateUuid } = require('@begabot/shared');
+
 class InstanciaEvolutionApi {
-  constructor({ ownerJid, sender, serverUrl, apiKey, instancia, negocioNombre, activo = true }) {
-    if (!ownerJid || typeof ownerJid !== 'string') {
-      throw new Error('ownerJid es obligatorio.');
+  constructor({ id = generateUuid(), sender, serverUrl, apiKey, instancia, negocioNombre, activo = true }) {
+    if (!sender || typeof sender !== 'string') {
+      throw new Error('sender es obligatorio.');
     }
 
     if (!serverUrl || typeof serverUrl !== 'string') {
@@ -16,7 +18,7 @@ class InstanciaEvolutionApi {
       throw new Error('instancia es obligatorio.');
     }
 
-    this.ownerJid = ownerJid;
+    this.id = id;
     this.sender = sender;
     this.serverUrl = serverUrl;
     this.apiKey = apiKey;
@@ -34,7 +36,7 @@ class InstanciaEvolutionApi {
         'Content-Type': 'application/json',
       },
       body: {
-        number: this.ownerJid,
+        number: this.sender,
         text: '',
         delay: 1000,
       },
