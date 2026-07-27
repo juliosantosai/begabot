@@ -87,15 +87,27 @@ async function acumularMensajeEnBuffer(remoteJid, messageBody, sender) {
 }
 
 function extraerTextoDesdeCrudo(raw) {
-  if (!raw) return undefined;
-  if (typeof raw === 'string') {
-    try {
-      const valor = JSON.parse(raw);
-      return extraerTextoDesdeEstructura(valor);
-    } catch (e) {
-      return raw;
-    }
+  if (raw === undefined || raw === null) return undefined;
+  
+  // Si es un número o booleano, conviértelo a string
+  if (typeof raw === 'number' || typeof raw === 'boolean') {
+    return String(raw);
   }
+  
+  if (typeof raw === 'string') {
+    // Si la string se parece a JSON (empieza con { o [), intenta parsearla
+    if (raw.trim().startsWith('{') || raw.trim().startsWith('[')) {
+      try {
+        const valor = JSON.parse(raw);
+        return extraerTextoDesdeEstructura(valor);
+      } catch (e) {
+        return raw;
+      }
+    }
+    // Si es una string simple, devuélvela tal cual
+    return raw;
+  }
+  
   if (typeof raw === 'object') return extraerTextoDesdeEstructura(raw);
   return undefined;
 }
