@@ -42,6 +42,7 @@ class EstadoConversacionCasosDeUso {
     if (reset) {
       estado.actualizarBloqueo(false);
       estado.reiniciarNumero();
+      estado.actualizarContexto({});
     } else {
       estado.actualizarBloqueo(bloqueado);
     }

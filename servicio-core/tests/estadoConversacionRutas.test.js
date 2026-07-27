@@ -109,7 +109,20 @@ test('POST bloqueo reset=true desbloquea y reinicia numero a 1 usando solo uuid'
 
   const app = crearAplicacion({ estadoConversacionRepositorio: repo });
 
+  // Crear estado con bloqueo=true, numero=5, y contexto con datos
   await request(app, 'POST', '/core/estado-conversacion/uuid-reset/bloqueo?bloqueado=true&jid=jid-z&sender=sender-z');
+  await request(app, 'POST', '/core/estado-conversacion/uuid-reset/contexto', {
+    jid: 'jid-z',
+    sender: 'sender-z',
+    contexto: { ultimoMensaje: 'hola', contador: 5 },
+  });
+
+  // Incrementar numero manualmente para simular múltiples lecturas
+  let estadoTemp = almacen.get('uuid-reset');
+  estadoTemp.numero = 5;
+  almacen.set('uuid-reset', estadoTemp);
+
+  // Aplicar reset
   const response = await request(app, 'POST', '/core/estado-conversacion/uuid-reset/bloqueo?reset=true');
 
   assert.equal(response.statusCode, 200);
@@ -117,6 +130,7 @@ test('POST bloqueo reset=true desbloquea y reinicia numero a 1 usando solo uuid'
   assert.equal(payload.uuid, 'uuid-reset');
   assert.equal(payload.bloqueado, false);
   assert.equal(payload.numero, 1);
+  assert.deepEqual(payload.contexto, {});
 });
 
 test('GET sin-incrementar devuelve el estado sin modificar numero', async () => {

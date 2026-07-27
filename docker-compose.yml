@@ -36,12 +36,11 @@ services:
     container_name: begabot-buffer
     ports:
       - "3001:3001"
-    env_file:
-      - ./servicio-buffer/.env
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${BUFFER_PORT:-3001}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      BUFFER_WEBHOOK_URL: https://n8n-n8n.tuxbfq.easypanel.host/webhook/8f2a37f4-ae47-496d-a1ec-9e81565fde3c
     depends_on:
       redis:
         condition: service_healthy

@@ -5,6 +5,15 @@ const rutaBuffer = require('./routes/rutaBuffer');
 const app = express();
 app.use(express.json());
 
+// Middleware para loguear POSTs al buffer
+app.post('/api/buffer', (req, res, next) => {
+  console.log('[BUFFER - POST] Solicitud recibida:');
+  console.log('[BUFFER - POST] Timestamp:', new Date().toISOString());
+  console.log('[BUFFER - POST] Body:', JSON.stringify(req.body, null, 2));
+  console.log('[BUFFER - POST] Headers:', JSON.stringify(req.headers, null, 2));
+  next();
+});
+
 /**
  * Contrato del servicio de buffer.
  *

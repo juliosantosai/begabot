@@ -20,20 +20,31 @@ async function acumularMensajeEnBuffer(remoteJid, messageBody, sender) {
   const claveLista = `begabot:msg-list:${remoteJid}`;
   const claveSender = `begabot:msg-sender:${remoteJid}`;
 
+  console.log(`\n[🔄 FLUJO BUFFER] ========== ETAPA 1: ACUMULAR ==========`);
+  console.log(`[1.1] Recibido POST para: ${remoteJid}`);
+  console.log(`[1.2] Remitente: ${sender}`);
+  console.log(`[1.3] Texto: "${messageBody}"`);
+  console.log(`[1.4] Tiempo de buffer: ${tiempoBufferMs}ms`);
+
   try {
     const textoExistente = await redis.get(claveCache);
     let nuevoTextoAcumulado;
     let esPrimero = false;
 
     if (!textoExistente) {
+      console.log(`[1.5] ✓ PRIMERA VEZ - Creando nuevo acumulador`);
       nuevoTextoAcumulado = messageBody;
       esPrimero = true;
     } else {
+      console.log(`[1.5] ✓ NO ES PRIMERA - Texto existente: "${textoExistente}"`);
       nuevoTextoAcumulado = `${textoExistente} - ${messageBody}`;
     }
+    console.log(`[1.6] Texto acumulado total: "${nuevoTextoAcumulado}"`);
 
+    console.log(`[1.7] Guardando en Redis clave: ${claveCache}`);
     await redis.set(claveCache, nuevoTextoAcumulado, 'PX', tiempoBufferMs);
     await redis.set(claveSender, sender, 'PX', tiempoBufferMs);
+    console.log(`[1.8] ✓ Guardado en Redis con TTL ${tiempoBufferMs}ms`);
     // También se añade solo el texto conversacional extraído a una lista para poder recuperarlo al expirar.
     try {
       const textoExtraido = extraerTextoDesdeCrudo(messageBody);
@@ -66,10 +77,13 @@ async function acumularMensajeEnBuffer(remoteJid, messageBody, sender) {
       temporizadoresBuffer.delete(claveLista);
     }
     const retraso = Math.max(50, tiempoBufferMs - 200);
+    console.log(`[1.9] Programando vencimiento en ${retraso}ms`);
     const temporizador = setTimeout(() => {
+      console.log(`\n[⏰ FLUJO BUFFER] ========== ETAPA 2: VENCIMIENTO ==========`);
       gestionarVencimientoBuffer(claveLista, remoteJid).catch((err) => console.error('[Redis Buffer] Error al gestionar el vencimiento del buffer:', err));
     }, retraso);
     temporizadoresBuffer.set(claveLista, temporizador);
+    console.log(`[1.10] ✓ ACUMULACIÓN COMPLETADA\n`);
 
     return {
       accumulatedText: nuevoTextoAcumulado,
@@ -130,8 +144,11 @@ function extraerTextoDesdeEstructura(parsed) {
 
 async function gestionarVencimientoBuffer(claveLista, remoteJid) {
   try {
+    console.log(`[2.1] ✓ Vencimiento disparado para: ${remoteJid}`);
     // Se lee y elimina la lista de forma atómica usando MULTI.
     const mensajes = await redis.lrange(claveLista, 0, -1);
+    console.log(`[2.2] Mensajes en lista: ${mensajes.length}`);
+    console.log(`[2.3] Contenido: ${JSON.stringify(mensajes)}`);
     await redis.del(claveLista);
     temporizadoresBuffer.delete(claveLista);
 
@@ -146,36 +163,54 @@ async function gestionarVencimientoBuffer(claveLista, remoteJid) {
       let textoExtraido = null;
       try {
         const parsed = JSON.parse(mensajeCrudo);
-        if (parsed.conversation) textoExtraido = parsed.conversation;
-        else if (parsed.text) textoExtraido = parsed.text;
-        else if (parsed.message) textoExtraido = parsed.message;
-        else if (parsed.body) textoExtraido = parsed.body;
-        else if (parsed.data) {
-          if (typeof parsed.data === 'string') textoExtraido = parsed.data;
-          else if (parsed.data.conversation) textoExtraido = parsed.data.conversation;
-          else if (parsed.data.text) textoExtraido = parsed.data.text;
-          else if (parsed.data.message) textoExtraido = parsed.data.message;
-          else if (parsed.data.body) textoExtraido = parsed.data.body;
+        
+        // Handle primitives (numbers, booleans, strings)
+        if (typeof parsed === 'string') {
+          textoExtraido = parsed;
+        } else if (typeof parsed === 'number' || typeof parsed === 'boolean') {
+          textoExtraido = String(parsed);
+        } else if (parsed && typeof parsed === 'object') {
+          // Handle objects - search for known properties
+          if (parsed.conversation) textoExtraido = parsed.conversation;
+          else if (parsed.text) textoExtraido = parsed.text;
+          else if (parsed.message) textoExtraido = parsed.message;
+          else if (parsed.body) textoExtraido = parsed.body;
+          else if (parsed.data) {
+            if (typeof parsed.data === 'string') textoExtraido = parsed.data;
+            else if (parsed.data.conversation) textoExtraido = parsed.data.conversation;
+            else if (parsed.data.text) textoExtraido = parsed.data.text;
+            else if (parsed.data.message) textoExtraido = parsed.data.message;
+            else if (parsed.data.body) textoExtraido = parsed.data.body;
+          }
         }
       } catch (e) {
         // No es JSON, se trata como texto plano.
         textoExtraido = mensajeCrudo;
       }
 
-      if (textoExtraido && typeof textoExtraido === 'string' && textoExtraido.trim().length > 0) partes.push(textoExtraido.trim());
+      if (textoExtraido && typeof textoExtraido === 'string' && textoExtraido.trim().length > 0) {
+        partes.push(textoExtraido.trim());
+      }
     }
 
     const textoFinal = partes.join(' ');
+    console.log(`[2.4] Partes extraídas: ${partes.length}`);
+    console.log(`[2.5] Texto final consolidado: "${textoFinal}"`);
+    
     if (textoFinal && textoFinal.trim().length > 0) {
+      console.log(`[2.6] ✓ Texto válido, procediendo a guardar y enviar`);
       console.log(textoFinal);
       try {
         await redis.set(`begabot:final:${remoteJid}`, textoFinal, 'PX', 40000);
+        console.log(`[2.7] ✓ Guardado en Redis como final`);
       } catch (e) {
         console.error('[Redis Buffer] No se pudo almacenar la clave de texto final:', e && e.message ? e.message : e);
       }
 
         if (urlWebhookBuffer) {
         const sender = await redis.get(`begabot:msg-sender:${remoteJid}`) || remoteJid;
+        console.log(`\n[📤 FLUJO BUFFER] ========== ETAPA 3: ENVIAR WEBHOOK ==========`);
+        console.log(`[3.1] URL destino: ${urlWebhookBuffer}`);
         await publicarResultadoBuffer(urlWebhookBuffer, {
           sender,
           remoteJid,
@@ -197,19 +232,27 @@ async function gestionarVencimientoBuffer(claveLista, remoteJid) {
 
 async function publicarResultadoBuffer(url, data) {
   try {
+    console.log(`[3.2] Preparando payload:`);
+    console.log(`[3.2.1] Remitente: ${data.sender}`);
+    console.log(`[3.2.2] Acumulado: "${data.accumulatedText}"`);
+    console.log(`[3.2.3] Timestamp: ${data.timestamp}`);
+    
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
 
+    console.log(`[3.3] Respuesta HTTP: ${response.status}`);
     if (!response.ok) {
       throw new Error(`Webhook POST falló con estado ${response.status}`);
     }
 
-    console.log('[Redis Buffer] Webhook POST exitoso:', url);
+    console.log(`[3.4] ✓ Webhook POST exitoso a: ${url}`);
+    console.log(`[✅ FLUJO COMPLETADO]\n`);
   } catch (err) {
-    console.error('[Redis Buffer] No se pudo publicar el resultado del buffer al webhook:', err && err.message ? err.message : err);
+    console.error(`[❌ ERROR EN WEBHOOK] ${err && err.message ? err.message : err}`);
+    console.error(`[ERROR COMPLETO] ${JSON.stringify(err)}`);
   }
 }
 

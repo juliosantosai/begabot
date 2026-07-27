@@ -155,7 +155,7 @@ test('actualizarBloqueoPorUuid desbloquea un estado existente sin resetear numer
 test('actualizarBloqueoPorUuid resetear estado deja numero en 1 y bloqueo false', async () => {
   const almacen = new Map();
   const uuid = 'uuid-reset';
-  const registro = new EstadoConversacion({ uuid, jid: 'jid-e', sender: 'sender-e', bloqueado: true, numero: 10 }).toPlainObject();
+  const registro = new EstadoConversacion({ uuid, jid: 'jid-e', sender: 'sender-e', bloqueado: true, numero: 10, contexto: { ultimoMensaje: 'hola' } }).toPlainObject();
   almacen.set('jid-e::sender-e', registro);
   almacen.set(uuid, 'jid-e::sender-e');
 
@@ -177,6 +177,7 @@ test('actualizarBloqueoPorUuid resetear estado deja numero en 1 y bloqueo false'
 
   assert.equal(resultado.bloqueado, false);
   assert.equal(resultado.numero, 1);
+  assert.deepEqual(resultado.contexto, {});
 });
 
 test('actualizarBloqueoPorUuid crea un nuevo estado cuando no existe y recibe fallback', async () => {

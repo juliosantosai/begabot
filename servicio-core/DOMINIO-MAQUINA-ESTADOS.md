@@ -110,7 +110,7 @@ Definir el dominio de la máquina de estados con los campos mínimos solicitados
 - Si el registro existe:
   - `bloqueado=true` lo bloquea.
   - `bloqueado=false` lo desbloquea.
-  - `reset=true` lo desbloquea y pone `numero` en `1`.
+  - `reset=true` lo desbloquea, pone `numero` en `1` y vacía `contexto` a `{}`.
 - Si el registro no existe y se proveen `jid` y `sender`, crea el registro con el `uuid` de la ruta.
 - Respuesta:
 
