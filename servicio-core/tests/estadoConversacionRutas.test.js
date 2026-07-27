@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
 const { crearAplicacion } = require('../src/interfaz/http/app');
+const EstadoConversacion = require('../src/dominio/estadoConversacion/estadoConversacion');
 
 function request(app, method, path) {
   return new Promise((resolve, reject) => {
@@ -41,7 +42,18 @@ function request(app, method, path) {
 }
 
 test('POST bloqueo true crea o bloquea el estado sin body', async () => {
-  const app = crearAplicacion({ prisma: {} });
+  const almacen = new Map();
+  const repo = {
+    obtenerPorUuid: async () => null,
+    obtenerPorJidYSender: async () => null,
+    guardar: async (estado) => {
+      const registro = estado.toPlainObject();
+      almacen.set(registro.uuid, registro);
+      return registro;
+    },
+  };
+
+  const app = crearAplicacion({ estadoConversacionRepositorio: repo });
   const response = await request(app, 'POST', '/core/estado-conversacion/uuid-bloquear/bloqueo?bloqueado=true&jid=jid-x&sender=sender-x');
 
   assert.equal(response.statusCode, 200);
@@ -54,7 +66,21 @@ test('POST bloqueo true crea o bloquea el estado sin body', async () => {
 });
 
 test('POST bloqueo false desbloquea sin reiniciar numero usando solo uuid', async () => {
-  const app = crearAplicacion({ prisma: {} });
+  const almacen = new Map();
+  const repo = {
+    obtenerPorUuid: async (uuid) => {
+      const record = almacen.get(uuid);
+      return record ? new EstadoConversacion(record) : null;
+    },
+    obtenerPorJidYSender: async () => null,
+    guardar: async (estado) => {
+      const registro = estado.toPlainObject();
+      almacen.set(registro.uuid, registro);
+      return registro;
+    },
+  };
+
+  const app = crearAplicacion({ estadoConversacionRepositorio: repo });
 
   await request(app, 'POST', '/core/estado-conversacion/uuid-unblock/bloqueo?bloqueado=true&jid=jid-y&sender=sender-y');
   const response = await request(app, 'POST', '/core/estado-conversacion/uuid-unblock/bloqueo?bloqueado=false');
@@ -67,7 +93,21 @@ test('POST bloqueo false desbloquea sin reiniciar numero usando solo uuid', asyn
 });
 
 test('POST bloqueo reset=true desbloquea y reinicia numero a 1 usando solo uuid', async () => {
-  const app = crearAplicacion({ prisma: {} });
+  const almacen = new Map();
+  const repo = {
+    obtenerPorUuid: async (uuid) => {
+      const record = almacen.get(uuid);
+      return record ? new EstadoConversacion(record) : null;
+    },
+    obtenerPorJidYSender: async () => null,
+    guardar: async (estado) => {
+      const registro = estado.toPlainObject();
+      almacen.set(registro.uuid, registro);
+      return registro;
+    },
+  };
+
+  const app = crearAplicacion({ estadoConversacionRepositorio: repo });
 
   await request(app, 'POST', '/core/estado-conversacion/uuid-reset/bloqueo?bloqueado=true&jid=jid-z&sender=sender-z');
   const response = await request(app, 'POST', '/core/estado-conversacion/uuid-reset/bloqueo?reset=true');
@@ -79,9 +119,18 @@ test('POST bloqueo reset=true desbloquea y reinicia numero a 1 usando solo uuid'
   assert.equal(payload.numero, 1);
 });
 
-
 test('GET sin-incrementar devuelve el estado sin modificar numero', async () => {
-  const app = crearAplicacion({ prisma: {} });
+  const almacen = new Map();
+  const repo = {
+    obtenerPorJidYSender: async () => null,
+    guardar: async (estado) => {
+      const registro = estado.toPlainObject();
+      almacen.set(registro.uuid, registro);
+      return registro;
+    },
+  };
+
+  const app = crearAplicacion({ estadoConversacionRepositorio: repo });
 
   await request(app, 'GET', '/core/estado-conversacion?jid=jid-a&sender=sender-a');
   const response = await request(app, 'GET', '/core/estado-conversacion/sin-incrementar?jid=jid-a&sender=sender-a');

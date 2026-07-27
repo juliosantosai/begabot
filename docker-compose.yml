@@ -57,6 +57,7 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${CORE_PORT:-3002}
       DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-begabot_user}:${POSTGRES_PASSWORD:-tu_password_seguro_aqui}@postgres:5432/${POSTGRES_DB:-begabot_saas}}
+    command: sh -c "npx prisma migrate deploy && node index.js"
     depends_on:
       postgres:
         condition: service_healthy

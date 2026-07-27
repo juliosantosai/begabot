@@ -34,3 +34,14 @@ model Prompt {
   creadoEn      DateTime @default(now())
   actualizadoEn DateTime @default(now())
 }
+
+model EstadoConversacion {
+  uuid      String   @id @default(uuid())
+  jid       String
+  sender    String
+  bloqueado Boolean  @default(false)
+  contexto  Json     @default("{}")
+  numero    Int      @default(1)
+
+  @@unique([jid, sender])
+}

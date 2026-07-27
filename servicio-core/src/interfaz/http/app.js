@@ -10,10 +10,15 @@ const ConsultarPrompt = require('../../aplicacion/casos-de-uso/consultarPrompt')
 const RegistrarInstanciaEvolutionApi = require('../../aplicacion/casos-de-uso/registrarInstanciaEvolutionApi');
 const ConsultarInstanciaEvolutionApi = require('../../aplicacion/casos-de-uso/consultarInstanciaEvolutionApi');
 const EnviarMensajeEvolutionApi = require('../../aplicacion/casos-de-uso/enviarMensajeEvolutionApi');
+const PrismaEstadoConversacionRepositorio = require('../../infraestructura/repositorios/prismaEstadoConversacionRepositorio');
 const EstadoConversacionRepositorioMemoria = require('../../infraestructura/repositorios/estadoConversacionRepositorioMemoria');
 const EstadoConversacionCasosDeUso = require('../../dominio/estadoConversacion/estadoConversacionCasosDeUso');
 
-function crearAplicacion({ prisma }) {
+function esClientePrismaValido(prisma) {
+  return prisma && typeof prisma === 'object' && typeof prisma.estadoConversacion === 'object';
+}
+
+function crearAplicacion({ prisma, estadoConversacionRepositorio }) {
   const app = express();
   app.use(express.json());
 
@@ -21,8 +26,9 @@ function crearAplicacion({ prisma }) {
   const evolutionApiRepositorio = new PrismaEvolutionApiRepositorio(prisma);
   const promptRepositorio = new PrismaPromptRepositorio(prisma);
   const httpClient = new FetchHttpClient();
-  const estadoConversacionRepositorio = new EstadoConversacionRepositorioMemoria();
-  const estadoConversacionCasosDeUso = new EstadoConversacionCasosDeUso({ estadoConversacionRepositorio });
+  const estadoRepositorio = estadoConversacionRepositorio
+    || (esClientePrismaValido(prisma) ? new PrismaEstadoConversacionRepositorio(prisma) : new EstadoConversacionRepositorioMemoria());
+  const estadoConversacionCasosDeUso = new EstadoConversacionCasosDeUso({ estadoConversacionRepositorio: estadoRepositorio });
 
   const procesarMensaje = new ProcesarMensaje({ mensajeRepositorio });
   const listarMensajesPorJid = new ListarMensajesPorJid({ mensajeRepositorio });

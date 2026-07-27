@@ -30,18 +30,35 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   const carga = req.body || {};
 
+  function normalizarString(valor) {
+    if (valor === undefined || valor === null) return undefined;
+    if (typeof valor === 'string') return valor;
+    if (typeof valor === 'number' || typeof valor === 'boolean') return String(valor);
+    if (typeof valor === 'object') {
+      try {
+        return JSON.stringify(valor);
+      } catch (e) {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+
   function extraerCargaUtil(c) {
     if (!c) return { remoteJid: undefined, messageBody: undefined, sender: undefined };
 
-    const sender = c.sender || (c.body && c.body.sender) || undefined;
-    const remoteJid = c.jid || c.remoteJid || (c.body && c.body.remoteJid) || undefined;
-    let messageBody = c.text || c.messageBody || undefined;
+    const sender = normalizarString(c.sender || (c.body && c.body.sender));
+    const remoteJid = normalizarString(c.jid || c.remoteJid || (c.body && c.body.remoteJid));
+    let messageBody = normalizarString(c.text || c.messageBody);
 
     if (!messageBody && c.body) {
-      if (typeof c.body === 'string') {
-        messageBody = c.body;
+      if (typeof c.body === 'string' || typeof c.body === 'number' || typeof c.body === 'boolean') {
+        messageBody = normalizarString(c.body);
       } else {
-        messageBody = c.body.conversation || c.body.text || c.body.message || c.body.body || undefined;
+        messageBody = normalizarString(c.body.conversation)
+          || normalizarString(c.body.text)
+          || normalizarString(c.body.message)
+          || normalizarString(c.body.body);
       }
     }
 

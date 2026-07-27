@@ -7,6 +7,12 @@ Lista de variables importantes (añadir a un `.env` local y nunca comitear):
 - `DATABASE_URL` — URL de conexión PostgreSQL (servicio-core)
 - `REDIS_URL` — URL de Redis
 - `GEMINI_API_KEY` — API key de Google GenAI (servicio-agente-ia)
+
+### Comandos de prueba de servicio-core
+
+- `cd servicio-core && npm run test:integration` — ejecuta pruebas de integración contra PostgreSQL real.
+- `cd servicio-core && npm run prisma:migrate` — crea/aplica migraciones de Prisma.
+- `cd servicio-core && npm run prisma:migrate:reset` — reinicia la base de datos de desarrollo y aplica migraciones.
 - `N8N_WEBHOOK_URL` — URL pública del webhook de n8n
 - `N8N_TOKEN` — token compartido para validar requests desde n8n
 - `EVOLUTION_API_KEY` — token para Evolution API (gateway/dispatcher)

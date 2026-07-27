@@ -1,5 +1,9 @@
 class EstadoConversacionRepositorio {
-  async obtenerPorJid(jid) {
+  async obtenerPorJidYSender(jid, sender) {
+    throw new Error('Método no implementado');
+  }
+
+  async obtenerPorUuid(uuid) {
     throw new Error('Método no implementado');
   }
 
