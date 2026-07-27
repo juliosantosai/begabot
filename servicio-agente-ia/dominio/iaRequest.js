@@ -1,3 +1,17 @@
+function normalizarString(valor) {
+  if (valor === undefined || valor === null) return '';
+  if (typeof valor === 'string') return valor;
+  if (typeof valor === 'number' || typeof valor === 'boolean') return String(valor);
+  if (typeof valor === 'object') {
+    try {
+      return JSON.stringify(valor);
+    } catch (e) {
+      return '';
+    }
+  }
+  return '';
+}
+
 class IaRequest {
   constructor({
     systemPrompt,
@@ -10,9 +24,9 @@ class IaRequest {
     aiModel,
     temperature,
   }) {
-    this.systemPrompt = systemPrompt || '';
-    this.userText = userConcatenatedMessage || basePrompt || promptBase || userMessage || '';
-    this.userContext = userContext || context || '';
+    this.systemPrompt = normalizarString(systemPrompt || '');
+    this.userText = normalizarString(userConcatenatedMessage || basePrompt || promptBase || userMessage || '');
+    this.userContext = normalizarString(userContext || context || '');
     this.aiModel = aiModel;
     this.temperature = temperature;
 
@@ -20,11 +34,11 @@ class IaRequest {
   }
 
   validate() {
-    if (!this.systemPrompt || typeof this.systemPrompt !== 'string') {
+    if (!this.systemPrompt) {
       throw new Error('systemPrompt es obligatorio y debe ser un string');
     }
 
-    if (!this.userText || typeof this.userText !== 'string') {
+    if (!this.userText) {
       throw new Error('userConcatenatedMessage o su alias es obligatorio y debe ser un string');
     }
   }

@@ -63,4 +63,28 @@ describe('Unit tests for ai-gemini-agent', () => {
       })
     );
   });
+
+  test('convierte números a strings en el endpoint generate-response', async () => {
+    aiGenaiMock.models.generateContent.mockResolvedValue({ text: 'Respuesta numérica' });
+    axios.post.mockResolvedValue({ status: 200 });
+
+    const response = await request(app)
+      .post('/api/ai/generate-response')
+      .send({
+        systemPrompt: 12345,
+        userConcatenatedMessage: 67890,
+        userContext: 100,
+        aiModel: 'models/gemini-3.1-flash-lite'
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.output.response).toBe('Respuesta numérica');
+    expect(axios.post).toHaveBeenCalledWith(
+      expect.stringContaining('/api/log-interaction'),
+      expect.objectContaining({
+        aiResponse: 'Respuesta numérica',
+        userQuery: expect.stringContaining('100')
+      })
+    );
+  });
 });
