@@ -40,17 +40,16 @@ describe('Unit tests for ai-gemini-agent', () => {
     expect(response.body.output).toMatchObject({ response: 'Hola de prueba' });
   });
 
-  test('calls logging endpoint when generate-response succeeds', async () => {
+  test('calls logging endpoint when generate-response succeeds with userContext', async () => {
     aiGenaiMock.models.generateContent.mockResolvedValue({ text: 'Respuesta' });
     axios.post.mockResolvedValue({ status: 200 });
 
     const response = await request(app)
       .post('/api/ai/generate-response')
       .send({
-        sender: 'user1',
-        remoteJid: 'whatsapp:1234',
         systemPrompt: 'Eres un asistente amigable.',
         userConcatenatedMessage: 'Hola',
+        userContext: 'El usuario es premium y quiere respuestas breves.',
         aiModel: 'models/gemini-3.1-flash-lite'
       });
 
@@ -59,9 +58,8 @@ describe('Unit tests for ai-gemini-agent', () => {
     expect(axios.post).toHaveBeenCalledWith(
       expect.stringContaining('/api/log-interaction'),
       expect.objectContaining({
-        sender: 'user1',
-        remoteJid: 'whatsapp:1234',
-        aiResponse: 'Respuesta'
+        aiResponse: 'Respuesta',
+        userQuery: expect.stringContaining('El usuario es premium y quiere respuestas breves.')
       })
     );
   });

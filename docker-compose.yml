@@ -72,7 +72,7 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: ${AI_PORT:-3003}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-demo-key}
+     
     depends_on:
       redis:
         condition: service_healthy

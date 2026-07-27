@@ -31,48 +31,35 @@ router.post('/', async (req, res) => {
   const carga = req.body || {};
 
   function extraerCargaUtil(c) {
-    if (!c) return { remoteJid: undefined, messageBody: undefined };
+    if (!c) return { remoteJid: undefined, messageBody: undefined, sender: undefined };
 
-    if (c.jid || c.text) {
-      return {
-        remoteJid: c.jid || c.remoteJid,
-        messageBody: c.text || c.messageBody || c.body
-      };
+    const sender = c.sender || (c.body && c.body.sender) || undefined;
+    const remoteJid = c.jid || c.remoteJid || (c.body && c.body.remoteJid) || undefined;
+    let messageBody = c.text || c.messageBody || undefined;
+
+    if (!messageBody && c.body) {
+      if (typeof c.body === 'string') {
+        messageBody = c.body;
+      } else {
+        messageBody = c.body.conversation || c.body.text || c.body.message || c.body.body || undefined;
+      }
     }
 
-    if (c.remoteJid || c.messageBody) {
-      return { remoteJid: c.remoteJid, messageBody: c.messageBody || c.body };
-    }
-
-    const interno = c.body || c;
-    const remoteJid = (interno.data && interno.data.key && interno.data.key.remoteJid) || interno.instance || interno.remoteJid || (interno.data && interno.data.instance);
-
-    let messageBody;
-    if (interno.data) {
-      if (interno.data.conversation) messageBody = interno.data.conversation;
-      else if (interno.data.key && interno.data.key.texto) messageBody = interno.data.key.texto;
-      else if (interno.data.message) messageBody = interno.data.message;
-      else if (interno.data.body) messageBody = interno.data.body;
-      else if (interno.data.key && interno.data.key.remoteJid) messageBody = JSON.stringify(interno.data.key);
-      else messageBody = JSON.stringify(interno.data);
-    } else {
-      messageBody = interno.messageBody || interno.body || interno.text || undefined;
-    }
-
-    return { remoteJid, messageBody };
+    return { remoteJid, messageBody, sender };
   }
 
-  const { remoteJid, messageBody } = extraerCargaUtil(carga);
+  const { remoteJid, messageBody, sender } = extraerCargaUtil(carga);
 
-  if (!remoteJid || !messageBody) {
+  if (!remoteJid || !messageBody || !sender) {
     return res.status(400).json({
-      error: 'Se requieren jid y text en el cuerpo'
+      error: 'Se requieren jid, text y sender en el cuerpo'
     });
   }
 
-  const resultadoBuffer = await acumularMensajeEnBuffer(remoteJid, messageBody);
+  const resultadoBuffer = await acumularMensajeEnBuffer(remoteJid, messageBody, sender);
 
   return res.status(200).json({
+    sender,
     remoteJid,
     accumulatedText: resultadoBuffer.accumulatedText,
     windowMs: resultadoBuffer.bufferTimeMs,

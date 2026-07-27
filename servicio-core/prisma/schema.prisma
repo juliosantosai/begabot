@@ -26,3 +26,11 @@ model EvolutionApiConfig {
   negocioNombre String?
   activo        Boolean @default(true)
 }
+
+model Prompt {
+  id            String   @id @default(uuid())
+  sender        String   @unique
+  prompt        String   @db.Text
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @default(now())
+}

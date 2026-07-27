@@ -28,14 +28,13 @@ describe('Integration tests for ai-gemini-agent', () => {
       .send({
         basePrompt: 'Resume esta idea en una frase.',
         systemPrompt: 'Eres un asistente conciso.',
-        sender: 'demo',
-        remoteJid: 'demo'
+        model: 'models/gemini-3.1-flash-lite'
       });
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('status', 'success');
     expect(response.body.output.response).toBe('Respuesta de integración');
-    expect(response.body.output.destination).toEqual({ sender: 'demo', remoteJid: 'demo' });
+    expect(response.body.output).not.toHaveProperty('destination');
   });
 
   test('POST /api/ai/generate-response includes metrics and calls logging service', async () => {
@@ -45,8 +44,6 @@ describe('Integration tests for ai-gemini-agent', () => {
     const response = await request(app)
       .post('/api/ai/generate-response')
       .send({
-        sender: 'user2',
-        remoteJid: 'whatsapp:5678',
         systemPrompt: 'Eres preciso.',
         userConcatenatedMessage: 'Hola de integración',
         aiModel: 'models/gemini-3.1-flash-lite'

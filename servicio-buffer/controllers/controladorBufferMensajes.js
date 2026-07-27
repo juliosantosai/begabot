@@ -14,10 +14,11 @@ redis.on('error', (err) => {
   console.error('[Redis Buffer] Error de conexión:', err.message);
 });
 
-async function acumularMensajeEnBuffer(remoteJid, messageBody) {
+async function acumularMensajeEnBuffer(remoteJid, messageBody, sender) {
   const tiempoBufferMs = parseInt(process.env.MESSAGE_BUFFER_MS || '5000', 10);
   const claveCache = `begabot:msg-buffer:${remoteJid}`;
   const claveLista = `begabot:msg-list:${remoteJid}`;
+  const claveSender = `begabot:msg-sender:${remoteJid}`;
 
   try {
     const textoExistente = await redis.get(claveCache);
@@ -32,6 +33,7 @@ async function acumularMensajeEnBuffer(remoteJid, messageBody) {
     }
 
     await redis.set(claveCache, nuevoTextoAcumulado, 'PX', tiempoBufferMs);
+    await redis.set(claveSender, sender, 'PX', tiempoBufferMs);
     // También se añade solo el texto conversacional extraído a una lista para poder recuperarlo al expirar.
     try {
       const textoExtraido = extraerTextoDesdeCrudo(messageBody);
@@ -155,13 +157,15 @@ async function gestionarVencimientoBuffer(claveLista, remoteJid) {
     if (textoFinal && textoFinal.trim().length > 0) {
       console.log(textoFinal);
       try {
-        await redis.set(`begabot:final:${remoteJid}`, textoFinal, 'PX', 60000);
+        await redis.set(`begabot:final:${remoteJid}`, textoFinal, 'PX', 40000);
       } catch (e) {
         console.error('[Redis Buffer] No se pudo almacenar la clave de texto final:', e && e.message ? e.message : e);
       }
 
-      if (urlWebhookBuffer) {
+        if (urlWebhookBuffer) {
+        const sender = await redis.get(`begabot:msg-sender:${remoteJid}`) || remoteJid;
         await publicarResultadoBuffer(urlWebhookBuffer, {
+          sender,
           remoteJid,
           accumulatedText: textoFinal,
           timestamp: new Date().toISOString(),

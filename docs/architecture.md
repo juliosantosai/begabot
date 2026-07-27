@@ -4,67 +4,75 @@ Resumen de alto nivel:
 
 - La aplicación está compuesta por varios microservicios en Node.js y algunos paquetes compartidos.
 - Orquestación principal con `docker-compose` desde la raíz del repositorio.
+- Redis se usa como almacén de estado temporal para buffer de mensajes.
+- PostgreSQL es la base de datos relacional principal para `servicio-core`.
 
 Servicios principales:
 
-- `servicio-agente-ia`: agente que integra modelos de IA para tareas conversacionales.
-- `servicio-buffer`: gestiona el buffer de mensajes y la agregación para Redis.
-- `servicio-core`: lógica central del dominio y orquestación entre servicios.
+- `servicio-buffer`: gestiona el buffer de mensajes, agregación de texto y expiración temporal con Redis.
+- `servicio-core`: lógica central del dominio, persistencia en PostgreSQL mediante Prisma y orquestación entre servicios.
+- `servicio-agente-ia`: agente que integra modelos de IA para tareas conversacionales y respuestas contextuales.
 - `packages/shared-contracts`: utilidades y contratos compartidos entre servicios.
 
 Flujo básico:
 
-1. Mensajes entrantes se envían a `servicio-buffer` para agregación/persistencia temporal.
-2. `servicio-core` aplica reglas de negocio y puede invocar `servicio-agente-ia` para análisis/decisión.
-4. `servicio-agente-ia` procesa consultas de IA y devuelve respuestas/actions.
+1. Los mensajes entrantes llegan a `servicio-buffer` para agregación y almacenamiento temporal.
+2. `servicio-buffer` mantiene el texto acumulado en Redis y construye una lista de mensajes por `remoteJid`.
+3. Tras el vencimiento del buffer, `servicio-buffer` extrae el texto final y puede publicar el resultado mediante webhook.
+4. `servicio-core` consume la información de negocio y coordina acciones entre servicios.
+5. `servicio-agente-ia` procesa solicitudes de IA y obtiene respuestas para el flujo conversacional.
+
+Rol de `servicio-buffer` en la arquitectura:
+
+- API principal: `POST /api/buffer`
+- Normaliza múltiples formatos de entrada y extrae `remoteJid` + `messageBody`.
+- Genera y mantiene claves Redis:
+  - `begabot:msg-buffer:<remoteJid>`: texto acumulado con TTL.
+  - `begabot:msg-list:<remoteJid>`: lista de elementos de texto extraído.
+  - `begabot:final:<remoteJid>`: resultado final del buffer tras expiración.
+- Controla el tiempo de expiración con `MESSAGE_BUFFER_MS` (por defecto 5000 ms).
+- Si está configurado, notifica el resultado final con un `POST` a `BUFFER_WEBHOOK_URL`.
 
 Diagrama simple (Mermaid):
 
 ```mermaid
 graph LR
-  GW[Gateway Service] --> MEDIA[Media Switcher Service]
-  MEDIA --> BUF[Buffer Service]
-  GW --> BUF[Buffer Service]
+  GW[Gateway / API Entry] --> BUF[Buffer Service]
+  BUF --> REDIS[Redis]
+  BUF -->|final text webhook| WEBHOOK[Webhook Receiver / n8n]
   BUF --> CORE[Core Service]
   CORE --> AI[AI Agent Service]
-  CORE -->|contracts| SHARED[Shared Contracts]
-  SCHED[Scheduler Service] --> CORE
-  CORE --> DISPATCH[Dispatcher Service]
-  DISPATCH -->|outbound| EV[External Evolution API]
+  CORE --> SHARED[Shared Contracts]
+  CORE --> DISPATCH[Dispatcher / Evolution API]
+  DISPATCH --> EV[External Evolution API]
 ```
 
-Dónde buscar código relevante:
+Detalles de ejecución:
 
-- [servicio-agente-ia](servicio-agente-ia)
-- [servicio-buffer](servicio-buffer)
-- [servicio-core](servicio-core)
-- [packages/shared-contracts](packages/shared-contracts)
+- Levantar todo el stack: `docker-compose up -d` desde la raíz.
+- Para desarrollo del buffer: `cd servicio-buffer && npm install && npm start`.
+- El servicio expone salud en `GET /` y `GET /health`.
 
-Consejos para ejecutar localmente:
+Variables de entorno relevantes para `servicio-buffer`:
 
-- Para levantar toda la pila: `docker-compose up -d` (desde la raíz).
-- Para desarrollo de un servicio: entrar al directorio del servicio, `npm install` y `npm start` o `node server.js`.
-
-Notas:
-
-- Esta es una descripción inicial; los detalles por servicio están en `docs/modules/`.
+- `PORT` — puerto HTTP del servicio.
+- `REDIS_URL` — conexión a Redis.
+- `BUFFER_WEBHOOK_URL` / `BUFFER_DESTINATION_URL` — URL de notificación final.
+- `MESSAGE_BUFFER_MS` — duracion del buffer en ms.
 
 Puertos asignados (entorno de desarrollo):
 
 | Puerto | Servicio | Descripción |
 |---:|---|---|
-| 3001 | `servicio-buffer` | Control de estado y búfer temporal de mensajes en Redis |
-| 3002 | `servicio-core` | Núcleo de Prisma ORM, PostgreSQL y Máquina de Estados |
-| 3003 | `servicio-agente-ia` | Integración con Gemini / motor de IA |
-| 5432 | `postgres` | Puerto nativo de PostgreSQL |
-| 6379 | `redis` | Puerto nativo de Redis |
+| 3001 | `servicio-buffer` | Buffer temporal de mensajes y agregación en Redis |
+| 3002 | `servicio-core` | Lógica central y persistencia en PostgreSQL |
+| 3003 | `servicio-agente-ia` | Motor de inteligencia artificial |
+| 5432 | `postgres` | PostgreSQL nativo |
+| 6379 | `redis` | Redis nativo |
 
-Integración con n8n:
+Notas:
 
-- Configure en las variables de entorno de los servicios:
-  - `N8N_WEBHOOK_URL` — URL del webhook de n8n que recibirá eventos (p. ej. https://tu-n8n/webhook/begabot-router)
-  - `N8N_TOKEN` — token compartido que se envía en header `X-N8N-Token` para validar requests desde n8n
-
-Uso recomendado:
-- Los servicios pueden reenviar eventos a n8n vía `POST /n8n/forward` o llamar directamente a `N8N_WEBHOOK_URL`.
+- `servicio-buffer` pretende desacoplar la llegada de eventos de WhatsApp del procesamiento posterior, reduciendo la carga en los servicios de negocio.
+- La expiración del buffer se maneja con temporizadores en memoria junto con TTL en Redis.
+- Si Redis no está disponible, el servicio puede degradar su comportamiento, pero el texto original se devuelve en modo "fail-open".
 
