@@ -134,8 +134,8 @@ curl -X POST http://localhost:3003/api/ai/generate-response \
 
 - `docs/ENVIRONMENT.md` — variables de entorno y configuración
 - `docs/DEPLOYMENT.md` — despliegue y producción
-- `docs/ARQUITECTURA.md` — visión técnica detallada
-- `docs/n8n-integration.md` — integración con n8n
+- `docs/architecture.md` — visión técnica detallada
+- `docs/n8n-integration.md` — integración con n8n (incluye la ubicación del workflow: `n8n/workflows/begabot-orchestrator.json`)
 
 ## Contribuir
 

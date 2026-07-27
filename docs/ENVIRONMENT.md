@@ -28,4 +28,7 @@ REDIS_URL=redis://redis:6379
 GEMINI_API_KEY=changeme
 N8N_WEBHOOK_URL=https://tu-n8n.example/webhook/begabot-router
 N8N_TOKEN=supersecrettoken
+
+# Nota: el JSON del workflow de orquestación se mantiene en el repositorio en `n8n/workflows/begabot-orchestrator.json`.
+# Para despliegues locales con `docker-compose` monta `./n8n/workflows` en el contenedor de n8n y habilita import automático.
 ```

@@ -24,3 +24,32 @@ Este documento muestra ejemplos rápidos de cómo orquestar BegaBot desde n8n ut
 3) Autenticación
 
 - Añadir header `X-N8N-Token: <N8N_TOKEN>` en los nodos `HTTP Request` que llaman a los servicios para pasar la validación.
+
+4) Ubicación del workflow de orquestación
+
+- Archivo en este repositorio: `n8n/workflows/begabot-orchestrator.json`.
+- Este workflow contiene la orquestación principal que recibe webhooks del buffer y coordina llamadas a `servicio-core` y `servicio-agente-ia`.
+
+5) Importar el workflow en n8n
+
+- Importación manual (UI): En la interfaz de n8n -> Workflows -> Import -> subir `n8n/workflows/begabot-orchestrator.json` o pegar el JSON.
+- Importación automática en contenedor (opcional): monta `./n8n/workflows` en `/data/workflows` y ejecuta la importación al arrancar:
+
+```yaml
+# fragmento para docker-compose (servicio n8n)
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    volumes:
+      - ./n8n/workflows:/data/workflows
+    command: /bin/sh -c "n8n import:workflow --input=/data/workflows/begabot-orchestrator.json || true && n8n start"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=changeme
+```
+
+6) Notas de seguridad
+
+- Protege la UI de n8n con autenticación y no expongas el endpoint de importación públicamente.
+- Mantén `N8N_TOKEN` en el `.env` y úsalo en los headers `X-N8N-Token`.

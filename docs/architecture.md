@@ -22,6 +22,11 @@ Flujo básico:
 4. `servicio-core` consume la información de negocio y coordina acciones entre servicios.
 5. `servicio-agente-ia` procesa solicitudes de IA y obtiene respuestas para el flujo conversacional.
 
+Orquestación con n8n:
+
+- La orquestación de webhook y coordinación entre `servicio-buffer`, `servicio-core` y `servicio-agente-ia` puede realizarse mediante un workflow de n8n incluido en este repositorio: `n8n/workflows/begabot-orchestrator.json`.
+- Ese workflow actúa como receptor de webhooks desde el buffer y realiza llamadas HTTP a los servicios de backend, además de gestionar bloqueos, resets y envíos a la API de Evolution cuando corresponda.
+
 Rol de `servicio-buffer` en la arquitectura:
 
 - API principal: `POST /api/buffer`
