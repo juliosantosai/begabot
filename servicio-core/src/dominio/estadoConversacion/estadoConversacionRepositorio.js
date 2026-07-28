@@ -10,6 +10,10 @@ class EstadoConversacionRepositorio {
   async guardar(estadoConversacion) {
     throw new Error('Método no implementado');
   }
+
+  async listarTodos() {
+    throw new Error('Método no implementado');
+  }
 }
 
 module.exports = EstadoConversacionRepositorio;

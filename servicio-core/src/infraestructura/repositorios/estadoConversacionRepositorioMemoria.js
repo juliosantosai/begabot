@@ -31,6 +31,10 @@ class EstadoConversacionRepositorioMemoria {
     this.uuidIndex.set(estadoConversacion.uuid, clave);
     return registro;
   }
+
+  async listarTodos() {
+    return Array.from(this.store.values()).map((registro) => new EstadoConversacion(registro));
+  }
 }
 
 module.exports = EstadoConversacionRepositorioMemoria;

@@ -45,3 +45,30 @@ model EstadoConversacion {
 
   @@unique([jid, sender])
 }
+
+model Task {
+  id                    String   @id @default(uuid())
+  estadoConversacionUuid String?
+  sender                String?
+  jid                   String?
+  texto                 String   @db.Text
+  fechaEjecucion        DateTime
+  estado                String   @default("pendiente")
+  creadoEn              DateTime @default(now())
+  actualizadoEn         DateTime @default(now())
+  eliminado             Boolean  @default(false)
+  deletedAt             DateTime?
+  payload               Json?
+}
+
+model TaskLog {
+  id            String   @id @default(uuid())
+  tareaId       String
+  sender        String
+  jid           String
+  texto         String   @db.Text
+  fechaEjecucion DateTime
+  fechaRegistro DateTime @default(now())
+  estadoFinal   String
+  observacion   String?
+}

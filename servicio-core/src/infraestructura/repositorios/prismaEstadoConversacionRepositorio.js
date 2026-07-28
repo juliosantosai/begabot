@@ -66,6 +66,18 @@ class PrismaEstadoConversacionRepositorio extends EstadoConversacionRepositorio 
       },
     });
   }
+
+  async listarTodos() {
+    const registros = await this.prisma.estadoConversacion.findMany();
+    return registros.map((registro) => new EstadoConversacion({
+      uuid: registro.uuid,
+      jid: registro.jid,
+      sender: registro.sender,
+      bloqueado: registro.bloqueado,
+      contexto: registro.contexto,
+      numero: registro.numero,
+    }));
+  }
 }
 
 module.exports = PrismaEstadoConversacionRepositorio;

@@ -6,6 +6,10 @@ class EvolutionApiRepositorio {
   async buscarPorSender(_sender) {
     throw new Error('Debe implementar buscarPorSender().');
   }
+
+  async listarTodos() {
+    throw new Error('Debe implementar listarTodos().');
+  }
 }
 
 module.exports = EvolutionApiRepositorio;

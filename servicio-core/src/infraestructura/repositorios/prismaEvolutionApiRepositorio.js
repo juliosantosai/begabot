@@ -43,6 +43,10 @@ class PrismaEvolutionApiRepositorio extends EvolutionApiRepositorio {
       where: { sender },
     });
   }
+
+  async listarTodos() {
+    return this.prisma.evolutionApiConfig.findMany();
+  }
 }
 
 module.exports = PrismaEvolutionApiRepositorio;

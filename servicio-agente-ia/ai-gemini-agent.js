@@ -34,6 +34,18 @@ function crearErrorDeIa(error, defaultMessage) {
   };
 }
 
+function intentarParsearJson(texto) {
+  if (typeof texto !== 'string') return null;
+  const limpio = String(texto).trim();
+  if (!limpio || (!limpio.startsWith('{') && !limpio.startsWith('['))) return null;
+
+  try {
+    return JSON.parse(limpio.replace(/(\r|\n)+/g, ' ').trim());
+  } catch (_error) {
+    return null;
+  }
+}
+
 /**
  * Contrato del servicio de agente de IA.
  *
@@ -120,6 +132,7 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
     const latenciaMs = tiempoFin - tiempoInicio;
 
     const textoRespuestaIa = respuestaIa.text;
+    const respuestaJsonParseada = intentarParsearJson(textoRespuestaIa);
 
     const usoTokens = respuestaIa.usageMetadata || {
       promptTokenCount: 0,
@@ -133,10 +146,16 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
       console.error('Error al reportar auditoría al Core de PostgreSQL:', logError.message);
     }
 
-    return res.status(200).json({
+    const respuestaNormalizada = {
       status: 'success',
+      mensaje_whatsapp: respuestaJsonParseada?.mensaje_whatsapp || null,
+      mensaje_calentamiento: respuestaJsonParseada?.mensaje_calentamiento || null,
+      nuevo_contexto: respuestaJsonParseada?.nuevo_contexto || null,
+      usuario_intencion: respuestaJsonParseada?.usuario_intencion || null,
+      tarea: respuestaJsonParseada?.tarea || null,
       output: {
         response: textoRespuestaIa,
+        parsedResponse: respuestaJsonParseada,
         metrics: {
           latenciaMs,
           tokens: {
@@ -145,8 +164,21 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
             total: usoTokens.totalTokenCount
           }
         }
+      },
+      response: textoRespuestaIa,
+      responseText: textoRespuestaIa,
+      parsedResponse: respuestaJsonParseada,
+      metrics: {
+        latenciaMs,
+        tokens: {
+          prompt: usoTokens.promptTokenCount,
+          completion: usoTokens.candidatesTokenCount,
+          total: usoTokens.totalTokenCount
+        }
       }
-    });
+    };
+
+    return res.status(200).json(respuestaNormalizada);
   } catch (error) {
     console.error('Error crítico en el servicio de Gemini Flash 2.5:', error);
     const err = crearErrorDeIa(error, 'Error interno procesando la inteligencia artificial');
@@ -178,13 +210,26 @@ aplicacion.post('/api/ai/generate-from-prompts', async (req, res) => {
       }
     });
 
-    return res.status(200).json({
+    const respuestaJsonParseada = intentarParsearJson(respuestaIa.text);
+    const respuestaNormalizada = {
       status: 'success',
+      mensaje_whatsapp: respuestaJsonParseada?.mensaje_whatsapp || null,
+      mensaje_calentamiento: respuestaJsonParseada?.mensaje_calentamiento || null,
+      nuevo_contexto: respuestaJsonParseada?.nuevo_contexto || null,
+      usuario_intencion: respuestaJsonParseada?.usuario_intencion || null,
+      tarea: respuestaJsonParseada?.tarea || null,
       output: {
         response: respuestaIa.text,
+        parsedResponse: respuestaJsonParseada,
         model: model || 'models/gemini-3.1-flash-lite'
-      }
-    });
+      },
+      response: respuestaIa.text,
+      responseText: respuestaIa.text,
+      parsedResponse: respuestaJsonParseada,
+      model: model || 'models/gemini-3.1-flash-lite'
+    };
+
+    return res.status(200).json(respuestaNormalizada);
   } catch (error) {
     console.error('Error en el endpoint de prompts:', error);
     const err = crearErrorDeIa(error, 'No se pudo generar la respuesta con los prompts proporcionados');
@@ -216,14 +261,27 @@ aplicacion.post('/run', async (req, res) => {
 
     const textoRespuestaIa = respuestaIa.text;
 
-    return res.status(200).json({
+    const respuestaJsonParseada = intentarParsearJson(textoRespuestaIa);
+    const respuestaNormalizada = {
       status: 'success',
       tenantId,
+      mensaje_whatsapp: respuestaJsonParseada?.mensaje_whatsapp || null,
+      mensaje_calentamiento: respuestaJsonParseada?.mensaje_calentamiento || null,
+      nuevo_contexto: respuestaJsonParseada?.nuevo_contexto || null,
+      usuario_intencion: respuestaJsonParseada?.usuario_intencion || null,
+      tarea: respuestaJsonParseada?.tarea || null,
       output: {
         response: textoRespuestaIa,
+        parsedResponse: respuestaJsonParseada,
         metrics: { latenciaMs }
-      }
-    });
+      },
+      response: textoRespuestaIa,
+      responseText: textoRespuestaIa,
+      parsedResponse: respuestaJsonParseada,
+      metrics: { latenciaMs }
+    };
+
+    return res.status(200).json(respuestaNormalizada);
   } catch (error) {
     console.error('Error en /run:', error);
     return res.status(500).json({ error: 'Error interno en AI service' });

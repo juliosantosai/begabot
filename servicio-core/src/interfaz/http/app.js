@@ -13,17 +13,22 @@ const EnviarMensajeEvolutionApi = require('../../aplicacion/casos-de-uso/enviarM
 const PrismaEstadoConversacionRepositorio = require('../../infraestructura/repositorios/prismaEstadoConversacionRepositorio');
 const EstadoConversacionRepositorioMemoria = require('../../infraestructura/repositorios/estadoConversacionRepositorioMemoria');
 const EstadoConversacionCasosDeUso = require('../../dominio/estadoConversacion/estadoConversacionCasosDeUso');
+const PrismaTareaRepositorio = require('../../infraestructura/repositorios/prismaTareaRepositorio');
+const CrearTarea = require('../../aplicacion/casos-de-uso/crearTarea');
+const ConsumirTarea = require('../../aplicacion/casos-de-uso/consumirTarea');
 
 function esClientePrismaValido(prisma) {
-  return prisma && typeof prisma === 'object' && typeof prisma.estadoConversacion === 'object';
+  return prisma && typeof prisma === 'object' && (
+    typeof prisma.estadoConversacion === 'object' || typeof prisma.task === 'object'
+  );
 }
 
-function crearAplicacion({ prisma, estadoConversacionRepositorio }) {
+function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRepositorio }) {
   const app = express();
   app.use(express.json());
 
   const mensajeRepositorio = new PrismaMensajeRepositorio(prisma);
-  const evolutionApiRepositorio = new PrismaEvolutionApiRepositorio(prisma);
+  const evolutionApiRepositorioInstance = evolutionApiRepositorio || new PrismaEvolutionApiRepositorio(prisma);
   const promptRepositorio = new PrismaPromptRepositorio(prisma);
   const httpClient = new FetchHttpClient();
   const estadoRepositorio = estadoConversacionRepositorio
@@ -34,9 +39,13 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio }) {
   const listarMensajesPorJid = new ListarMensajesPorJid({ mensajeRepositorio });
   const registrarPrompt = new RegistrarPrompt({ promptRepositorio });
   const consultarPrompt = new ConsultarPrompt({ promptRepositorio });
-  const registrarInstanciaEvolutionApi = new RegistrarInstanciaEvolutionApi({ instanciaRepositorio: evolutionApiRepositorio });
-  const consultarInstanciaEvolutionApi = new ConsultarInstanciaEvolutionApi({ instanciaRepositorio: evolutionApiRepositorio });
-  const enviarMensajeEvolutionApi = new EnviarMensajeEvolutionApi({ evolutionApiRepositorio, httpClient });
+  const registrarInstanciaEvolutionApi = new RegistrarInstanciaEvolutionApi({ instanciaRepositorio: evolutionApiRepositorioInstance });
+  const consultarInstanciaEvolutionApi = new ConsultarInstanciaEvolutionApi({ instanciaRepositorio: evolutionApiRepositorioInstance });
+  const enviarMensajeEvolutionApi = new EnviarMensajeEvolutionApi({ evolutionApiRepositorio: evolutionApiRepositorioInstance, httpClient });
+  const tareaRepositorio = esClientePrismaValido(prisma) ? new PrismaTareaRepositorio(prisma) : null;
+  const crearTarea = new CrearTarea({ tareaRepositorio });
+  const consumirTarea = new ConsumirTarea({ tareaRepositorio });
+  const consumirProximaTarea = new (require('../../aplicacion/casos-de-uso/consumirProximaTarea'))({ tareaRepositorio });
 
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'servicio-core healthy' });
@@ -73,6 +82,31 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio }) {
     try {
       const resultado = await consultarInstanciaEvolutionApi.ejecutar(req.params.sender);
       res.status(200).json({ data: resultado });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get('/core/evolution-api/configuraciones', async (_req, res) => {
+    try {
+      const instancias = await evolutionApiRepositorioInstance.listarTodos();
+      const data = instancias.map((entidad) => ({
+        ...entidad,
+        configuracionHttp: {
+          method: 'POST',
+          url: `${entidad.serverUrl.replace(/\/$/, '')}/message/sendText/${entidad.instancia}`,
+          headers: {
+            apikey: entidad.apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: {
+            number: entidad.sender,
+            text: '',
+            delay: 1000,
+          },
+        },
+      }));
+      res.status(200).json({ data });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -132,6 +166,15 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio }) {
     }
   });
 
+  app.get('/core/estado-conversacion/todos', async (_req, res) => {
+    try {
+      const estados = await estadoRepositorio.listarTodos();
+      return res.status(200).json({ data: estados.map((estado) => estado.toPlainObject ? estado.toPlainObject() : estado) });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post('/core/estado-conversacion/:uuid/bloqueo', async (req, res) => {
     try {
       const { uuid } = req.params;
@@ -175,6 +218,49 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio }) {
       return res.status(200).json(estado);
     } catch (error) {
       return res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/core/tareas', async (req, res) => {
+    try {
+      const { texto, fechaEjecucion, estadoConversacionUuid } = req.body;
+      if (!tareaRepositorio) return res.status(500).json({ error: 'Repositorio de tareas no disponible' });
+      const resultado = await crearTarea.ejecutar({ texto, fechaEjecucion, estadoConversacionUuid });
+      res.status(201).json({ data: resultado });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Consume next pending task automatically
+  app.post('/core/tareas/consumir', async (_req, res) => {
+    try {
+      if (!tareaRepositorio) return res.status(500).json({ error: 'Repositorio de tareas no disponible' });
+      const resultado = await consumirProximaTarea.ejecutar();
+      res.status(200).json({ data: resultado });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get('/core/tareas/pendientes', async (_req, res) => {
+    try {
+      if (!tareaRepositorio) return res.status(500).json({ error: 'Repositorio de tareas no disponible' });
+      const pendientes = await tareaRepositorio.listarPendientes();
+      const ahora = Date.now();
+      const data = pendientes.map((tarea) => ({
+        id: tarea.id,
+        uuid: tarea.id,
+        sender: tarea.sender,
+        jid: tarea.jid,
+        texto: tarea.texto,
+        fechaEjecucion: tarea.fechaEjecucion,
+        estado: tarea.estado,
+        segundosRestantes: Math.max(0, Math.floor((new Date(tarea.fechaEjecucion).getTime() - ahora) / 1000)),
+      }));
+      res.status(200).json({ data });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
     }
   });
 
