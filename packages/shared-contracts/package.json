@@ -1,7 +1,7 @@
 {
   "name": "@begabot/shared",
   "version": "1.0.0",
-  "description": "Paquete compartido base para BegaBot 3.0",
+  "description": "Paquete compartido base para Begabot",
   "main": "index.js",
   "exports": {
     ".": "./index.js"

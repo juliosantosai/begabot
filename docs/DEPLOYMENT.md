@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Este documento describe cómo desplegar BegaBot 3.0 usando `docker compose` y consideraciones para producción.
+Este documento describe cómo desplegar Begabot usando `docker compose` y consideraciones para producción.
 
 Requisitos mínimos:
 - Docker Engine

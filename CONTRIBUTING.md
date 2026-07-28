@@ -1,4 +1,4 @@
-# Contributing to BegaBot 3.0
+# Contributing to Begabot
 
 Gracias por querer contribuir. Este proyecto está diseñado para ser modular y fácil de extender, así que tu ayuda es muy bienvenida.
 

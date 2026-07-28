@@ -1,4 +1,4 @@
-# Pruebas (Tests) en BegaBot 3.0
+# Pruebas (Tests) en Begabot
 
 Esta guía muestra cómo ejecutar los tests unitarios e de integración en el monorepo.
 

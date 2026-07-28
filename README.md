@@ -1,4 +1,4 @@
-# BegaBot 3.0
+# Begabot
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Node.js CI](https://img.shields.io/badge/status-Work-in-progress-orange.svg)](#)
 

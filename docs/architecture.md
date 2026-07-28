@@ -1,4 +1,4 @@
-# Arquitectura de BegaBot 3.0
+# Arquitectura de Begabot
 
 Resumen de alto nivel:
 
