@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![Node.js CI](https://img.shields.io/badge/status-Work-in-progress-orange.svg)](#)
 
-BegaBot 3.0 es un monorepo de microservicios Node.js para orquestar mensajes, persistencia y generación de respuestas IA con auditoría y flujo de conversación.
+BegaBot es un monorepo de microservicios Node.js para orquestar mensajes, persistencia y generación de respuestas IA con auditoría y flujo de conversación.
 
 ## ¿Por qué BegaBot?
 
