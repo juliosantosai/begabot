@@ -49,8 +49,6 @@ model EstadoConversacion {
 model Task {
   id                    String   @id @default(uuid())
   estadoConversacionUuid String?
-  sender                String?
-  jid                   String?
   texto                 String   @db.Text
   fechaEjecucion        DateTime
   estado                String   @default("pendiente")
@@ -64,8 +62,6 @@ model Task {
 model TaskLog {
   id            String   @id @default(uuid())
   tareaId       String
-  sender        String
-  jid           String
   texto         String   @db.Text
   fechaEjecucion DateTime
   fechaRegistro DateTime @default(now())

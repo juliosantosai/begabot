@@ -1,5 +1,5 @@
 {
-  "name": "Begabot - Enterprise Full-Microservices Orchestrator",
+  "name": "begabot-orchestrator",
   "nodes": [
     {
       "parameters": {
@@ -10,8 +10,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -1472,
-        -192
+        -1728,
+        624
       ],
       "id": "7fd1ee11-e403-4171-a115-0de274695ee4",
       "name": "Webhook Entrante (Canales)",
@@ -26,8 +26,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -1472,
-        -1200
+        -1728,
+        -1488
       ],
       "id": "75a48bfd-1402-40b2-b534-4284aacc4cce",
       "name": "Webhook",
@@ -59,8 +59,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -352,
-        -288
+        -608,
+        48
       ],
       "id": "cb8e579d-b8b3-44a2-9de8-fd2086b2bdcb",
       "name": "buffer"
@@ -92,8 +92,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -352,
-        -496
+        -608,
+        -432
       ],
       "id": "d84c4dbb-6710-4671-95e6-0ab365ffc028",
       "name": "bloquear ."
@@ -125,8 +125,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -128,
-        -400
+        -384,
+        -336
       ],
       "id": "365686ff-a54e-4d41-ac39-02cba26f29df",
       "name": "Desbloquear ,"
@@ -158,8 +158,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        96,
-        -304
+        -160,
+        -144
       ],
       "id": "a20b2e64-53fb-4e62-a7de-52544032fee3",
       "name": "resetear @"
@@ -173,8 +173,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        544,
-        -880
+        288,
+        -624
       ],
       "id": "db815657-0874-464c-b5c1-f94b9304ba63",
       "name": "bloquear jid"
@@ -191,8 +191,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        544,
-        -304
+        288,
+        -48
       ],
       "id": "8f51b65a-0c8c-40e0-ae13-19d7a773fbb7",
       "name": "humano"
@@ -209,8 +209,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        544,
-        -688
+        288,
+        -432
       ],
       "id": "c0cbf69b-a153-4c3c-b2dd-020602094705",
       "name": "Desbloquear jid1"
@@ -227,8 +227,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        544,
-        -496
+        288,
+        -240
       ],
       "id": "37edba15-f090-42b8-9e2c-45f94d661617",
       "name": "Resetar jid"
@@ -244,8 +244,8 @@
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        768,
-        -592
+        512,
+        -432
       ],
       "id": "0b4b4205-919c-446f-b6fd-532f0b1f8549",
       "name": "Send a text message1",
@@ -283,8 +283,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        320,
-        -208
+        64,
+        48
       ],
       "id": "01e3a142-e8fb-40c9-a5f4-3bca0f28697f",
       "name": "humano1"
@@ -316,8 +316,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -1024,
-        -192
+        -1280,
+        528
       ],
       "id": "91425a98-b3a5-4e20-9c9c-b0eee2ebae0d",
       "name": "Es admin ?"
@@ -387,8 +387,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -800,
-        -192
+        -1056,
+        432
       ],
       "id": "6a4e7199-aace-4137-9f0a-d03017b5edbf",
       "name": "sanitacion"
@@ -505,8 +505,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        -576,
-        -224
+        -832,
+        400
       ],
       "id": "81ff235a-53db-480e-8a4e-c6e42f582424",
       "name": "Switch"
@@ -545,8 +545,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -800,
-        0
+        -1056,
+        624
       ],
       "id": "76a96e37-c478-4cb9-9684-2558fb148dcd",
       "name": "SECCION"
@@ -559,8 +559,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1024,
-        -1200
+        -1280,
+        -1488
       ],
       "id": "ce2246d2-d6ba-4b2d-865a-596881ce6129",
       "name": "LEER ESTADO"
@@ -592,8 +592,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -800,
-        -1200
+        -1056,
+        -1488
       ],
       "id": "fd87bf14-80bb-4878-8320-baad5b7f9c06",
       "name": "BLOQUEADO ¿"
@@ -627,8 +627,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1248,
-        -1200
+        -1504,
+        -1488
       ],
       "id": "75c938c2-756b-4609-8ab4-709eb5c7394a",
       "name": "Edit Fields"
@@ -641,8 +641,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -800,
-        -496
+        -1056,
+        -432
       ],
       "id": "d8b219e2-29f6-4b58-aa4a-efb2565edf59",
       "name": "leer uuid"
@@ -675,8 +675,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -1248,
-        -192
+        -1504,
+        528
       ],
       "id": "8119a20f-f7c4-4947-87fb-b8d107fae816",
       "name": "es grupo"
@@ -710,8 +710,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -576,
-        -496
+        -832,
+        -432
       ],
       "id": "d67a1f38-8086-4ccc-bf34-d791f18c71f6",
       "name": "Edit Fields1"
@@ -744,8 +744,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        544,
-        -112
+        288,
+        144
       ],
       "id": "1c047c3b-2d69-4222-a6de-b05c52ea782e",
       "name": "prompts"
@@ -758,8 +758,8 @@
       "type": "n8n-nodes-base.googleDocs",
       "typeVersion": 2,
       "position": [
-        768,
-        -112
+        512,
+        144
       ],
       "id": "f78dc4a2-fe56-43e9-93b8-f457c9a47ec7",
       "name": "Get a document",
@@ -788,38 +788,25 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        992,
-        -112
+        736,
+        144
       ],
       "id": "80fa8811-f568-4968-a240-e4ff3f131a4c",
       "name": "actulizar pront"
     },
     {
       "parameters": {
-        "jsCode": "// El input en n8n puede venir como texto o como objeto, aseguramos el parseo\nlet inputData = $input.first().json.output.response;\n\n// Si la respuesta viene dentro de una propiedad de texto (por ejemplo, en un .data o .body), extráela. \n// Si el JSON completo ya es el elemento de entrada, usa directamente:\nlet rawString = typeof inputData === 'string' ? inputData : JSON.stringify(inputData);\n\n// Limpiamos los saltos de línea de control si es necesario y parseamos a objeto limpio\nlet limpio = JSON.parse(rawString.replace(/[\\r\\n]+/g, \" \"));\n\nreturn { json: limpio };"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -128,
-        -1200
-      ],
-      "id": "e44ec9c1-3970-4303-955c-a6d7d9dd81a4",
-      "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
         "resource": "message",
         "instanceName": "150",
         "number": "={{ $('Edit Fields').item.json.body.remoteJid }}",
-        "text": "={{ $('Code in JavaScript').item.json.mensaje_whatsapp }}",
+        "text": "={{ $('normalizar ai').item.json.whatsapp }}",
         "options": {}
       },
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        544,
-        -1104
+        720,
+        -1584
       ],
       "id": "59cb1861-2a98-4063-a132-3b6864e2eb54",
       "name": "Send a text message",
@@ -841,8 +828,8 @@
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        1216,
-        -112
+        960,
+        144
       ],
       "id": "6064adc6-8f42-47d9-ba20-15d07dd9faa6",
       "name": "Send a text message2",
@@ -861,8 +848,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        96,
-        -1200
+        64,
+        -1680
       ],
       "id": "24a32b22-d812-4627-a6a1-0102f7ee186f",
       "name": "LEER ESTADO1"
@@ -894,8 +881,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        320,
-        -1200
+        496,
+        -1680
       ],
       "id": "f17ef5b4-f302-475f-86ae-ce882f2e40ff",
       "name": "Esta bloqueado?"
@@ -908,11 +895,12 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -576,
-        -1200
+        -832,
+        -1488
       ],
       "id": "1a09c00f-e45f-4632-936f-e5dad1fbff51",
-      "name": "leer Prompts"
+      "name": "leer Prompts",
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -923,7 +911,7 @@
           "parameters": [
             {
               "name": "systemPrompt",
-              "value": "={{ $json.data.prompt }}"
+              "value": "={{ $('leer Prompts').item.json.data.prompt }}"
             },
             {
               "name": "userConcatenatedMessage",
@@ -939,7 +927,7 @@
             },
             {
               "name": "userContext",
-              "value": "={{ $('LEER ESTADO').item.json.contexto }}"
+              "value": "={{ $json.contexto }}"
             }
           ]
         },
@@ -948,8 +936,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -352,
-        -1200
+        -384,
+        -1488
       ],
       "id": "3a088b3f-b901-4df9-acce-387bb16ccddf",
       "name": "call ai"
@@ -981,8 +969,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        544,
-        -1296
+        720,
+        -1776
       ],
       "id": "a2cd73c2-3894-4e7f-a5b4-f57aed082dab",
       "name": "If"
@@ -996,8 +984,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        768,
-        -1296
+        944,
+        -1776
       ],
       "id": "b78d327e-c669-45c4-bf1b-ce66a7497045",
       "name": "bloquear"
@@ -1013,8 +1001,8 @@
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        -1472,
-        304
+        -1728,
+        1040
       ],
       "id": "79f8e60e-92b1-403d-9446-a63365eb97f2",
       "name": "Send a text message3",
@@ -1033,8 +1021,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        96,
-        80
+        -160,
+        432
       ],
       "id": "e25fe563-6bf9-4b8b-ae37-a6a183f74cc8",
       "name": "LEER ESTADO2"
@@ -1047,8 +1035,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        320,
-        80
+        64,
+        432
       ],
       "id": "4075db14-76d8-4f4b-aef0-b18b0fcd85a3",
       "name": "leer Prompts1"
@@ -1060,8 +1048,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        800,
-        112
+        512,
+        432
       ],
       "id": "5f3d08f6-c4ef-4438-b033-e13c718ab968",
       "name": "Code in JavaScript1"
@@ -1077,8 +1065,8 @@
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        1024,
-        112
+        736,
+        432
       ],
       "id": "35409aa6-2737-4f6c-8c8f-b81deff92870",
       "name": "Send a text message4",
@@ -1098,8 +1086,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -128,
-        80
+        -384,
+        432
       ],
       "id": "9122862e-282e-4e9a-8000-f7d614fb8241",
       "name": "bloquear1"
@@ -1112,8 +1100,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -352,
-        80
+        -608,
+        432
       ],
       "id": "95ed492f-9bc5-44c7-8c69-80ac317d2517",
       "name": "leer uuid1"
@@ -1127,7 +1115,7 @@
           "parameters": [
             {
               "name": "contexto",
-              "value": "={{ $('Code in JavaScript').item.json.nuevo_contexto }}"
+              "value": "={{ $('normalizar ai').item.json.contexto }}"
             }
           ]
         },
@@ -1136,8 +1124,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        768,
-        -1104
+        944,
+        -1584
       ],
       "id": "93508c30-f9c9-4710-a545-076a9dac34c2",
       "name": "contexto"
@@ -1176,8 +1164,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        544,
-        96
+        288,
+        432
       ],
       "id": "80934d54-1703-41b3-9e21-cad9a2f5b3ab",
       "name": "call ai2"
@@ -1187,8 +1175,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1232,
-        112
+        960,
+        432
       ],
       "id": "cace3f98-ca16-47c9-a556-1692f75492b1",
       "name": "Wait",
@@ -1205,8 +1193,8 @@
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        1440,
-        112
+        1184,
+        432
       ],
       "id": "54e8fa7f-fd47-4e59-a6d6-e644a1825757",
       "name": "Send a text message5",
@@ -1228,8 +1216,8 @@
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        992,
-        368
+        -608,
+        816
       ],
       "id": "64c61abb-a28b-46d9-b775-4e42fd6e9ea8",
       "name": "Send a text message6",
@@ -1245,8 +1233,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1200,
-        368
+        -384,
+        816
       ],
       "id": "27bc3983-998c-41fe-86c2-795d8bec552f",
       "name": "Wait1",
@@ -1263,8 +1251,8 @@
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        1408,
-        368
+        -160,
+        816
       ],
       "id": "304f2e3b-a042-4929-99f2-0e99f3b4d50c",
       "name": "Send a text message7",
@@ -1286,8 +1274,8 @@
       "type": "@rjsebening/n8n-nodes-evolution-api.evolutionApi",
       "typeVersion": 1,
       "position": [
-        512,
-        352
+        64,
+        624
       ],
       "id": "826c8f57-51a0-4508-bd0b-538588a834db",
       "name": "Send a text message8",
@@ -1303,8 +1291,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -320,
-        272
+        -608,
+        624
       ],
       "id": "be68ce5a-7cff-4497-a5f7-2fb85fd00b0c",
       "name": "Wait2",
@@ -1318,8 +1306,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -48,
-        288
+        -384,
+        624
       ],
       "id": "b7a3d3c9-82ce-4076-bf56-d1215aa1ca82",
       "name": "LEER ESTADO3"
@@ -1351,11 +1339,803 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        256,
-        384
+        -160,
+        624
       ],
       "id": "ab781537-9d21-413b-820d-4fd05b2983b4",
       "name": "If1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "73ecede7-9eff-49f1-9988-d88e7c0fcd50",
+              "leftValue": "={{ $json.estarea }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        64,
+        -1296
+      ],
+      "id": "4b1947c3-e598-433b-9953-409437b2630b",
+      "name": "es tarea"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.128.0.12:3002/core/tareas",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "texto",
+              "value": "={{ $('normalizar ai').item.json.tarea.texto }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ $('normalizar ai').item.json.tarea.delay }}"
+            },
+            {
+              "name": "estadoConversacionUuid",
+              "value": "={{ $('normalizar ai').item.json.uuid }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        496,
+        -1296
+      ],
+      "id": "8c6193b3-c23b-4d4f-b065-63d6d7a39fae",
+      "name": "crear tarea"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1728,
+        -1072
+      ],
+      "id": "aa990d97-4c17-4503-aac3-f4d8569416d9",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "82885bbe-fe86-49b2-9e4f-3d0cffc12a1d",
+              "name": "whatsapp",
+              "value": "={{ JSON.parse($json.output.response).mensaje_whatsapp }}",
+              "type": "string"
+            },
+            {
+              "id": "09c0e91a-9bd2-4856-af9e-77c6f501ac6a",
+              "name": "carrito",
+              "value": "={{ JSON.parse($json.output.response).mensaje_calentamiento}}",
+              "type": "string"
+            },
+            {
+              "id": "fd949299-7988-4270-95a8-0a25027af2f7",
+              "name": "contexto",
+              "value": "={{ JSON.parse($json.output.response).nuevo_contexto }}",
+              "type": "string"
+            },
+            {
+              "id": "3f07da54-d94c-438a-abcf-a99eb619bb53",
+              "name": "intencion",
+              "value": "={{ JSON.parse($json.output.response).usuario_intencion.intencion }}",
+              "type": "string"
+            },
+            {
+              "id": "c974e0bd-35e9-457b-a9cf-6b832bd83fdb",
+              "name": "subintencion",
+              "value": "={{ JSON.parse($json.output.response).usuario_intencion.sub_intencion }}",
+              "type": "string"
+            },
+            {
+              "id": "65f12fdf-4000-4937-99a2-ccd46e905407",
+              "name": "tarea",
+              "value": "={{ JSON.parse($json.output.response).tarea }}",
+              "type": "string"
+            },
+            {
+              "id": "75691ba6-4410-43fd-9bae-d27540eff1f5",
+              "name": "estarea",
+              "value": "={{ JSON.parse($json.output.response).tarea.estado }}",
+              "type": "string"
+            },
+            {
+              "id": "e3715dd5-9a58-4f3c-a82f-a56a1c553550",
+              "name": "tarea_texto",
+              "value": "={{ JSON.parse($json.output.response).tarea.texto }}",
+              "type": "string"
+            },
+            {
+              "id": "2e90be8d-5459-4e85-8222-28a855a74fa9",
+              "name": "tarea_delay",
+              "value": "={{ JSON.parse($json.output.response).tarea.delay }}",
+              "type": "string"
+            },
+            {
+              "id": "9f2f3d90-1d90-4cf9-a5b4-22c6d3f232b1",
+              "name": "uuid",
+              "value": "={{ $json.uuid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        -1488
+      ],
+      "id": "dd3e57d8-715e-4ba0-8257-61dc5be99001",
+      "name": "normalizar ai"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1728,
+        -848
+      ],
+      "id": "bfe419eb-5a3c-4bb3-86fc-267a14a3e72c",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "http://10.128.0.12:3002/core/estado-conversacion/todos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1504,
+        -848
+      ],
+      "id": "49151d5c-a062-407e-a98b-0685b9673a63",
+      "name": "Estados de conversacion"
+    },
+    {
+      "parameters": {
+        "url": "http://10.128.0.12:3002/core/evolution-api/configuraciones",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -752,
+        -848
+      ],
+      "id": "c6b9bdfe-db1d-4c5d-8da6-680f9a877ee1",
+      "name": "evolution api config"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4a148d5f-ed38-41ef-8a9d-50d92785f08a",
+              "leftValue": "={{ $json.data.tareaPendiente }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1248,
+        -1072
+      ],
+      "id": "cfc44bae-2966-4056-a8ea-a748dabfd520",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.128.0.12:3002/core/tareas",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "texto",
+              "value": "={{ $('normalizar ai').item.json.tarea.texto }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ $('normalizar ai').item.json.tarea.delay }}"
+            },
+            {
+              "name": "estadoConversacionUuid",
+              "value": "={{ $('normalizar ai').item.json.uuid }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        720,
+        -1296
+      ],
+      "id": "d1a05bf1-d5e9-4a0a-98ca-893eb31fde0b",
+      "name": "RESETEAR ESTDO CONVERSACION"
+    },
+    {
+      "parameters": {
+        "url": "http://10.128.0.12:3002/core/estado-conversacion/todos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1504,
+        720
+      ],
+      "id": "a7e126f6-82a4-494b-bcfb-54ca00f42a9c",
+      "name": "Estados de conversacion1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw",
+          "mode": "list",
+          "cachedResultName": "abielbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "uuid": "={{ $json.data[4].uuid }}",
+            "fecha": "={{ $now.toFormat('dd/MM/yyyy HH:mm') }}",
+            "sender": "={{ $('Webhook Entrante (Canales)').item.json.body.sender }}",
+            "jid": "={{ $('Webhook Entrante (Canales)').item.json.body.data.key.remoteJid }}",
+            "tipo": "={{ $('Webhook Entrante (Canales)').item.json.body.data.messageType }}",
+            "fromme": "={{ $('Webhook Entrante (Canales)').item.json.body.data.key.fromMe }}",
+            "texto": "={{ $('Webhook Entrante (Canales)').item.json.body.data.message.conversation }}",
+            "so": "={{ $('Webhook Entrante (Canales)').item.json.body.data.source }}",
+            "name": "={{ $('Webhook Entrante (Canales)').item.json.body.data.pushName }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "uuid",
+              "displayName": "uuid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sender",
+              "displayName": "sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "jid",
+              "displayName": "jid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tipo",
+              "displayName": "tipo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fromme",
+              "displayName": "fromme",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "texto",
+              "displayName": "texto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "so",
+              "displayName": "so",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1280,
+        720
+      ],
+      "id": "f8ddf0d4-b71e-42f8-80c4-1aa693a513ff",
+      "name": "logSmsEntrante",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PjNXjszBiT7Wg81t",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw",
+          "mode": "list",
+          "cachedResultName": "abielbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1661769453,
+          "mode": "list",
+          "cachedResultName": "sm",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw/edit#gid=1661769453"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "uuid": "={{ $('LEER ESTADO').item.json.uuid }}",
+            "contextoInicial": "={{ $('LEER ESTADO').item.json.contexto }}",
+            "contextoFinal": "={{ $('normalizar ai').item.json.contexto }}",
+            "estado": "={{ $('LEER ESTADO').item.json.bloqueado }}",
+            "interaccion": "={{ $('LEER ESTADO').item.json.numero }}",
+            "whatsapp mensaje": "={{ $('normalizar ai').item.json.whatsapp }}",
+            "carrito abandonado": "={{ $('normalizar ai').item.json.carrito }}",
+            "tarea": "={{ $('normalizar ai').item.json.tarea }}",
+            "intencion": "={{ $('normalizar ai').item.json.intencion }}",
+            "subintencion": "={{ $('normalizar ai').item.json.subintencion }}",
+            "sms ": "={{ $('Edit Fields').item.json.body.accumulatedText }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "uuid",
+              "displayName": "uuid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contextoInicial",
+              "displayName": "contextoInicial",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contextoFinal",
+              "displayName": "contextoFinal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "interaccion",
+              "displayName": "interaccion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "whatsapp mensaje",
+              "displayName": "whatsapp mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "carrito abandonado",
+              "displayName": "carrito abandonado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tarea",
+              "displayName": "tarea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intencion",
+              "displayName": "intencion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subintencion",
+              "displayName": "subintencion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sms ",
+              "displayName": "sms ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        -1488
+      ],
+      "id": "207b8966-fe43-464e-8978-894b006cf861",
+      "name": "logSmsEntrante1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PjNXjszBiT7Wg81t",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw",
+          "mode": "list",
+          "cachedResultName": "abielbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1591670719,
+          "mode": "list",
+          "cachedResultName": "contexto",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw/edit#gid=1591670719"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "uuid",
+              "lookupValue": "={{ $('LEER ESTADO').item.json.uuid }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -608,
+        -1488
+      ],
+      "id": "aeabd13f-c477-44e0-aab3-83323d2435dd",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PjNXjszBiT7Wg81t",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw",
+          "mode": "list",
+          "cachedResultName": "abielbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1591670719,
+          "mode": "list",
+          "cachedResultName": "contexto",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Vf3LqBSiaYAOBNJK7MLZKYGSDz9j3-2oBImoECoBVHw/edit#gid=1591670719"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "uuid": "={{ $('LEER ESTADO').item.json.uuid }}",
+            "contexto": "={{ $json.contexto }}"
+          },
+          "matchingColumns": [
+            "uuid"
+          ],
+          "schema": [
+            {
+              "id": "uuid",
+              "displayName": "uuid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "contexto",
+              "displayName": "contexto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        64,
+        -1488
+      ],
+      "id": "e088155d-eca4-42c7-ab6f-66cbdfc8aa4c",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PjNXjszBiT7Wg81t",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        -1488
+      ],
+      "id": "4bcadec2-c598-4b4a-8674-0905d5fc546d",
+      "name": "Wait3",
+      "webhookId": "0d991367-36c9-4321-8a31-c825a38e0cff"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.128.0.12:3002/core/tareas",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "texto",
+              "value": "={{ $('normalizar ai').item.json.carrito }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{ 3600 }}"
+            },
+            {
+              "name": "estadoConversacionUuid",
+              "value": "={{ $('LEER ESTADO').item.json.uuid }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1168,
+        -1456
+      ],
+      "id": "ac328f0d-7368-4a94-89e9-46b5e3586343",
+      "name": "crear_carrito_abandonado"
+    },
+    {
+      "parameters": {
+        "url": "http://10.128.0.12:3002/core/tareas/futuro",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1280,
+        -848
+      ],
+      "id": "d4c0fc34-f570-4a8c-8d20-4d797c7df4c5",
+      "name": "tareas futuro"
+    },
+    {
+      "parameters": {
+        "url": "http://10.128.0.12:3002/core/tareas/pendientes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1024,
+        -848
+      ],
+      "id": "cbcb75af-34ba-40da-8cdf-1d76a1646730",
+      "name": "tareas pendiente"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.128.0.12:3002/core/tareas/consumir",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1504,
+        -1072
+      ],
+      "id": "422966dd-80b7-4bc2-84ea-ad1a80a39cf5",
+      "name": "consumir tarea"
+    },
+    {
+      "parameters": {
+        "url": "=http://10.128.0.12:3002/core/estado-conversacion/{{ $json.data.tarea.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -976,
+        -1104
+      ],
+      "id": "48efeac8-570b-4ab5-8a97-91fce4092600",
+      "name": "leer uuid2"
     }
   ],
   "pinData": {
@@ -4791,48 +5571,13 @@
         }
       }
     ],
-    "Webhook": [
-      {
-        "json": {
-          "headers": {
-            "host": "n8n-n8n.tuxbfq.easypanel.host",
-            "user-agent": "node",
-            "content-length": "147",
-            "accept": "*/*",
-            "accept-encoding": "br, gzip, deflate",
-            "accept-language": "*",
-            "content-type": "application/json",
-            "sec-fetch-mode": "cors",
-            "x-forwarded-for": "34.31.217.201",
-            "x-forwarded-host": "n8n-n8n.tuxbfq.easypanel.host",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https",
-            "x-forwarded-server": "51ffa40668ed",
-            "x-real-ip": "34.31.217.201"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "sender": "595993358150@s.whatsapp.net",
-            "remoteJid": "595981133313@s.whatsapp.net",
-            "accumulatedText": "estas",
-            "timestamp": "2026-07-27T08:44:01.015Z"
-          },
-          "webhookUrl": "https://n8n-n8n.tuxbfq.easypanel.host/webhook/8f2a37f4-ae47-496d-a1ec-9e81565fde3c",
-          "executionMode": "production"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ],
     "Webhook Entrante (Canales)": [
       {
         "json": {
           "headers": {
             "host": "n8n-n8n.tuxbfq.easypanel.host",
             "user-agent": "axios/1.13.2",
-            "content-length": "3842",
+            "content-length": "9375",
             "accept": "application/json, text/plain, */*",
             "accept-encoding": "gzip, compress, deflate, br",
             "content-type": "application/json",
@@ -4840,7 +5585,7 @@
             "x-forwarded-host": "n8n-n8n.tuxbfq.easypanel.host",
             "x-forwarded-port": "443",
             "x-forwarded-proto": "https",
-            "x-forwarded-server": "51ffa40668ed",
+            "x-forwarded-server": "cdfc846432b5",
             "x-real-ip": "34.31.217.201"
           },
           "params": {},
@@ -4850,240 +5595,21 @@
             "instance": "150",
             "data": {
               "key": {
-                "remoteJid": "595981133313@s.whatsapp.net",
-                "remoteJidAlt": "595981133313@s.whatsapp.net",
+                "remoteJid": "595987279867@s.whatsapp.net",
+                "remoteJidAlt": "595987279867@s.whatsapp.net",
                 "fromMe": false,
-                "id": "3EB01DEFDE50B08B2B3D57",
+                "id": "3AE7002BC30F4ED52EA9",
                 "participant": "",
                 "addressingMode": "lid"
               },
-              "pushName": "Jsantos",
+              "pushName": "Tati Duarte",
               "status": "DELIVERY_ACK",
               "message": {
-                "audioMessage": {
-                  "url": "https://mmg.whatsapp.net/v/t62.7117-24/539801579_1579686983748936_4234842364858425373_n.enc?ccb=11-4&oh=01_Q5Aa5AGrn16Fm76xwadOYH6f8pPoFVC5V-3S7MZ9eKtig94GJw&oe=6A8E2B58&_nc_sid=5e03e0&mms3=true",
-                  "mimetype": "audio/ogg; codecs=opus",
-                  "fileSha256": {
-                    "0": 24,
-                    "1": 184,
-                    "2": 123,
-                    "3": 40,
-                    "4": 104,
-                    "5": 107,
-                    "6": 8,
-                    "7": 166,
-                    "8": 245,
-                    "9": 197,
-                    "10": 184,
-                    "11": 3,
-                    "12": 191,
-                    "13": 180,
-                    "14": 26,
-                    "15": 48,
-                    "16": 104,
-                    "17": 73,
-                    "18": 125,
-                    "19": 2,
-                    "20": 170,
-                    "21": 82,
-                    "22": 36,
-                    "23": 186,
-                    "24": 56,
-                    "25": 142,
-                    "26": 247,
-                    "27": 71,
-                    "28": 79,
-                    "29": 247,
-                    "30": 181,
-                    "31": 116
-                  },
-                  "fileLength": {
-                    "low": 12168,
-                    "high": 0,
-                    "unsigned": true
-                  },
-                  "seconds": 6,
-                  "ptt": false,
-                  "mediaKey": {
-                    "0": 170,
-                    "1": 32,
-                    "2": 43,
-                    "3": 147,
-                    "4": 95,
-                    "5": 255,
-                    "6": 36,
-                    "7": 31,
-                    "8": 219,
-                    "9": 228,
-                    "10": 73,
-                    "11": 150,
-                    "12": 150,
-                    "13": 228,
-                    "14": 56,
-                    "15": 185,
-                    "16": 220,
-                    "17": 241,
-                    "18": 60,
-                    "19": 154,
-                    "20": 52,
-                    "21": 220,
-                    "22": 49,
-                    "23": 69,
-                    "24": 223,
-                    "25": 59,
-                    "26": 110,
-                    "27": 185,
-                    "28": 161,
-                    "29": 93,
-                    "30": 205,
-                    "31": 103
-                  },
-                  "fileEncSha256": {
-                    "0": 40,
-                    "1": 29,
-                    "2": 16,
-                    "3": 247,
-                    "4": 59,
-                    "5": 141,
-                    "6": 110,
-                    "7": 206,
-                    "8": 35,
-                    "9": 248,
-                    "10": 64,
-                    "11": 35,
-                    "12": 91,
-                    "13": 109,
-                    "14": 16,
-                    "15": 66,
-                    "16": 252,
-                    "17": 186,
-                    "18": 109,
-                    "19": 246,
-                    "20": 56,
-                    "21": 3,
-                    "22": 60,
-                    "23": 94,
-                    "24": 128,
-                    "25": 53,
-                    "26": 92,
-                    "27": 55,
-                    "28": 87,
-                    "29": 191,
-                    "30": 7,
-                    "31": 82
-                  },
-                  "directPath": "/v/t62.7117-24/539801579_1579686983748936_4234842364858425373_n.enc?ccb=11-4&oh=01_Q5Aa5AGrn16Fm76xwadOYH6f8pPoFVC5V-3S7MZ9eKtig94GJw&oe=6A8E2B58&_nc_sid=5e03e0",
-                  "mediaKeyTimestamp": {
-                    "low": 1785116757,
-                    "high": 0,
-                    "unsigned": false
-                  },
-                  "contextInfo": {
-                    "mentionedJid": [],
-                    "groupMentions": [],
-                    "statusAttributions": [],
-                    "forwardingScore": 1,
-                    "isForwarded": true,
-                    "ephemeralSettingTimestamp": {
-                      "low": 1784971569,
-                      "high": 0,
-                      "unsigned": false
-                    },
-                    "disappearingMode": {
-                      "initiator": 0
-                    }
-                  },
-                  "waveform": {
-                    "0": 0,
-                    "1": 0,
-                    "2": 0,
-                    "3": 33,
-                    "4": 44,
-                    "5": 37,
-                    "6": 47,
-                    "7": 44,
-                    "8": 43,
-                    "9": 12,
-                    "10": 34,
-                    "11": 31,
-                    "12": 38,
-                    "13": 37,
-                    "14": 33,
-                    "15": 31,
-                    "16": 24,
-                    "17": 19,
-                    "18": 9,
-                    "19": 19,
-                    "20": 17,
-                    "21": 37,
-                    "22": 33,
-                    "23": 43,
-                    "24": 23,
-                    "25": 23,
-                    "26": 35,
-                    "27": 28,
-                    "28": 19,
-                    "29": 42,
-                    "30": 14,
-                    "31": 0,
-                    "32": 0,
-                    "33": 0,
-                    "34": 0,
-                    "35": 0,
-                    "36": 0,
-                    "37": 0,
-                    "38": 0,
-                    "39": 0,
-                    "40": 16,
-                    "41": 35,
-                    "42": 31,
-                    "43": 31,
-                    "44": 40,
-                    "45": 41,
-                    "46": 27,
-                    "47": 11,
-                    "48": 0,
-                    "49": 0,
-                    "50": 0,
-                    "51": 0,
-                    "52": 0,
-                    "53": 0,
-                    "54": 0,
-                    "55": 0,
-                    "56": 0,
-                    "57": 0,
-                    "58": 0,
-                    "59": 0,
-                    "60": 0,
-                    "61": 0,
-                    "62": 0,
-                    "63": 0
-                  },
-                  "viewOnce": false
-                },
                 "messageContextInfo": {
                   "threadId": [],
                   "deviceListMetadata": {
                     "senderKeyIndexes": [],
                     "recipientKeyIndexes": [],
-                    "senderKeyHash": {
-                      "0": 210,
-                      "1": 99,
-                      "2": 251,
-                      "3": 55,
-                      "4": 180,
-                      "5": 143,
-                      "6": 130,
-                      "7": 183,
-                      "8": 31,
-                      "9": 230
-                    },
-                    "senderTimestamp": {
-                      "low": 1783991148,
-                      "high": 0,
-                      "unsigned": true
-                    },
-                    "senderAccountType": 0,
                     "receiverAccountType": 1,
                     "recipientKeyHash": {
                       "0": 99,
@@ -5098,75 +5624,967 @@
                       "9": 50
                     },
                     "recipientTimestamp": {
-                      "low": 1784951925,
+                      "low": 1785127360,
                       "high": 0,
                       "unsigned": true
                     }
                   },
                   "deviceListMetadataVersion": 2,
                   "messageSecret": {
-                    "0": 100,
-                    "1": 116,
-                    "2": 182,
-                    "3": 79,
-                    "4": 150,
-                    "5": 225,
-                    "6": 8,
-                    "7": 221,
-                    "8": 189,
-                    "9": 151,
-                    "10": 110,
-                    "11": 183,
-                    "12": 244,
-                    "13": 213,
-                    "14": 159,
-                    "15": 183,
-                    "16": 237,
-                    "17": 110,
-                    "18": 140,
-                    "19": 103,
-                    "20": 138,
-                    "21": 14,
-                    "22": 210,
-                    "23": 190,
-                    "24": 166,
-                    "25": 220,
-                    "26": 190,
-                    "27": 162,
-                    "28": 40,
-                    "29": 108,
-                    "30": 62,
-                    "31": 222
+                    "0": 230,
+                    "1": 213,
+                    "2": 57,
+                    "3": 217,
+                    "4": 90,
+                    "5": 49,
+                    "6": 217,
+                    "7": 1,
+                    "8": 71,
+                    "9": 66,
+                    "10": 171,
+                    "11": 191,
+                    "12": 176,
+                    "13": 205,
+                    "14": 144,
+                    "15": 5,
+                    "16": 209,
+                    "17": 181,
+                    "18": 144,
+                    "19": 192,
+                    "20": 231,
+                    "21": 114,
+                    "22": 147,
+                    "23": 112,
+                    "24": 48,
+                    "25": 202,
+                    "26": 33,
+                    "27": 223,
+                    "28": 125,
+                    "29": 166,
+                    "30": 23,
+                    "31": 151
                   }
-                }
+                },
+                "conversation": "¡Hola! Quiero más información."
               },
               "contextInfo": {
                 "mentionedJid": [],
                 "groupMentions": [],
                 "statusAttributions": [],
-                "forwardingScore": 1,
-                "isForwarded": true,
-                "ephemeralSettingTimestamp": {
-                  "low": 1784971569,
-                  "high": 0,
-                  "unsigned": false
+                "conversionSource": "FB_Ads",
+                "conversionData": {
+                  "0": 65,
+                  "1": 102,
+                  "2": 104,
+                  "3": 101,
+                  "4": 73,
+                  "5": 82,
+                  "6": 122,
+                  "7": 76,
+                  "8": 75,
+                  "9": 65,
+                  "10": 67,
+                  "11": 107,
+                  "12": 115,
+                  "13": 100,
+                  "14": 73,
+                  "15": 103,
+                  "16": 122,
+                  "17": 86,
+                  "18": 95,
+                  "19": 105,
+                  "20": 57,
+                  "21": 107,
+                  "22": 90,
+                  "23": 77,
+                  "24": 90,
+                  "25": 71,
+                  "26": 89,
+                  "27": 57,
+                  "28": 102,
+                  "29": 54,
+                  "30": 70,
+                  "31": 100,
+                  "32": 74,
+                  "33": 110,
+                  "34": 95,
+                  "35": 110,
+                  "36": 65,
+                  "37": 121,
+                  "38": 54,
+                  "39": 80,
+                  "40": 111,
+                  "41": 116,
+                  "42": 48,
+                  "43": 110,
+                  "44": 77,
+                  "45": 67,
+                  "46": 114,
+                  "47": 101,
+                  "48": 79,
+                  "49": 84,
+                  "50": 48,
+                  "51": 120,
+                  "52": 76,
+                  "53": 76,
+                  "54": 108,
+                  "55": 119,
+                  "56": 86,
+                  "57": 86,
+                  "58": 83,
+                  "59": 113,
+                  "60": 52,
+                  "61": 71,
+                  "62": 57,
+                  "63": 97,
+                  "64": 97,
+                  "65": 81,
+                  "66": 106,
+                  "67": 83,
+                  "68": 56,
+                  "69": 100,
+                  "70": 111,
+                  "71": 66,
+                  "72": 73,
+                  "73": 95,
+                  "74": 81,
+                  "75": 102,
+                  "76": 51,
+                  "77": 105,
+                  "78": 70,
+                  "79": 121,
+                  "80": 121,
+                  "81": 106,
+                  "82": 48,
+                  "83": 122,
+                  "84": 71,
+                  "85": 72,
+                  "86": 87,
+                  "87": 76,
+                  "88": 110,
+                  "89": 111,
+                  "90": 117,
+                  "91": 56,
+                  "92": 121,
+                  "93": 105,
+                  "94": 108,
+                  "95": 56,
+                  "96": 85,
+                  "97": 95,
+                  "98": 113,
+                  "99": 86,
+                  "100": 53,
+                  "101": 119,
+                  "102": 88,
+                  "103": 70,
+                  "104": 77,
+                  "105": 108,
+                  "106": 52,
+                  "107": 99,
+                  "108": 112,
+                  "109": 98,
+                  "110": 112,
+                  "111": 118,
+                  "112": 76,
+                  "113": 104,
+                  "114": 114,
+                  "115": 122,
+                  "116": 66,
+                  "117": 65,
+                  "118": 53,
+                  "119": 73,
+                  "120": 48,
+                  "121": 97,
+                  "122": 85,
+                  "123": 99,
+                  "124": 82,
+                  "125": 101,
+                  "126": 56,
+                  "127": 113,
+                  "128": 55,
+                  "129": 115,
+                  "130": 112,
+                  "131": 107,
+                  "132": 98,
+                  "133": 50,
+                  "134": 77,
+                  "135": 65,
+                  "136": 95,
+                  "137": 76,
+                  "138": 120,
+                  "139": 101,
+                  "140": 89,
+                  "141": 84,
+                  "142": 86,
+                  "143": 81,
+                  "144": 122,
+                  "145": 70,
+                  "146": 100,
+                  "147": 111,
+                  "148": 54,
+                  "149": 121,
+                  "150": 85,
+                  "151": 121,
+                  "152": 114,
+                  "153": 100,
+                  "154": 69,
+                  "155": 88,
+                  "156": 49,
+                  "157": 118,
+                  "158": 68,
+                  "159": 121,
+                  "160": 120,
+                  "161": 55,
+                  "162": 79,
+                  "163": 104,
+                  "164": 68,
+                  "165": 104,
+                  "166": 100,
+                  "167": 86,
+                  "168": 68,
+                  "169": 65,
+                  "170": 51,
+                  "171": 54,
+                  "172": 115,
+                  "173": 104,
+                  "174": 105,
+                  "175": 101,
+                  "176": 77,
+                  "177": 104,
+                  "178": 67,
+                  "179": 53,
+                  "180": 97,
+                  "181": 112,
+                  "182": 110,
+                  "183": 71,
+                  "184": 56,
+                  "185": 68,
+                  "186": 109,
+                  "187": 103,
+                  "188": 86,
+                  "189": 81,
+                  "190": 55,
+                  "191": 101,
+                  "192": 102,
+                  "193": 107,
+                  "194": 50,
+                  "195": 52,
+                  "196": 73,
+                  "197": 75,
+                  "198": 110,
+                  "199": 54,
+                  "200": 119,
+                  "201": 76,
+                  "202": 82,
+                  "203": 56,
+                  "204": 85,
+                  "205": 55,
+                  "206": 81,
+                  "207": 116,
+                  "208": 54,
+                  "209": 57,
+                  "210": 72,
+                  "211": 98,
+                  "212": 109,
+                  "213": 108,
+                  "214": 76,
+                  "215": 88,
+                  "216": 53,
+                  "217": 84,
+                  "218": 114,
+                  "219": 52,
+                  "220": 57,
+                  "221": 105,
+                  "222": 118,
+                  "223": 99,
+                  "224": 87,
+                  "225": 111,
+                  "226": 79,
+                  "227": 119,
+                  "228": 84,
+                  "229": 97,
+                  "230": 49,
+                  "231": 70,
+                  "232": 45,
+                  "233": 114,
+                  "234": 100,
+                  "235": 65,
+                  "236": 99,
+                  "237": 121,
+                  "238": 115,
+                  "239": 101,
+                  "240": 68,
+                  "241": 81,
+                  "242": 83,
+                  "243": 85,
+                  "244": 78,
+                  "245": 70,
+                  "246": 82,
+                  "247": 116,
+                  "248": 83,
+                  "249": 45,
+                  "250": 85,
+                  "251": 121,
+                  "252": 71,
+                  "253": 80,
+                  "254": 107,
+                  "255": 120,
+                  "256": 109,
+                  "257": 50,
+                  "258": 68,
+                  "259": 82,
+                  "260": 122,
+                  "261": 105,
+                  "262": 115,
+                  "263": 111,
+                  "264": 90,
+                  "265": 104,
+                  "266": 106,
+                  "267": 72,
+                  "268": 118,
+                  "269": 78,
+                  "270": 84,
+                  "271": 51,
+                  "272": 84,
+                  "273": 107,
+                  "274": 48,
+                  "275": 56,
+                  "276": 121,
+                  "277": 53,
+                  "278": 116,
+                  "279": 50,
+                  "280": 112,
+                  "281": 87,
+                  "282": 73,
+                  "283": 88,
+                  "284": 109,
+                  "285": 86,
+                  "286": 55,
+                  "287": 107,
+                  "288": 74,
+                  "289": 65,
+                  "290": 79,
+                  "291": 82,
+                  "292": 105,
+                  "293": 122,
+                  "294": 83,
+                  "295": 99,
+                  "296": 109,
+                  "297": 120,
+                  "298": 73,
+                  "299": 103,
+                  "300": 118,
+                  "301": 57,
+                  "302": 56,
+                  "303": 51,
+                  "304": 105,
+                  "305": 86,
+                  "306": 77,
+                  "307": 87,
+                  "308": 108,
+                  "309": 69,
+                  "310": 78,
+                  "311": 76,
+                  "312": 89,
+                  "313": 88,
+                  "314": 89,
+                  "315": 66,
+                  "316": 117,
+                  "317": 83,
+                  "318": 113,
+                  "319": 57,
+                  "320": 65,
+                  "321": 82,
+                  "322": 97,
+                  "323": 45,
+                  "324": 113,
+                  "325": 80,
+                  "326": 69,
+                  "327": 112,
+                  "328": 45,
+                  "329": 100,
+                  "330": 119,
+                  "331": 52,
+                  "332": 116,
+                  "333": 111,
+                  "334": 71,
+                  "335": 51,
+                  "336": 114,
+                  "337": 84,
+                  "338": 69,
+                  "339": 89,
+                  "340": 69,
+                  "341": 73,
+                  "342": 117,
+                  "343": 102,
+                  "344": 101,
+                  "345": 72,
+                  "346": 113,
+                  "347": 105,
+                  "348": 97,
+                  "349": 68,
+                  "350": 101,
+                  "351": 68,
+                  "352": 75,
+                  "353": 100,
+                  "354": 117,
+                  "355": 99,
+                  "356": 119,
+                  "357": 83,
+                  "358": 56,
+                  "359": 57,
+                  "360": 75,
+                  "361": 69,
+                  "362": 56,
+                  "363": 99,
+                  "364": 45,
+                  "365": 75,
+                  "366": 86,
+                  "367": 67,
+                  "368": 101,
+                  "369": 78,
+                  "370": 88,
+                  "371": 45,
+                  "372": 109,
+                  "373": 54,
+                  "374": 119,
+                  "375": 53,
+                  "376": 52,
+                  "377": 100,
+                  "378": 100,
+                  "379": 51,
+                  "380": 72,
+                  "381": 81,
+                  "382": 75,
+                  "383": 84,
+                  "384": 85,
+                  "385": 89,
+                  "386": 115,
+                  "387": 54,
+                  "388": 86,
+                  "389": 116,
+                  "390": 103,
+                  "391": 54,
+                  "392": 121,
+                  "393": 82,
+                  "394": 101,
+                  "395": 81,
+                  "396": 115,
+                  "397": 120,
+                  "398": 56,
+                  "399": 90,
+                  "400": 122,
+                  "401": 115,
+                  "402": 88,
+                  "403": 108,
+                  "404": 89,
+                  "405": 73,
+                  "406": 84,
+                  "407": 57,
+                  "408": 86,
+                  "409": 100,
+                  "410": 87,
+                  "411": 70,
+                  "412": 111,
+                  "413": 108,
+                  "414": 81,
+                  "415": 56,
+                  "416": 102,
+                  "417": 104,
+                  "418": 104,
+                  "419": 95,
+                  "420": 79,
+                  "421": 100,
+                  "422": 115,
+                  "423": 109,
+                  "424": 81,
+                  "425": 101,
+                  "426": 53,
+                  "427": 100,
+                  "428": 53,
+                  "429": 103
                 },
-                "disappearingMode": {
-                  "initiator": 0
+                "ctwaSignals": "all,all",
+                "ctwaPayload": {
+                  "0": 65,
+                  "1": 102,
+                  "2": 104,
+                  "3": 101,
+                  "4": 73,
+                  "5": 82,
+                  "6": 122,
+                  "7": 76,
+                  "8": 75,
+                  "9": 65,
+                  "10": 67,
+                  "11": 107,
+                  "12": 115,
+                  "13": 100,
+                  "14": 73,
+                  "15": 103,
+                  "16": 122,
+                  "17": 86,
+                  "18": 95,
+                  "19": 105,
+                  "20": 57,
+                  "21": 107,
+                  "22": 90,
+                  "23": 77,
+                  "24": 90,
+                  "25": 71,
+                  "26": 89,
+                  "27": 57,
+                  "28": 102,
+                  "29": 54,
+                  "30": 70,
+                  "31": 100,
+                  "32": 74,
+                  "33": 110,
+                  "34": 95,
+                  "35": 110,
+                  "36": 65,
+                  "37": 121,
+                  "38": 54,
+                  "39": 80,
+                  "40": 111,
+                  "41": 116,
+                  "42": 48,
+                  "43": 110,
+                  "44": 77,
+                  "45": 67,
+                  "46": 114,
+                  "47": 101,
+                  "48": 79,
+                  "49": 84,
+                  "50": 48,
+                  "51": 120,
+                  "52": 76,
+                  "53": 76,
+                  "54": 108,
+                  "55": 119,
+                  "56": 86,
+                  "57": 86,
+                  "58": 83,
+                  "59": 113,
+                  "60": 52,
+                  "61": 71,
+                  "62": 57,
+                  "63": 97,
+                  "64": 97,
+                  "65": 81,
+                  "66": 106,
+                  "67": 83,
+                  "68": 56,
+                  "69": 100,
+                  "70": 111,
+                  "71": 66,
+                  "72": 73,
+                  "73": 95,
+                  "74": 81,
+                  "75": 102,
+                  "76": 51,
+                  "77": 105,
+                  "78": 70,
+                  "79": 121,
+                  "80": 121,
+                  "81": 106,
+                  "82": 48,
+                  "83": 122,
+                  "84": 71,
+                  "85": 72,
+                  "86": 87,
+                  "87": 76,
+                  "88": 110,
+                  "89": 111,
+                  "90": 117,
+                  "91": 56,
+                  "92": 121,
+                  "93": 105,
+                  "94": 108,
+                  "95": 56,
+                  "96": 85,
+                  "97": 95,
+                  "98": 113,
+                  "99": 86,
+                  "100": 53,
+                  "101": 119,
+                  "102": 88,
+                  "103": 70,
+                  "104": 77,
+                  "105": 108,
+                  "106": 52,
+                  "107": 99,
+                  "108": 112,
+                  "109": 98,
+                  "110": 112,
+                  "111": 118,
+                  "112": 76,
+                  "113": 104,
+                  "114": 114,
+                  "115": 122,
+                  "116": 66,
+                  "117": 65,
+                  "118": 53,
+                  "119": 73,
+                  "120": 48,
+                  "121": 97,
+                  "122": 85,
+                  "123": 99,
+                  "124": 82,
+                  "125": 101,
+                  "126": 56,
+                  "127": 113,
+                  "128": 55,
+                  "129": 115,
+                  "130": 112,
+                  "131": 107,
+                  "132": 98,
+                  "133": 50,
+                  "134": 77,
+                  "135": 65,
+                  "136": 95,
+                  "137": 76,
+                  "138": 120,
+                  "139": 101,
+                  "140": 89,
+                  "141": 84,
+                  "142": 86,
+                  "143": 81,
+                  "144": 122,
+                  "145": 70,
+                  "146": 100,
+                  "147": 111,
+                  "148": 54,
+                  "149": 121,
+                  "150": 85,
+                  "151": 121,
+                  "152": 114,
+                  "153": 100,
+                  "154": 69,
+                  "155": 88,
+                  "156": 49,
+                  "157": 118,
+                  "158": 68,
+                  "159": 121,
+                  "160": 120,
+                  "161": 55,
+                  "162": 79,
+                  "163": 104,
+                  "164": 68,
+                  "165": 104,
+                  "166": 100,
+                  "167": 86,
+                  "168": 68,
+                  "169": 65,
+                  "170": 51,
+                  "171": 54,
+                  "172": 115,
+                  "173": 104,
+                  "174": 105,
+                  "175": 101,
+                  "176": 77,
+                  "177": 104,
+                  "178": 67,
+                  "179": 53,
+                  "180": 97,
+                  "181": 112,
+                  "182": 110,
+                  "183": 71,
+                  "184": 56,
+                  "185": 68,
+                  "186": 109,
+                  "187": 103,
+                  "188": 86,
+                  "189": 81,
+                  "190": 55,
+                  "191": 101,
+                  "192": 102,
+                  "193": 107,
+                  "194": 50,
+                  "195": 52,
+                  "196": 73,
+                  "197": 75,
+                  "198": 110,
+                  "199": 54,
+                  "200": 119,
+                  "201": 76,
+                  "202": 82,
+                  "203": 56,
+                  "204": 85,
+                  "205": 55,
+                  "206": 81,
+                  "207": 116,
+                  "208": 54,
+                  "209": 57,
+                  "210": 72,
+                  "211": 98,
+                  "212": 109,
+                  "213": 108,
+                  "214": 76,
+                  "215": 88,
+                  "216": 53,
+                  "217": 84,
+                  "218": 114,
+                  "219": 52,
+                  "220": 57,
+                  "221": 105,
+                  "222": 118,
+                  "223": 99,
+                  "224": 87,
+                  "225": 111,
+                  "226": 79,
+                  "227": 119,
+                  "228": 84,
+                  "229": 97,
+                  "230": 49,
+                  "231": 70,
+                  "232": 45,
+                  "233": 114,
+                  "234": 100,
+                  "235": 65,
+                  "236": 99,
+                  "237": 121,
+                  "238": 115,
+                  "239": 101,
+                  "240": 68,
+                  "241": 81,
+                  "242": 83,
+                  "243": 85,
+                  "244": 78,
+                  "245": 70,
+                  "246": 82,
+                  "247": 116,
+                  "248": 83,
+                  "249": 45,
+                  "250": 85,
+                  "251": 121,
+                  "252": 71,
+                  "253": 80,
+                  "254": 107,
+                  "255": 120,
+                  "256": 109,
+                  "257": 50,
+                  "258": 68,
+                  "259": 82,
+                  "260": 122,
+                  "261": 105,
+                  "262": 115,
+                  "263": 111,
+                  "264": 90,
+                  "265": 104,
+                  "266": 106,
+                  "267": 72,
+                  "268": 118,
+                  "269": 78,
+                  "270": 84,
+                  "271": 51,
+                  "272": 84,
+                  "273": 107,
+                  "274": 48,
+                  "275": 56,
+                  "276": 121,
+                  "277": 53,
+                  "278": 116,
+                  "279": 50,
+                  "280": 112,
+                  "281": 87,
+                  "282": 73,
+                  "283": 88,
+                  "284": 109,
+                  "285": 86,
+                  "286": 55,
+                  "287": 107,
+                  "288": 74,
+                  "289": 65,
+                  "290": 79,
+                  "291": 82,
+                  "292": 105,
+                  "293": 122,
+                  "294": 83,
+                  "295": 99,
+                  "296": 109,
+                  "297": 120,
+                  "298": 73,
+                  "299": 103,
+                  "300": 118,
+                  "301": 57,
+                  "302": 56,
+                  "303": 51,
+                  "304": 105,
+                  "305": 86,
+                  "306": 77,
+                  "307": 87,
+                  "308": 108,
+                  "309": 69,
+                  "310": 78,
+                  "311": 76,
+                  "312": 89,
+                  "313": 88,
+                  "314": 89,
+                  "315": 66,
+                  "316": 117,
+                  "317": 83,
+                  "318": 113,
+                  "319": 57,
+                  "320": 65,
+                  "321": 82,
+                  "322": 97,
+                  "323": 45,
+                  "324": 113,
+                  "325": 80,
+                  "326": 69,
+                  "327": 112,
+                  "328": 45,
+                  "329": 100,
+                  "330": 119,
+                  "331": 52,
+                  "332": 116,
+                  "333": 111,
+                  "334": 71,
+                  "335": 51,
+                  "336": 114,
+                  "337": 84,
+                  "338": 69,
+                  "339": 89,
+                  "340": 69,
+                  "341": 73,
+                  "342": 117,
+                  "343": 102,
+                  "344": 101,
+                  "345": 72,
+                  "346": 113,
+                  "347": 105,
+                  "348": 97,
+                  "349": 68,
+                  "350": 101,
+                  "351": 68,
+                  "352": 75,
+                  "353": 100,
+                  "354": 117,
+                  "355": 99,
+                  "356": 119,
+                  "357": 83,
+                  "358": 56,
+                  "359": 57,
+                  "360": 75,
+                  "361": 69,
+                  "362": 56,
+                  "363": 99,
+                  "364": 45,
+                  "365": 75,
+                  "366": 86,
+                  "367": 67,
+                  "368": 101,
+                  "369": 78,
+                  "370": 88,
+                  "371": 45,
+                  "372": 109,
+                  "373": 54,
+                  "374": 119,
+                  "375": 53,
+                  "376": 52,
+                  "377": 100,
+                  "378": 100,
+                  "379": 51,
+                  "380": 72,
+                  "381": 81,
+                  "382": 75,
+                  "383": 84,
+                  "384": 85,
+                  "385": 89,
+                  "386": 115,
+                  "387": 54,
+                  "388": 86,
+                  "389": 116,
+                  "390": 103,
+                  "391": 54,
+                  "392": 121,
+                  "393": 82,
+                  "394": 101,
+                  "395": 81,
+                  "396": 115,
+                  "397": 120,
+                  "398": 56,
+                  "399": 90,
+                  "400": 122,
+                  "401": 115,
+                  "402": 88,
+                  "403": 108,
+                  "404": 89,
+                  "405": 73,
+                  "406": 84,
+                  "407": 57,
+                  "408": 86,
+                  "409": 100,
+                  "410": 87,
+                  "411": 70,
+                  "412": 111,
+                  "413": 108,
+                  "414": 81,
+                  "415": 56,
+                  "416": 102,
+                  "417": 104,
+                  "418": 104,
+                  "419": 95,
+                  "420": 79,
+                  "421": 100,
+                  "422": 115,
+                  "423": 109,
+                  "424": 81,
+                  "425": 101,
+                  "426": 53,
+                  "427": 100,
+                  "428": 53,
+                  "429": 103
                 }
               },
-              "messageType": "audioMessage",
-              "messageTimestamp": 1785144566,
+              "messageType": "conversation",
+              "messageTimestamp": 1785214299,
               "instanceId": "85a6bdff-14cf-4bb9-a6db-22eebce72c0c",
-              "source": "web"
+              "source": "ios"
             },
             "destination": "https://n8n-n8n.tuxbfq.easypanel.host/webhook/begabot-master-webhook",
-            "date_time": "2026-07-27T06:29:27.204Z",
+            "date_time": "2026-07-28T01:51:40.865Z",
             "sender": "595993358150@s.whatsapp.net",
             "server_url": "https://evolutionapi-evolution-api.tuxbfq.easypanel.host",
             "apikey": "C72947216ABD-4957-B7E2-DA911A29D6DA"
           },
           "webhookUrl": "https://n8n-n8n.tuxbfq.easypanel.host/webhook/begabot-master-webhook",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-n8n.tuxbfq.easypanel.host",
+            "user-agent": "node",
+            "content-length": "164",
+            "accept": "*/*",
+            "accept-encoding": "br, gzip, deflate",
+            "accept-language": "*",
+            "content-type": "application/json",
+            "sec-fetch-mode": "cors",
+            "x-forwarded-for": "34.31.217.201",
+            "x-forwarded-host": "n8n-n8n.tuxbfq.easypanel.host",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "cdfc846432b5",
+            "x-real-ip": "34.31.217.201"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "sender": "595993358150@s.whatsapp.net",
+            "remoteJid": "595981133313@s.whatsapp.net",
+            "accumulatedText": "escribiem en un minuto",
+            "timestamp": "2026-07-28T08:01:45.511Z"
+          },
+          "webhookUrl": "https://n8n-n8n.tuxbfq.easypanel.host/webhook/8f2a37f4-ae47-496d-a1ec-9e81565fde3c",
           "executionMode": "production"
         },
         "pairedItem": {
@@ -5181,6 +6599,11 @@
         [
           {
             "node": "es grupo",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Estados de conversacion1",
             "type": "main",
             "index": 0
           }
@@ -5480,17 +6903,6 @@
         ]
       ]
     },
-    "Code in JavaScript": {
-      "main": [
-        [
-          {
-            "node": "LEER ESTADO1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "actulizar pront": {
       "main": [
         [
@@ -5534,7 +6946,7 @@
       "main": [
         [
           {
-            "node": "call ai",
+            "node": "Get row(s) in sheet",
             "type": "main",
             "index": 0
           }
@@ -5545,7 +6957,7 @@
       "main": [
         [
           {
-            "node": "Code in JavaScript",
+            "node": "normalizar ai",
             "type": "main",
             "index": 0
           }
@@ -5721,6 +7133,187 @@
           }
         ]
       ]
+    },
+    "contexto": {
+      "main": [
+        [
+          {
+            "node": "crear_carrito_abandonado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "es tarea": {
+      "main": [
+        [
+          {
+            "node": "crear tarea",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "consumir tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalizar ai": {
+      "main": [
+        [
+          {
+            "node": "LEER ESTADO1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "es tarea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Estados de conversacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estados de conversacion": {
+      "main": [
+        [
+          {
+            "node": "tareas futuro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "evolution api config": {
+      "main": [
+        []
+      ]
+    },
+    "crear tarea": {
+      "main": [
+        [
+          {
+            "node": "RESETEAR ESTDO CONVERSACION",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estados de conversacion1": {
+      "main": [
+        [
+          {
+            "node": "logSmsEntrante",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "call ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "logSmsEntrante1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tareas futuro": {
+      "main": [
+        [
+          {
+            "node": "tareas pendiente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tareas pendiente": {
+      "main": [
+        [
+          {
+            "node": "evolution api config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consumir tarea": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "leer uuid2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -5728,7 +7321,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "c0afbe53-c133-47b7-bd1a-26eeabf8f705",
+  "versionId": "66129f8e-87fb-4b47-8a87-15a09e0ec9b2",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "ad013465dfd09f36352f0e4c55ddc2632c1aa7f503e072a25c236ac2917eb8ad"

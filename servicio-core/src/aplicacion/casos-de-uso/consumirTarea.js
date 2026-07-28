@@ -13,8 +13,6 @@ class ConsumirTarea {
 
     const log = new LogTarea({
       tareaId: tarea.id,
-      sender: tarea.sender,
-      jid: tarea.jid,
       texto: tarea.texto,
       fechaEjecucion: tarea.fechaEjecucion,
       estadoFinal: 'completada',

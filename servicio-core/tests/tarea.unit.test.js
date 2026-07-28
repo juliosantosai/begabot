@@ -12,28 +12,46 @@ test('CrearTarea llama al repositorio con datos correctos', async () => {
   };
 
   const caso = new CrearTarea({ tareaRepositorio: repo });
-  const now = new Date();
-  await caso.ejecutar({ texto: 'hola', fechaEjecucion: now, estadoConversacionUuid: 'estado-123' });
+  await caso.ejecutar({ texto: 'hola', delay: 60, estadoConversacionUuid: 'estado-123' });
 
   assert.equal(saved.texto, 'hola');
-  assert.equal(saved.payload.estadoConversacionUuid, 'estado-123');
+  assert.equal(saved.estadoConversacionUuid, 'estado-123');
 });
 
-test('CrearTarea guarda el uuid del estado de conversación en el payload', async () => {
+test('CrearTarea guarda el uuid del estado de conversación', async () => {
   let saved = null;
   const repo = {
     crear: async (tarea) => { saved = tarea.toPlainObject ? tarea.toPlainObject() : tarea; return saved; },
   };
 
   const caso = new CrearTarea({ tareaRepositorio: repo });
-  const now = new Date();
   await caso.ejecutar({
     texto: 'hola',
-    fechaEjecucion: now,
+    delay: 60,
     estadoConversacionUuid: 'estado-123',
   });
 
-  assert.equal(saved.payload.estadoConversacionUuid, 'estado-123');
+  assert.equal(saved.estadoConversacionUuid, 'estado-123');
+});
+
+test('CrearTarea calcula fechaEjecucion desde delay', async () => {
+  let saved = null;
+  const repo = {
+    crear: async (tarea) => { saved = tarea.toPlainObject ? tarea.toPlainObject() : tarea; return saved; },
+  };
+
+  const caso = new CrearTarea({ tareaRepositorio: repo });
+  const start = Date.now();
+  await caso.ejecutar({
+    texto: 'hola',
+    delay: 60,
+    estadoConversacionUuid: 'estado-123',
+  });
+
+  const fecha = new Date(saved.fechaEjecucion).getTime();
+  assert.ok(fecha >= start + 59000);
+  assert.ok(fecha <= start + 65000);
+  assert.equal(saved.estadoConversacionUuid, 'estado-123');
 });
 
 test('PrismaTareaRepositorio actualiza tarea pendiente existente con el mismo estadoConversacionUuid', async () => {
@@ -71,7 +89,7 @@ test('PrismaTareaRepositorio actualiza tarea pendiente existente con el mismo es
     id: 't-2',
     texto: 'saludo',
     fechaEjecucion: new Date(),
-    payload: { estadoConversacionUuid: 'estado-123' },
+    estadoConversacionUuid: 'estado-123',
   });
 
   const result = await repo.crear(tarea);
@@ -92,9 +110,8 @@ test('ConsumirProximaTarea guarda log y marca tarea eliminada', async () => {
 
   const caso = new ConsumirProximaTarea({ tareaRepositorio: repo });
   const res = await caso.ejecutar();
-
-  assert.equal(res.id, 'log1');
-  assert.equal(res.tareaId, tarea.id);
+  assert.equal(res.log.id, 'log1');
+  assert.equal(res.log.tareaId, tarea.id);
 });
 
 test('ConsumirProximaTarea no consume tareas con fecha futura', async () => {

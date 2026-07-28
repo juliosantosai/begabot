@@ -5,10 +5,14 @@ class CrearTarea {
     this.tareaRepositorio = tareaRepositorio;
   }
 
-  async ejecutar({ texto, fechaEjecucion, estadoConversacionUuid }) {
-    const fecha = fechaEjecucion instanceof Date ? fechaEjecucion : new Date(fechaEjecucion);
-    const payload = estadoConversacionUuid ? { estadoConversacionUuid } : {};
-    const tarea = new Tarea({ texto, fechaEjecucion: fecha, payload });
+  async ejecutar({ texto, estadoConversacionUuid, delay }) {
+    const delayNumber = Number(delay);
+    if (Number.isNaN(delayNumber) || delayNumber < 0) {
+      throw new Error('delay debe ser un número mayor o igual a 0');
+    }
+
+    const fecha = new Date(Date.now() + delayNumber * 1000);
+    const tarea = new Tarea({ texto, fechaEjecucion: fecha, estadoConversacionUuid });
     const resultado = await this.tareaRepositorio.crear(tarea);
     return resultado;
   }

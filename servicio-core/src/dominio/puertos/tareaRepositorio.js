@@ -15,6 +15,10 @@ class TareaRepositorio {
     throw new Error('Debe implementar listarPendientes()');
   }
 
+  async listarFuturas() {
+    throw new Error('Debe implementar listarFuturas()');
+  }
+
   async eliminarPorId(_id) {
     throw new Error('Debe implementar eliminarPorId()');
   }

@@ -22,8 +22,6 @@ class ConsumirProximaTarea {
 
     const log = new LogTarea({
       tareaId: tarea.id,
-      sender: tarea.sender,
-      jid: tarea.jid,
       texto: tarea.texto,
       fechaEjecucion: tarea.fechaEjecucion,
       estadoFinal: 'completada',
@@ -33,7 +31,7 @@ class ConsumirProximaTarea {
     const guardado = await this.tareaRepositorio.guardarLog(log);
     await this.tareaRepositorio.eliminarPorId(tarea.id);
 
-    return guardado;
+    return { log: guardado, tarea };
   }
 }
 

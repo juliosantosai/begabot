@@ -175,6 +175,22 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
     }
   });
 
+  app.get('/core/estado-conversacion/:uuid', async (req, res) => {
+    try {
+      const { uuid } = req.params;
+      if (!uuid) {
+        return res.status(400).json({ error: 'uuid es obligatorio' });
+      }
+      const estado = await estadoRepositorio.obtenerPorUuid(uuid);
+      if (!estado) {
+        return res.status(404).json({ error: 'No existe estado de conversación con ese uuid' });
+      }
+      return res.status(200).json(estado.toPlainObject ? estado.toPlainObject() : estado);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post('/core/estado-conversacion/:uuid/bloqueo', async (req, res) => {
     try {
       const { uuid } = req.params;
@@ -223,9 +239,15 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
 
   app.post('/core/tareas', async (req, res) => {
     try {
-      const { texto, fechaEjecucion, estadoConversacionUuid } = req.body;
+      const { uuid, texto, delay } = req.body;
       if (!tareaRepositorio) return res.status(500).json({ error: 'Repositorio de tareas no disponible' });
-      const resultado = await crearTarea.ejecutar({ texto, fechaEjecucion, estadoConversacionUuid });
+      if (!texto && texto !== null) {
+        return res.status(400).json({ error: 'texto es obligatorio y puede ser null' });
+      }
+      if (delay === undefined || delay === null) {
+        return res.status(400).json({ error: 'delay es obligatorio' });
+      }
+      const resultado = await crearTarea.ejecutar({ texto, estadoConversacionUuid: uuid, delay });
       res.status(201).json({ data: resultado });
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -237,8 +259,13 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
     try {
       if (!tareaRepositorio) return res.status(500).json({ error: 'Repositorio de tareas no disponible' });
       const resultado = await consumirProximaTarea.ejecutar();
-      res.status(200).json({ data: resultado });
+      const tareaRespuesta = (resultado && resultado.tarea) ? resultado.tarea : resultado;
+      const logRespuesta = (resultado && resultado.log) ? resultado.log : null;
+      res.status(200).json({ data: { tareaPendiente: true, tarea: tareaRespuesta, log: logRespuesta } });
     } catch (error) {
+      if (error.message === 'No hay tareas pendientes' || error.message === 'No hay tareas pendientes para ejecutar') {
+        return res.status(200).json({ data: { tareaPendiente: false, tarea: null } });
+      }
       res.status(400).json({ error: error.message });
     }
   });
@@ -251,13 +278,46 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       const data = pendientes.map((tarea) => ({
         id: tarea.id,
         uuid: tarea.id,
-        sender: tarea.sender,
-        jid: tarea.jid,
         texto: tarea.texto,
+        estadoConversacionUuid: tarea.estadoConversacionUuid,
         fechaEjecucion: tarea.fechaEjecucion,
         estado: tarea.estado,
         segundosRestantes: Math.max(0, Math.floor((new Date(tarea.fechaEjecucion).getTime() - ahora) / 1000)),
       }));
+      res.status(200).json({ data });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.get('/core/tareas/futuro', async (_req, res) => {
+    try {
+      if (!tareaRepositorio) return res.status(500).json({ error: 'Repositorio de tareas no disponible' });
+      const futuras = await tareaRepositorio.listarFuturas();
+      const ahora = Date.now();
+      const data = futuras.map((tarea) => {
+        const diffMs = Math.max(0, new Date(tarea.fechaEjecucion).getTime() - ahora);
+        let segundos = Math.floor(diffMs / 1000);
+        const dias = Math.floor(segundos / 86400);
+        segundos -= dias * 86400;
+        const horas = Math.floor(segundos / 3600);
+        segundos -= horas * 3600;
+        const minutos = Math.floor(segundos / 60);
+        segundos -= minutos * 60;
+        const tiempoHasta = { dias, horas, minutos, segundos };
+        const tiempoHastaStr = `${dias}d ${horas}h ${minutos}m ${segundos}s`;
+
+        return {
+          id: tarea.id,
+          uuid: tarea.id,
+          texto: tarea.texto,
+          estadoConversacionUuid: tarea.estadoConversacionUuid,
+          fechaEjecucion: tarea.fechaEjecucion,
+          estado: tarea.estado,
+          tiempoHasta,
+          tiempoHastaStr,
+        };
+      });
       res.status(200).json({ data });
     } catch (error) {
       res.status(400).json({ error: error.message });
