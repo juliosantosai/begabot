@@ -12,6 +12,7 @@
     "servicio-buffer",
     "servicio-core",
     "servicio-agente-ia",
+    "servicio-autoreply-fb",
     "packages/*"
   ],
   "dependencies": {

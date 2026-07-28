@@ -2,6 +2,8 @@
 
 Este documento muestra ejemplos rápidos de cómo orquestar BegaBot desde n8n utilizando HTTP Request y Webhook nodes.
 
+Nota: `servicio-autoreply-fb` es un adaptador externo independiente para Autoreply.io / Facebook y no está incluido directamente en el workflow interno de n8n. Este documento describe principalmente cómo integrar los servicios core (`servicio-buffer`, `servicio-core`, `servicio-agente-ia`) vía n8n.
+
 1) Recibir eventos y reenviar a n8n
 - Configurar `N8N_WEBHOOK_URL` en el servicio que actúe como origen de eventos.
 - El servicio puede llamar automáticamente a `POST $N8N_WEBHOOK_URL` con el payload entrante.

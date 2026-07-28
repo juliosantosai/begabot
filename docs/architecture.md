@@ -26,6 +26,7 @@ Orquestación con n8n:
 
 - La orquestación de webhook y coordinación entre `servicio-buffer`, `servicio-core` y `servicio-agente-ia` puede realizarse mediante un workflow de n8n incluido en este repositorio: `n8n/workflows/begabot-orchestrator.json`.
 - Ese workflow actúa como receptor de webhooks desde el buffer y realiza llamadas HTTP a los servicios de backend, además de gestionar bloqueos, resets y envíos a la API de Evolution cuando corresponda.
+- `servicio-autoreply-fb` es un adaptador externo independiente para Autoreply.io / Facebook y no forma parte del workflow n8n interno.
 
 Rol de `servicio-buffer` en la arquitectura:
 

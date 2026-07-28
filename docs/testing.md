@@ -1,20 +1,49 @@
 # Pruebas (Tests) en BegaBot 3.0
 
-Instrucciones para ejecutar las pruebas unitarias e de integración de los servicios nuevos y del core.
+Esta guía muestra cómo ejecutar los tests unitarios e de integración en el monorepo.
 
-Ejecutar todos los tests en un servicio concreto:
+## Ejecución rápida
+
+Desde la raíz del repositorio:
 
 ```bash
-# Desde la raíz del repositorio
-cd servicio-core && npm install && npm test
+npm test
 ```
 
-Detalles:
-- Cada servicio nuevo incluye tests unitarios (`test/*.unit.test.js`) y tests de integración (`test/*.integration.test.js`).
-- Los tests usan `node --test` (Node 18+) y no requieren dependencias externas para ejecución básica.
-- Las pruebas de integración arrancan el servidor del servicio en el puerto configurado (3001-3004). Asegúrate de que los puertos estén libres.
+Eso ejecuta los tests de los workspaces definidos en el monorepo.
 
-Recomendación para CI:
+## Tests por servicio
 
-- Ejecutar `npm ci` en cada servicio y luego `npm test`.
-- Para evitar colisiones de puertos, ejecutar los tests en paralelo con cuidado o usar variables de entorno para puertos temporales.
+Ejecuta los tests del servicio que estés modificando:
+
+```bash
+cd servicio-autoreply-fb
+npm run test:unit
+npm run test:integration
+```
+
+## Estándares de pruebas
+
+- Tests unitarios en `test/*.unit.test.js`
+- Tests de integración en `test/*.integration.test.js`
+- Las pruebas usan `node --test` y funcionan con Node 18+
+- Usa `supertest` para validar endpoints HTTP cuando el servicio expone una app Express
+
+## CI y validación
+
+El repositorio incluye una acción de GitHub Actions en `.github/workflows/ci.yml` que ejecuta los tests de los servicios.
+
+Para validar localmente antes de enviar un PR:
+
+1. Ejecuta `npm install` en la raíz.
+2. Ejecuta `npm test`.
+3. Ejecuta los tests del servicio modificado directamente si es necesario.
+
+## Puertos en pruebas
+
+- `servicio-buffer`: 3001
+- `servicio-core`: 3002
+- `servicio-agente-ia`: 3003
+- `servicio-autoreply-fb`: 3004
+
+Asegúrate de que los puertos estén libres o ajusta `.env` antes de ejecutar tests que inicien servicios locales.

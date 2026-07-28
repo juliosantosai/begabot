@@ -13,9 +13,10 @@ BegaBot 3.0 es un monorepo de microservicios Node.js para orquestar mensajes, pe
 
 ## Qué incluye
 
-- `servicio-buffer` — buffer de mensajes en Redis y agregación de eventos.
-- `servicio-core` — lógica de negocio, persistencia con Prisma/PostgreSQL y estado de conversación.
-- `servicio-agente-ia` — proxy de agente IA, generación de respuestas y manejo de prompts.
+- `servicio-buffer` — buffer de mensajes en Redis y agregación de eventos. (servicio core de Begabot)
+- `servicio-core` — lógica de negocio, persistencia con Prisma/PostgreSQL y estado de conversación. (servicio core de Begabot)
+- `servicio-agente-ia` — proxy de agente IA, generación de respuestas y manejo de prompts. (servicio core de Begabot)
+- `servicio-autoreply-fb` — adaptador externo independiente para recibir mensajes desde Autoreply.io / Facebook con memoria en Redis y respuesta con historial. No forma parte del workflow n8n interno.
 - `packages/shared-contracts` — modelos y contratos compartidos.
 
 ## Requisitos
@@ -34,22 +35,46 @@ git clone https://github.com/juliosantosai/begabot.git
 cd begabot
 ```
 
-2. Instala dependencias desde la raíz:
+2. Copia el archivo de entorno local y actualiza los valores:
+
+```bash
+cp .env.example .env
+```
+
+3. Instala dependencias desde la raíz del monorepo:
 
 ```bash
 npm install
 ```
 
-3. Levanta el stack completo con Docker:
+4. Levanta el stack completo con Docker:
 
 ```bash
 docker compose up -d --build
 ```
 
-4. Verifica que los servicios estén activos:
+5. Verifica que los servicios estén activos:
 
 ```bash
 docker compose ps
+```
+
+## Getting started
+
+- Usa `npm install` desde la raíz para instalar todos los workspaces.
+- Para arrancar un servicio individual en desarrollo:
+
+```bash
+npm --workspace servicio-buffer run dev
+npm --workspace servicio-autoreply-fb run start
+```
+
+- Para ejecutar los tests de un servicio específico:
+
+```bash
+cd servicio-autoreply-fb
+npm run test:unit
+npm run test:integration
 ```
 
 ## Comandos útiles
@@ -136,6 +161,7 @@ curl -X POST http://localhost:3003/api/ai/generate-response \
 - `docs/DEPLOYMENT.md` — despliegue y producción
 - `docs/architecture.md` — visión técnica detallada
 - `docs/n8n-integration.md` — integración con n8n (incluye la ubicación del workflow: `n8n/workflows/begabot-orchestrator.json`)
+- `servicio-autoreply-fb/CONTRATO-ARQUITECTURA.md` — contrato y arquitectura del adaptador Autoreply FB
 
 ## Contribuir
 
