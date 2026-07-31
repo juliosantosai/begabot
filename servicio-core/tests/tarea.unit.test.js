@@ -136,12 +136,11 @@ test('GET /core/tareas/pendientes devuelve tareas con segundos restantes', async
       findMany: async () => [
         {
           id: 't-1',
-          sender: 's1',
-          jid: 'j1',
           texto: 'hola',
           fechaEjecucion: new Date(Date.now() + 4500),
           estado: 'pendiente',
           eliminado: false,
+          estadoConversacionUuid: 'estado-123',
         },
       ],
     },
@@ -159,6 +158,44 @@ test('GET /core/tareas/pendientes devuelve tareas con segundos restantes', async
     assert.equal(payload.data[0].id, 't-1');
     assert.equal(payload.data[0].uuid, 't-1');
     assert.ok(payload.data[0].segundosRestantes >= 4 && payload.data[0].segundosRestantes <= 5);
+  } finally {
+    server.close();
+  }
+});
+
+test('POST /core/tareas/borrar-todos borra todas las tareas y logs', async () => {
+  let deletedTasks = false;
+  let deletedLogs = false;
+  const repo = {
+    crear: async () => {},
+    obtenerPorEstadoConversacionUuid: async () => null,
+    listarPendientes: async () => [],
+    listarFuturas: async () => [],
+    eliminarPorId: async () => {},
+    guardarLog: async () => {},
+    borrarTodos: async () => {
+      deletedTasks = true;
+      deletedLogs = true;
+      return { deletedTasks: 1, deletedLogs: 2 };
+    },
+  };
+
+  const app = crearAplicacion({ prisma: null, tareaRepositorio: repo });
+  const server = app.listen(0);
+  await new Promise((resolve) => server.once('listening', resolve));
+
+  try {
+    const { port } = server.address();
+    const response = await fetch(`http://127.0.0.1:${port}/core/tareas/borrar-todos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    assert.equal(response.status, 200);
+    const payload = await response.json();
+    assert.equal(payload.data.deletedTasks, 1);
+    assert.equal(payload.data.deletedLogs, 2);
+    assert.equal(deletedTasks, true);
+    assert.equal(deletedLogs, true);
   } finally {
     server.close();
   }

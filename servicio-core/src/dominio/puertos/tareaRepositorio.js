@@ -19,6 +19,10 @@ class TareaRepositorio {
     throw new Error('Debe implementar listarFuturas()');
   }
 
+  async borrarTodos() {
+    throw new Error('Debe implementar borrarTodos()');
+  }
+
   async eliminarPorId(_id) {
     throw new Error('Debe implementar eliminarPorId()');
   }

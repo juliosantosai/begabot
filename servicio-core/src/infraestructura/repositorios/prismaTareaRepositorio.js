@@ -88,6 +88,15 @@ class PrismaTareaRepositorio extends TareaRepositorio {
     return this.prisma.task.update({ where: { id }, data: { eliminado: true, deletedAt: new Date(), estado: 'eliminada' } });
   }
 
+  async borrarTodos() {
+    const deletedLogs = await this.prisma.taskLog.deleteMany({});
+    const deletedTasks = await this.prisma.task.deleteMany({});
+    return {
+      deletedLogs: deletedLogs.count ?? deletedLogs,
+      deletedTasks: deletedTasks.count ?? deletedTasks,
+    };
+  }
+
   async guardarLog(log) {
     return this.prisma.taskLog.create({
       data: {

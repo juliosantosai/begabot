@@ -2,6 +2,11 @@ const express = require('express');
 const PrismaMensajeRepositorio = require('../../infraestructura/repositorios/prismaMensajeRepositorio');
 const PrismaEvolutionApiRepositorio = require('../../infraestructura/repositorios/prismaEvolutionApiRepositorio');
 const PrismaPromptRepositorio = require('../../infraestructura/repositorios/prismaPromptRepositorio');
+const PrismaSessionMemoryRepositorio = require('../../infraestructura/repositorios/prismaSessionMemoryRepositorio');
+const PrismaTenantSessionMemoryRepositorio = require('../../infraestructura/repositorios/prismaTenantSessionMemoryRepositorio');
+const PrismaDynamicRecordRepositorio = require('../../infraestructura/repositorios/prismaDynamicRecordRepositorio');
+const PrismaTenantMessageRepositorio = require('../../infraestructura/repositorios/prismaTenantMessageRepositorio');
+const ServicioAgenteHttp = require('../../infraestructura/ai/servicioAgenteHttp');
 const FetchHttpClient = require('../../infraestructura/http/fetchHttpClient');
 const ProcesarMensaje = require('../../aplicacion/casos-de-uso/procesarMensaje');
 const ListarMensajesPorJid = require('../../aplicacion/casos-de-uso/listarMensajesPorJid');
@@ -23,7 +28,7 @@ function esClientePrismaValido(prisma) {
   );
 }
 
-function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRepositorio }) {
+function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRepositorio, tareaRepositorio: tareaRepositorioParam } = {}) {
   const app = express();
   app.use(express.json());
 
@@ -35,14 +40,20 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
     || (esClientePrismaValido(prisma) ? new PrismaEstadoConversacionRepositorio(prisma) : new EstadoConversacionRepositorioMemoria());
   const estadoConversacionCasosDeUso = new EstadoConversacionCasosDeUso({ estadoConversacionRepositorio: estadoRepositorio });
 
-  const procesarMensaje = new ProcesarMensaje({ mensajeRepositorio });
+  const sessionMemoryRepositorio = esClientePrismaValido(prisma) ? new PrismaSessionMemoryRepositorio(prisma) : null;
+  const tenantSessionMemoryRepositorio = prisma ? new PrismaTenantSessionMemoryRepositorio(prisma) : null;
+  const dynamicRecordRepositorio = prisma ? new PrismaDynamicRecordRepositorio(prisma) : null;
+  const tenantMessageRepositorio = prisma ? new PrismaTenantMessageRepositorio(prisma) : null;
+  const agenteIa = new ServicioAgenteHttp({ url: process.env.AI_SERVICE_URL || process.env.AGENT_SERVICE_URL || 'http://localhost:3003', httpClient });
+
+  const procesarMensaje = new ProcesarMensaje({ mensajeRepositorio, sessionMemoryRepositorio, agenteIa });
   const listarMensajesPorJid = new ListarMensajesPorJid({ mensajeRepositorio });
   const registrarPrompt = new RegistrarPrompt({ promptRepositorio });
   const consultarPrompt = new ConsultarPrompt({ promptRepositorio });
   const registrarInstanciaEvolutionApi = new RegistrarInstanciaEvolutionApi({ instanciaRepositorio: evolutionApiRepositorioInstance });
   const consultarInstanciaEvolutionApi = new ConsultarInstanciaEvolutionApi({ instanciaRepositorio: evolutionApiRepositorioInstance });
   const enviarMensajeEvolutionApi = new EnviarMensajeEvolutionApi({ evolutionApiRepositorio: evolutionApiRepositorioInstance, httpClient });
-  const tareaRepositorio = esClientePrismaValido(prisma) ? new PrismaTareaRepositorio(prisma) : null;
+  const tareaRepositorio = tareaRepositorioParam || (esClientePrismaValido(prisma) ? new PrismaTareaRepositorio(prisma) : null);
   const crearTarea = new CrearTarea({ tareaRepositorio });
   const consumirTarea = new ConsumirTarea({ tareaRepositorio });
   const consumirProximaTarea = new (require('../../aplicacion/casos-de-uso/consumirProximaTarea'))({ tareaRepositorio });
@@ -66,6 +77,30 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       res.status(200).json({ data: mensajes });
     } catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Endpoint 1: Consultar historial y memoria por jid
+  app.get('/core/sesiones/:jid', async (req, res) => {
+    try {
+      const { jid } = req.params;
+      if (!jid) return res.status(400).json({ error: 'jid es obligatorio' });
+
+      const mensajes = await listarMensajesPorJid.ejecutar(jid);
+      const memoria = this && this.sessionMemoryRepositorio ? null : null; // no-op to keep linter quiet
+      let session = null;
+      try {
+        session = await sessionMemoryRepositorio?.obtenerPorJid?.(jid);
+      } catch (e) {
+        // ignore
+      }
+
+      const memory_patch = session?.state_data || {};
+      const mensajes_recientes = (mensajes || []).map((m) => ({ role: m.role || m.sender, content: m.content || m.texto, created_at: m.createdAt || m.creadoEn }));
+
+      return res.status(200).json({ jid, memory_patch, mensajes_recientes });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
   });
 
@@ -118,6 +153,151 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       res.status(200).json({ data: resultado });
     } catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Endpoint 2: Consultar catálogo / búsqueda de productos (simple)
+  const productosMock = [
+    { id: 1, nombre: 'Cámara Pro 4K', precio: 299.99, stock: 15 },
+    { id: 2, nombre: 'Cámara Lite 1080p', precio: 149.99, stock: 32 },
+  ];
+
+  app.get('/core/productos', async (req, res) => {
+    try {
+      const q = (req.query.q || '').toLowerCase();
+      const productos = q ? productosMock.filter((p) => p.nombre.toLowerCase().includes(q)) : productosMock;
+      res.status(200).json({ productos });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/core/productos/buscar', async (req, res) => {
+    try {
+      const q = (req.query.q || '').toLowerCase();
+      const productos = q ? productosMock.filter((p) => p.nombre.toLowerCase().includes(q)) : [];
+      res.status(200).json({ productos });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Tenant endpoints: GET configuration and session
+  app.get('/core/tenants/:tenantId/sesiones/:jid', async (req, res) => {
+    try {
+      const { tenantId, jid } = req.params;
+      if (!tenantId || !jid) return res.status(400).json({ error: 'tenantId y jid son obligatorios' });
+
+      // required fields from tenant config (if available)
+      let required_fields = [];
+      if (prisma && prisma.tenantConfig) {
+        const cfg = await prisma.tenantConfig.findUnique({ where: { tenantId } });
+        if (cfg && cfg.fields) required_fields = cfg.fields;
+      }
+
+      // get memory
+      const session = tenantSessionMemoryRepositorio ? await tenantSessionMemoryRepositorio.obtenerPorTenantYJid(tenantId, jid) : null;
+      const memory_patch = session?.memoryPatch || {};
+
+      // recent messages
+      const mensajes = tenantMessageRepositorio ? await tenantMessageRepositorio.listarRecientes(tenantId, jid, 10) : [];
+      const mensajes_recientes = (mensajes || []).map((m) => ({ role: m.role, content: m.content, createdAt: m.createdAt }));
+
+      return res.status(200).json({ tenant_id: tenantId, jid, required_fields, memory_patch, mensajes_recientes });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Tenant endpoints: Persistencia
+  app.post('/core/tenants/:tenantId/sesiones/persistencia', async (req, res) => {
+    const { tenantId } = req.params;
+    const { jid, mensaje_usuario, respuesta_ia, memory_patch, dynamic_record } = req.body || {};
+
+    if (!tenantId || !jid) {
+      return res.status(400).json({ error: 'tenantId y jid son obligatorios' });
+    }
+
+    try {
+      const tenantConfig = prisma && prisma.tenantConfig ? await prisma.tenantConfig.findUnique({ where: { tenantId } }) : null;
+      const allowedFields = tenantConfig && Array.isArray(tenantConfig.fields) ? tenantConfig.fields : [];
+
+      let filteredData = {};
+      let recordIdentifier = jid;
+
+      if (dynamic_record && dynamic_record.data && typeof dynamic_record.data === 'object' && !Array.isArray(dynamic_record.data)) {
+        for (const [key, value] of Object.entries(dynamic_record.data)) {
+          if (allowedFields.length === 0 || allowedFields.includes(key)) {
+            filteredData[key] = value;
+          }
+        }
+
+        if (filteredData.cedula) {
+          recordIdentifier = String(filteredData.cedula);
+        }
+      }
+
+      const resultado = await prisma.$transaction(async (tx) => {
+        if (mensaje_usuario) {
+          await tx.messageTenant.create({
+            data: { tenantId, jid, role: 'user', content: mensaje_usuario },
+          });
+        }
+
+        if (respuesta_ia) {
+          await tx.messageTenant.create({
+            data: { tenantId, jid, role: 'assistant', content: respuesta_ia },
+          });
+        }
+
+        let updatedMemory = {};
+        if (memory_patch && typeof memory_patch === 'object' && !Array.isArray(memory_patch)) {
+          const existingSession = await tx.sessionMemoryTenant.findUnique({
+            where: { tenantId_jid: { tenantId, jid } },
+          });
+          const currentPatch = existingSession?.memoryPatch || {};
+          updatedMemory = { ...currentPatch, ...memory_patch };
+
+          await tx.sessionMemoryTenant.upsert({
+            where: { tenantId_jid: { tenantId, jid } },
+            update: { memoryPatch: updatedMemory },
+            create: { tenantId, jid, memoryPatch: updatedMemory },
+          });
+        }
+
+        let savedRecord = null;
+        const entityName = dynamic_record?.entityName || dynamic_record?.entity_name;
+        if (dynamic_record && entityName && Object.keys(filteredData).length > 0) {
+          savedRecord = await tx.dynamicRecord.upsert({
+            where: {
+              tenantId_entityName_recordIdentifier: {
+                tenantId,
+                entityName,
+                recordIdentifier,
+              },
+            },
+            update: { data: filteredData },
+            create: {
+              tenantId,
+              entityName,
+              recordIdentifier,
+              data: filteredData,
+            },
+          });
+        }
+
+        return { updatedMemory, savedRecord };
+      });
+
+      return res.status(201).json({
+        status: 'success',
+        persisted: true,
+        session_memory: resultado.updatedMemory,
+        dynamic_record: resultado.savedRecord,
+      });
+    } catch (error) {
+      console.error('Error en persistencia multi-tenant:', error);
+      return res.status(500).json({ error: 'Error interno al persistir la sesión' });
     }
   });
 
@@ -251,6 +431,112 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       res.status(201).json({ data: resultado });
     } catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Endpoint 3: Persistir mensajes, memoria y registros dinámicos de forma atómica
+  app.post('/core/tenants/:tenantId/sesiones/persistencia', async (req, res) => {
+    const { tenantId } = req.params;
+    const { jid, mensaje_usuario, respuesta_ia, memory_patch, dynamic_record } = req.body || {};
+
+    if (!tenantId || !jid) {
+      return res.status(400).json({ error: 'tenantId y jid son obligatorios' });
+    }
+
+    try {
+      const tenantConfig = prisma && prisma.tenantConfig ? await prisma.tenantConfig.findUnique({ where: { tenantId } }) : null;
+      const allowedFields = tenantConfig && Array.isArray(tenantConfig.fields) ? tenantConfig.fields : [];
+
+      let filteredData = {};
+      let recordIdentifier = jid;
+
+      if (dynamic_record && dynamic_record.data && typeof dynamic_record.data === 'object' && !Array.isArray(dynamic_record.data)) {
+        for (const [key, value] of Object.entries(dynamic_record.data)) {
+          if (allowedFields.length === 0 || allowedFields.includes(key)) {
+            filteredData[key] = value;
+          }
+        }
+
+        if (filteredData.cedula) {
+          recordIdentifier = String(filteredData.cedula);
+        }
+      }
+
+      const resultado = await prisma.$transaction(async (tx) => {
+        if (mensaje_usuario) {
+          await tx.messageTenant.create({
+            data: { tenantId, jid, role: 'user', content: mensaje_usuario },
+          });
+        }
+
+        if (respuesta_ia) {
+          await tx.messageTenant.create({
+            data: { tenantId, jid, role: 'assistant', content: respuesta_ia },
+          });
+        }
+
+        let updatedMemory = {};
+        if (memory_patch && typeof memory_patch === 'object' && !Array.isArray(memory_patch)) {
+          const existingSession = await tx.sessionMemoryTenant.findUnique({
+            where: { tenantId_jid: { tenantId, jid } },
+          });
+          const currentPatch = existingSession?.memoryPatch || {};
+          updatedMemory = { ...currentPatch, ...memory_patch };
+
+          await tx.sessionMemoryTenant.upsert({
+            where: { tenantId_jid: { tenantId, jid } },
+            update: { memoryPatch: updatedMemory },
+            create: { tenantId, jid, memoryPatch: updatedMemory },
+          });
+        }
+
+        let savedRecord = null;
+        const entityName = dynamic_record?.entityName || dynamic_record?.entity_name;
+        if (dynamic_record && entityName && Object.keys(filteredData).length > 0) {
+          savedRecord = await tx.dynamicRecord.upsert({
+            where: {
+              tenantId_entityName_recordIdentifier: {
+                tenantId,
+                entityName,
+                recordIdentifier,
+              },
+            },
+            update: { data: filteredData },
+            create: {
+              tenantId,
+              entityName,
+              recordIdentifier,
+              data: filteredData,
+            },
+          });
+        }
+
+        return { updatedMemory, savedRecord };
+      });
+
+      return res.status(201).json({
+        status: 'success',
+        persisted: true,
+        session_memory: resultado.updatedMemory,
+        dynamic_record: resultado.savedRecord,
+      });
+    } catch (error) {
+      console.error('Error en persistencia multi-tenant:', error);
+      return res.status(500).json({ error: 'Error interno al persistir la sesión' });
+    }
+  });
+
+  app.post('/core/tareas/borrar-todos', async (req, res) => {
+    try {
+      if (!tareaRepositorio) return res.status(500).json({ error: 'Repositorio de tareas no disponible' });
+      const webhookSecret = process.env.WEBHOOK_SECRET;
+      if (webhookSecret && req.headers['x-webhook-secret'] !== webhookSecret) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+      const resultado = await tareaRepositorio.borrarTodos();
+      return res.status(200).json({ data: resultado });
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
     }
   });
 

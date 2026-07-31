@@ -15,6 +15,25 @@ model MessageHistory {
   isFromClient Boolean
   source       String
   creadoEn     DateTime @default(now())
+
+  @@index([jid, creadoEn])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  jid       String
+  sender    String
+  role      String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([jid, createdAt])
+}
+
+model SessionMemory {
+  jid       String   @id
+  state_data Json     @default("{}")
+  updatedAt DateTime @default(now())
 }
 
 model EvolutionApiConfig {
@@ -67,4 +86,53 @@ model TaskLog {
   fechaRegistro DateTime @default(now())
   estadoFinal   String
   observacion   String?
+}
+
+// Multi-tenant dynamic models
+model TenantConfig {
+  id        String   @id @default(uuid())
+  tenantId  String   @unique @map("tenant_id")
+  name      String
+  fields    Json     @default("[]")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("tenant_configs")
+}
+
+model DynamicRecord {
+  id               String   @id @default(uuid())
+  tenantId         String   @map("tenant_id")
+  entityName       String   @map("entity_name")
+  recordIdentifier String   @map("record_identifier")
+  data             Json     @default("{}")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, entityName, recordIdentifier])
+  @@map("dynamic_records")
+}
+
+model SessionMemoryTenant {
+  id          String   @id @default(uuid())
+  tenantId    String   @map("tenant_id")
+  jid         String   @map("jid")
+  memoryPatch Json     @default("{}") @map("memory_patch")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, jid])
+  @@map("session_memories")
+}
+
+model MessageTenant {
+  id           String   @id @default(uuid())
+  tenantId     String   @map("tenant_id")
+  jid          String   @map("jid")
+  role         String
+  content      String   @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, jid, createdAt(sort: Desc)])
+  @@map("messages")
 }
