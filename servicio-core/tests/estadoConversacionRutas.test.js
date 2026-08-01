@@ -154,4 +154,31 @@ test('GET sin-incrementar devuelve el estado sin modificar numero', async () => 
   assert.equal(payload.jid, 'jid-a');
   assert.equal(payload.sender, 'sender-a');
   assert.equal(payload.numero, 1);
+  assert.equal(payload.conversationState, 'general');
+  assert.equal(payload.conversationSummary, '');
+  assert.deepEqual(payload.contexto, {});
+});
+
+test('GET estado-conversacion inicial agrega conversationState y conversationSummary', async () => {
+  const almacen = new Map();
+  const repo = {
+    obtenerPorJidYSender: async () => null,
+    guardar: async (estado) => {
+      const registro = estado.toPlainObject();
+      almacen.set(registro.uuid, registro);
+      return registro;
+    },
+  };
+
+  const app = crearAplicacion({ estadoConversacionRepositorio: repo });
+  const response = await request(app, 'GET', '/core/estado-conversacion?jid=jid-b&sender=sender-b');
+
+  assert.equal(response.statusCode, 200);
+  const payload = JSON.parse(response.body);
+  assert.equal(payload.jid, 'jid-b');
+  assert.equal(payload.sender, 'sender-b');
+  assert.equal(payload.numero, 1);
+  assert.equal(payload.conversationState, 'general');
+  assert.equal(payload.conversationSummary, '');
+  assert.deepEqual(payload.contexto, {});
 });

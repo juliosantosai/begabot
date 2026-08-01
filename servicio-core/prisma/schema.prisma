@@ -31,9 +31,11 @@ model Message {
 }
 
 model SessionMemory {
-  jid       String   @id
-  state_data Json     @default("{}")
-  updatedAt DateTime @default(now())
+  jid                String   @id
+  state_data         Json     @default("{}")
+  conversation_state String?  @default("general")
+  conversation_summary String? @db.Text
+  updatedAt          DateTime @default(now())
 }
 
 model EvolutionApiConfig {
@@ -114,12 +116,14 @@ model DynamicRecord {
 }
 
 model SessionMemoryTenant {
-  id          String   @id @default(uuid())
-  tenantId    String   @map("tenant_id")
-  jid         String   @map("jid")
-  memoryPatch Json     @default("{}") @map("memory_patch")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id                   String   @id @default(uuid())
+  tenantId             String   @map("tenant_id")
+  jid                  String   @map("jid")
+  memoryPatch          Json     @default("{}") @map("memory_patch")
+  conversation_state   String?  @default("general") @map("conversation_state")
+  conversation_summary String?  @db.Text @map("conversation_summary")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
 
   @@unique([tenantId, jid])
   @@map("session_memories")

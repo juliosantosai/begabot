@@ -29,11 +29,25 @@ function esClientePrismaValido(prisma) {
   );
 }
 
+function enrichConversationState(estado) {
+  const plain = estado.toPlainObject ? estado.toPlainObject() : estado;
+  const contexto = plain.contexto || {};
+  const conversationState = contexto.conversation_state || contexto.conversationState || 'general';
+  const conversationSummary = contexto.conversation_summary || contexto.conversationSummary || '';
+
+  return {
+    ...plain,
+    contexto,
+    conversationState,
+    conversationSummary,
+  };
+}
+
 function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRepositorio, tareaRepositorio: tareaRepositorioParam } = {}) {
   const app = express();
   app.use(express.json());
 
-  const tenantAwarePrisma = createTenantAwarePrismaClient(prisma);
+  const tenantAwarePrisma = prisma ? createTenantAwarePrismaClient(prisma) : null;
   app.use('/core/tenants/:tenantId', (req, res, next) => {
     const routeTenantId = req.params?.tenantId;
     const headerTenantId = req.headers['x-tenant-id'] || req.headers['x-tenantid'];
@@ -227,7 +241,7 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
   // Tenant endpoints: Persistencia
   app.post('/core/tenants/:tenantId/sesiones/persistencia', async (req, res) => {
     const { tenantId } = req.params;
-    const { jid, mensaje_usuario, respuesta_ia, memory_patch, dynamic_record } = req.body || {};
+    const { jid, mensaje_usuario, respuesta_ia, memory_patch, dynamic_record, conversation_summary, conversation_state } = req.body || {};
 
     if (!tenantId || !jid) {
       return res.status(400).json({ error: 'tenantId y jid son obligatorios' });
@@ -275,11 +289,26 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
           });
           const currentPatch = existingSession?.memoryPatch || {};
           updatedMemory = { ...currentPatch, ...memory_patch };
+          const currentConversationState = existingSession?.conversation_state || currentPatch?.conversation_state || null;
+          const conversationState = memory_patch.conversation_state || currentConversationState || null;
 
           await txPrisma.sessionMemoryTenant.upsert({
             where: { tenantId_jid: { tenantId, jid } },
-            update: { memoryPatch: updatedMemory },
-            create: { tenantId, jid, memoryPatch: updatedMemory },
+            update: {
+              memoryPatch: updatedMemory,
+              conversation_state: conversationState,
+              conversation_summary: conversation_summary || existingSession?.conversation_summary || null,
+              updatedAt: new Date(),
+            },
+            create: {
+              tenantId,
+              jid,
+              memoryPatch: updatedMemory,
+              conversation_state: conversationState,
+              conversation_summary: conversation_summary || null,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
           });
         }
 
@@ -345,7 +374,7 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
         return res.status(400).json({ error: 'jid y sender son obligatorios' });
       }
       const estado = await estadoConversacionCasosDeUso.obtenerEstado(jid, sender);
-      return res.status(200).json(estado);
+      return res.status(200).json(enrichConversationState(estado));
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
@@ -358,7 +387,7 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
         return res.status(400).json({ error: 'jid y sender son obligatorios' });
       }
       const estado = await estadoConversacionCasosDeUso.obtenerEstadoSinIncrementar(jid, sender);
-      return res.status(200).json(estado);
+      return res.status(200).json(enrichConversationState(estado));
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
@@ -383,7 +412,7 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       if (!estado) {
         return res.status(404).json({ error: 'No existe estado de conversación con ese uuid' });
       }
-      return res.status(200).json(estado.toPlainObject ? estado.toPlainObject() : estado);
+      return res.status(200).json(enrichConversationState(estado));
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }

@@ -30,6 +30,33 @@ test('normaliza warming_response y task_payload desde la respuesta del agente', 
   assert.deepEqual(resultado.memory_patch, { estado: 'esperando' });
 });
 
+test('prioriza reply y memory_patch canonicos sobre el string serializado en response', async () => {
+  const mockHttpClient = {
+    enviar: async () => ({
+      data: JSON.stringify({
+        reply: 'Texto humano final',
+        memory_patch: { estado: 'esperando_necesidad', zona: 'Ciudad del Este' },
+        warming_response: 'Preparando el siguiente paso',
+        task_payload: { texto: null, delay: 0 },
+        response: '{"sender":"usuario","jid":"chat_123","response":"JSON serializado"}'
+      }),
+    }),
+  };
+
+  const servicio = new ServicioAgenteHttp({ url: 'http://localhost:3003', httpClient: mockHttpClient });
+  const resultado = await servicio.generarRespuesta({
+    jid: 'empresa-a',
+    mensajeUsuario: { texto: 'Hola' },
+    historialConversacional: [],
+    estadoActual: {},
+  });
+
+  assert.equal(resultado.reply, 'Texto humano final');
+  assert.deepEqual(resultado.memory_patch, { estado: 'esperando_necesidad', zona: 'Ciudad del Este' });
+  assert.equal(resultado.warmingResponse, 'Preparando el siguiente paso');
+  assert.deepEqual(resultado.taskPayload, { texto: null, delay: 0 });
+});
+
 test('envía el payload estructurado con userConcatenatedMessage y contexto al agente', async () => {
   let capturedBody;
   const mockHttpClient = {
@@ -55,12 +82,14 @@ test('envía el payload estructurado con userConcatenatedMessage y contexto al a
     sender: 'empresa-a',
     mensajeUsuario: { texto: '2' },
     historialConversacional: [{ role: 'user', content: 'Hola' }],
-    estadoActual: { etapa: 'cantidad' },
+    estadoActual: { etapa: 'cantidad', conversation_state: 'ESPERANDO_DIRECCION', conversation_summary: 'Quiero comprar - Hola' },
   });
 
   assert.equal(capturedBody.userConcatenatedMessage, '2');
   assert.equal(capturedBody.sender, 'empresa-a');
   assert.equal(capturedBody.jid, 'empresa-a');
   assert.equal(capturedBody.contextoPrevio, '[Estado: cantidad]');
+  assert.equal(capturedBody.conversationState, 'ESPERANDO_DIRECCION');
+  assert.equal(capturedBody.conversationSummary, 'Quiero comprar - Hola');
   assert.equal(capturedBody.systemPrompt, '');
 });

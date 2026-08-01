@@ -54,15 +54,22 @@ class ProcesarMensaje {
         : String(respuestaIa.reply);
 
     const textoRespuestaFinal = textoRespuesta || textoNormalizadoConPrefijo;
+    const nuevoResumen = `${textoNormalizadoConPrefijo} - ${textoRespuestaFinal}`;
+    const resumenActual = memoriaActual?.conversation_summary || '';
+    const conversationSummary = resumenActual
+      ? `${resumenActual} - ${nuevoResumen}`
+      : nuevoResumen;
 
     let memoryPatch = null;
     let memoriaAplicada = estadoActual;
+    let conversationState = estadoActual?.conversation_state || null;
 
     if (respuestaIa && typeof respuestaIa === 'object') {
       const patchBruto = respuestaIa.memory_patch;
       if (patchBruto && typeof patchBruto === 'object' && !Array.isArray(patchBruto)) {
         memoryPatch = patchBruto;
         memoriaAplicada = { ...estadoActual, ...memoryPatch };
+        conversationState = patchBruto.conversation_state || patchBruto.state || estadoActual?.conversation_state || null;
       } else {
         this.logger.warn?.(`Patch de memoria inválido para ${jid}:`, patchBruto);
       }
@@ -72,6 +79,8 @@ class ProcesarMensaje {
       await this.sessionMemoryRepositorio.guardar({
         jid,
         state_data: memoriaAplicada,
+        conversation_state: conversationState,
+        conversation_summary: conversationSummary,
       });
     }
 

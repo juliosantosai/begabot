@@ -48,6 +48,75 @@ test('E2E: AI valid parsedResponse persists memory_patch', async () => {
   }
 });
 
+test('E2E: AI split conversation_state into separate persisted field', async () => {
+  const prisma = new PrismaClient();
+  const jid = `e2e-jid-conversation-state-${Date.now()}`;
+  await prisma.sessionMemory.deleteMany({ where: { jid } });
+
+  const mock = createMockAiServer((_req, res) => {
+    const parsed = { reply: 'Hola desde mock', memory_patch: { ciudad: 'MVD', conversation_state: 'ESPERANDO_DIRECCION' } };
+    res.json({ status: 'success', response: JSON.stringify(parsed), responseText: JSON.stringify(parsed), parsedResponse: parsed, output: { response: JSON.stringify(parsed), parsedResponse: parsed } });
+  });
+
+  const mockPort = mock.address().port;
+  process.env.AI_SERVICE_URL = `http://127.0.0.1:${mockPort}`;
+  const app = crearAplicacion({ prisma });
+  const server = app.listen(0);
+  try {
+    const { port } = server.address();
+    const resp = await fetch(`http://127.0.0.1:${port}/core/mensajes`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jid, texto: 'Quiero comprar', isFromClient: true, source: 'test' })
+    });
+    assert.equal(resp.status, 201);
+
+    await new Promise((r) => setTimeout(r, 200));
+    const session = await prisma.sessionMemory.findUnique({ where: { jid } });
+    assert.ok(session);
+    assert.equal(session.conversation_state, 'ESPERANDO_DIRECCION');
+    assert.equal(session.state_data.ciudad, 'MVD');
+    assert.equal(session.state_data.conversation_state, 'ESPERANDO_DIRECCION');
+  } finally {
+    server.close();
+    mock.close();
+    await prisma.$disconnect();
+  }
+});
+
+test('E2E: AI accumulates conversation_summary in a dedicated field', async () => {
+  const prisma = new PrismaClient();
+  const jid = `e2e-jid-summary-${Date.now()}`;
+  await prisma.sessionMemory.deleteMany({ where: { jid } });
+
+  const mock = createMockAiServer((_req, res) => {
+    const parsed = { reply: 'Hola desde mock', memory_patch: { ciudad: 'MVD', conversation_state: 'ESPERANDO_DIRECCION' } };
+    res.json({ status: 'success', response: JSON.stringify(parsed), responseText: JSON.stringify(parsed), parsedResponse: parsed, output: { response: JSON.stringify(parsed), parsedResponse: parsed } });
+  });
+
+  const mockPort = mock.address().port;
+  process.env.AI_SERVICE_URL = `http://127.0.0.1:${mockPort}`;
+  const app = crearAplicacion({ prisma });
+  const server = app.listen(0);
+  try {
+    const { port } = server.address();
+    const resp = await fetch(`http://127.0.0.1:${port}/core/mensajes`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jid, texto: 'Quiero comprar', isFromClient: true, source: 'test' })
+    });
+    assert.equal(resp.status, 201);
+
+    await new Promise((r) => setTimeout(r, 200));
+    const session = await prisma.sessionMemory.findUnique({ where: { jid } });
+    assert.ok(session);
+    assert.equal(session.conversation_summary, 'Quiero comprar - Hola desde mock');
+    assert.equal(session.conversation_state, 'ESPERANDO_DIRECCION');
+  } finally {
+    server.close();
+    mock.close();
+    await prisma.$disconnect();
+  }
+});
+
 test('E2E: AI invalid response does not alter session memory', async () => {
   const prisma = new PrismaClient();
   const jid = `e2e-jid-invalid-${Date.now()}`;

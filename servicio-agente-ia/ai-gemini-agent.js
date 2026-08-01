@@ -46,6 +46,81 @@ function intentarParsearJson(texto) {
   }
 }
 
+function normalizarMemoryPatchString(valor) {
+  if (typeof valor !== 'string') return valor;
+  const matches = [...valor.matchAll(/\[(.*?)\s*:\s*(.*?)\]/g)];
+  if (!matches.length) return valor;
+
+  return matches.reduce((acc, [, key, value]) => {
+    const clave = String(key || '').trim().toLowerCase().replace(/\s+/g, '_');
+    if (clave) acc[clave] = String(value || '').trim();
+    return acc;
+  }, {});
+}
+
+function normalizarRespuestaIa({ textoRespuestaIa, respuestaJsonParseada, metrics, tenantId, model }) {
+  const payloadParseado = respuestaJsonParseada && typeof respuestaJsonParseada === 'object'
+    ? respuestaJsonParseada
+    : {};
+
+  const reply = payloadParseado.reply
+    || payloadParseado.mensaje_whatsapp
+    || payloadParseado.response
+    || payloadParseado.text
+    || payloadParseado.message
+    || textoRespuestaIa
+    || null;
+
+  const memoryPatchRaw = payloadParseado.memory_patch
+    || payloadParseado.nuevo_contexto
+    || payloadParseado.memoryPatch
+    || null;
+  const memoryPatch = typeof memoryPatchRaw === 'string'
+    ? normalizarMemoryPatchString(memoryPatchRaw)
+    : (memoryPatchRaw || null);
+
+  const warmingResponse = payloadParseado.warming_response
+    || payloadParseado.mensaje_calentamiento
+    || payloadParseado.response
+    || payloadParseado.reply
+    || null;
+  const taskPayload = payloadParseado.task_payload || payloadParseado.tarea || null;
+  const userIntent = payloadParseado.intent || payloadParseado.usuario_intencion || payloadParseado.user_intent || null;
+  const conversationState = payloadParseado.conversationState || payloadParseado.conversation_state || memoryPatch?.conversation_state || null;
+  const conversationSummary = payloadParseado.conversationSummary || payloadParseado.conversation_summary || null;
+
+  const respuestaNormalizada = {
+    status: 'success',
+    tenantId: tenantId || null,
+    reply,
+    mensaje_whatsapp: reply,
+    mensaje_calentamiento: warmingResponse,
+    nuevo_contexto: memoryPatch,
+    usuario_intencion: userIntent,
+    tarea: taskPayload,
+    memory_patch: memoryPatch,
+    warming_response: warmingResponse,
+    task_payload: taskPayload,
+    conversationState,
+    conversationSummary,
+    conversation_state: conversationState,
+    conversation_summary: conversationSummary,
+    output: {
+      response: textoRespuestaIa,
+      parsedResponse: payloadParseado,
+      metrics: metrics || {},
+      model: model || null
+    },
+    response: textoRespuestaIa,
+    responseText: textoRespuestaIa,
+    parsedResponse: payloadParseado,
+    metrics: metrics || {},
+    model: model || null
+  };
+
+  return respuestaNormalizada;
+}
+
 /**
  * Contrato del servicio de agente de IA.
  *
@@ -104,9 +179,6 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
     } = req.body;
 
     const resolvedTenantId = sender || tenantId || tenant || req.headers['x-tenant-id'] || null;
-    if (!resolvedTenantId) {
-      return res.status(400).json({ error: 'Se requiere sender o tenantId para aislar la conversación' });
-    }
 
     let iaRequest;
     try {
@@ -154,28 +226,9 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
       console.error('Error al reportar auditoría al Core de PostgreSQL:', logError.message);
     }
 
-    const respuestaNormalizada = {
-      status: 'success',
-      mensaje_whatsapp: respuestaJsonParseada?.mensaje_whatsapp || null,
-      mensaje_calentamiento: respuestaJsonParseada?.mensaje_calentamiento || null,
-      nuevo_contexto: respuestaJsonParseada?.nuevo_contexto || null,
-      usuario_intencion: respuestaJsonParseada?.usuario_intencion || null,
-      tarea: respuestaJsonParseada?.tarea || null,
-      output: {
-        response: textoRespuestaIa,
-        parsedResponse: respuestaJsonParseada,
-        metrics: {
-          latenciaMs,
-          tokens: {
-            prompt: usoTokens.promptTokenCount,
-            completion: usoTokens.candidatesTokenCount,
-            total: usoTokens.totalTokenCount
-          }
-        }
-      },
-      response: textoRespuestaIa,
-      responseText: textoRespuestaIa,
-      parsedResponse: respuestaJsonParseada,
+    const respuestaNormalizada = normalizarRespuestaIa({
+      textoRespuestaIa,
+      respuestaJsonParseada,
       metrics: {
         latenciaMs,
         tokens: {
@@ -183,8 +236,10 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
           completion: usoTokens.candidatesTokenCount,
           total: usoTokens.totalTokenCount
         }
-      }
-    };
+      },
+      tenantId: resolvedTenantId,
+      model: iaRequest.aiModel || 'models/gemini-3.1-flash-lite'
+    });
 
     return res.status(200).json(respuestaNormalizada);
   } catch (error) {
@@ -207,9 +262,6 @@ aplicacion.post('/api/ai/generate-from-prompts', async (req, res) => {
     } = req.body;
 
     const resolvedTenantId = sender || tenantId || tenant || req.headers['x-tenant-id'] || null;
-    if (!resolvedTenantId) {
-      return res.status(400).json({ error: 'Se requiere sender o tenantId para aislar la conversación' });
-    }
 
     if (!basePrompt || !systemPrompt) {
       return res.status(400).json({
@@ -227,23 +279,13 @@ aplicacion.post('/api/ai/generate-from-prompts', async (req, res) => {
     });
 
     const respuestaJsonParseada = intentarParsearJson(respuestaIa.text);
-    const respuestaNormalizada = {
-      status: 'success',
-      mensaje_whatsapp: respuestaJsonParseada?.mensaje_whatsapp || null,
-      mensaje_calentamiento: respuestaJsonParseada?.mensaje_calentamiento || null,
-      nuevo_contexto: respuestaJsonParseada?.nuevo_contexto || null,
-      usuario_intencion: respuestaJsonParseada?.usuario_intencion || null,
-      tarea: respuestaJsonParseada?.tarea || null,
-      output: {
-        response: respuestaIa.text,
-        parsedResponse: respuestaJsonParseada,
-        model: model || 'models/gemini-3.1-flash-lite'
-      },
-      response: respuestaIa.text,
-      responseText: respuestaIa.text,
-      parsedResponse: respuestaJsonParseada,
+    const respuestaNormalizada = normalizarRespuestaIa({
+      textoRespuestaIa: respuestaIa.text,
+      respuestaJsonParseada,
+      metrics: { latenciaMs: 0 },
+      tenantId: resolvedTenantId,
       model: model || 'models/gemini-3.1-flash-lite'
-    };
+    });
 
     return res.status(200).json(respuestaNormalizada);
   } catch (error) {
@@ -256,17 +298,33 @@ aplicacion.post('/api/ai/generate-from-prompts', async (req, res) => {
 // Endpoint genérico para integración con n8n: acepta prompt, systemInstruction, history e identificador de inquilino.
 aplicacion.post('/run', async (req, res) => {
   try {
-    const { tenantId, prompt, systemInstruction, history, model, temperature, sender, tenant } = req.body;
+    const {
+      tenantId,
+      prompt,
+      systemInstruction,
+      history,
+      model,
+      temperature,
+      sender,
+      tenant,
+      conversationState,
+      conversationSummary,
+    } = req.body;
     const resolvedTenantId = sender || tenantId || tenant || req.headers['x-tenant-id'] || null;
 
     if (!prompt || !systemInstruction || !resolvedTenantId) {
       return res.status(400).json({ error: 'Se requieren prompt, systemInstruction y tenantId' });
     }
 
+    const contextoDeEstado = {
+      conversationState: conversationState || null,
+      conversationSummary: conversationSummary || null,
+    };
+
     const inicio = Date.now();
     const respuestaIa = await clienteIa.models.generateContent({
       model: model || (process.env.DEFAULT_AI_MODEL || 'models/gemini-3.1-flash-lite'),
-      contents: prompt,
+      contents: `${JSON.stringify(contextoDeEstado)}\n\n${prompt}`,
       config: {
         systemInstruction: systemInstruction,
         temperature: temperature !== undefined ? temperature : 0.7,
@@ -279,24 +337,13 @@ aplicacion.post('/run', async (req, res) => {
     const textoRespuestaIa = respuestaIa.text;
 
     const respuestaJsonParseada = intentarParsearJson(textoRespuestaIa);
-    const respuestaNormalizada = {
-      status: 'success',
+    const respuestaNormalizada = normalizarRespuestaIa({
+      textoRespuestaIa,
+      respuestaJsonParseada,
+      metrics: { latenciaMs },
       tenantId: resolvedTenantId,
-      mensaje_whatsapp: respuestaJsonParseada?.mensaje_whatsapp || null,
-      mensaje_calentamiento: respuestaJsonParseada?.mensaje_calentamiento || null,
-      nuevo_contexto: respuestaJsonParseada?.nuevo_contexto || null,
-      usuario_intencion: respuestaJsonParseada?.usuario_intencion || null,
-      tarea: respuestaJsonParseada?.tarea || null,
-      output: {
-        response: textoRespuestaIa,
-        parsedResponse: respuestaJsonParseada,
-        metrics: { latenciaMs }
-      },
-      response: textoRespuestaIa,
-      responseText: textoRespuestaIa,
-      parsedResponse: respuestaJsonParseada,
-      metrics: { latenciaMs }
-    };
+      model: model || (process.env.DEFAULT_AI_MODEL || 'models/gemini-3.1-flash-lite')
+    });
 
     return res.status(200).json(respuestaNormalizada);
   } catch (error) {

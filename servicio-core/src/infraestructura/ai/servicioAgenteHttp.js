@@ -1,3 +1,23 @@
+function normalizarMemoryPatch(valor) {
+  if (!valor) return null;
+  if (typeof valor === 'string') {
+    const matches = [...valor.matchAll(/\[(.*?)\s*:\s*(.*?)\]/g)];
+    if (!matches.length) return valor;
+
+    return matches.reduce((acc, [, key, value]) => {
+      const clave = String(key || '').trim().toLowerCase().replace(/\s+/g, '_');
+      if (clave) acc[clave] = String(value || '').trim();
+      return acc;
+    }, {});
+  }
+
+  if (typeof valor === 'object' && !Array.isArray(valor)) {
+    return valor;
+  }
+
+  return null;
+}
+
 class ServicioAgenteHttp {
   constructor({ url, httpClient } = {}) {
     this.url = (url || process.env.AI_SERVICE_URL || process.env.AGENT_SERVICE_URL || 'http://localhost:3003').replace(/\/$/, '');
@@ -9,6 +29,8 @@ class ServicioAgenteHttp {
     const contextoPrevio = estadoActual && Object.keys(estadoActual).length > 0
       ? `[Estado: ${estadoActual.etapa || estadoActual.state || 'general'}]`
       : '[Estado: general]';
+    const conversationState = estadoActual?.conversation_state || estadoActual?.state || estadoActual?.etapa || null;
+    const conversationSummary = estadoActual?.conversation_summary || null;
 
     const body = {
       tenantId: sender || jid,
@@ -16,6 +38,8 @@ class ServicioAgenteHttp {
       jid: jid || sender || null,
       userConcatenatedMessage: textoUsuario,
       contextoPrevio,
+      conversationState,
+      conversationSummary,
       systemPrompt: '',
       prompt: textoUsuario,
       systemInstruction: '',
@@ -55,10 +79,36 @@ class ServicioAgenteHttp {
       try { parsedObj = JSON.parse(rawText.replace(/(\r|\n)+/g, ' ').trim()); } catch (_) { parsedObj = null; }
     }
 
-    const reply = rawResponse?.response || rawResponse?.responseText || parsedObj?.reply || parsedObj?.mensaje_whatsapp || rawText || '';
-    const memory_patch = parsedObj?.memory_patch || parsedObj?.nuevo_contexto || parsedObj?.memoryPatch || null;
-    const warmingResponse = parsedObj?.warming_response || parsedObj?.mensaje_calentamiento || rawResponse?.warming_response || null;
-    const taskPayload = parsedObj?.task_payload || parsedObj?.tarea || rawResponse?.task_payload || null;
+    const reply = rawResponse?.reply
+      || rawResponse?.mensaje_whatsapp
+      || parsedObj?.response
+      || parsedObj?.reply
+      || parsedObj?.mensaje_whatsapp
+      || rawResponse?.response
+      || rawResponse?.responseText
+      || rawText
+      || '';
+
+    const memory_patch = normalizarMemoryPatch(
+      rawResponse?.memory_patch
+      || rawResponse?.nuevo_contexto
+      || rawResponse?.memoryPatch
+      || parsedObj?.memory_patch
+      || parsedObj?.nuevo_contexto
+      || parsedObj?.memoryPatch
+      || null
+    );
+    const warmingResponse = rawResponse?.warming_response
+      || rawResponse?.mensaje_calentamiento
+      || parsedObj?.warming_response
+      || parsedObj?.mensaje_calentamiento
+      || reply
+      || null;
+    const taskPayload = rawResponse?.task_payload
+      || rawResponse?.tarea
+      || parsedObj?.task_payload
+      || parsedObj?.tarea
+      || null;
 
     return { reply, memory_patch, warmingResponse, taskPayload };
   }

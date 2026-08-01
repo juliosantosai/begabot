@@ -64,6 +64,67 @@ describe('Unit tests for ai-gemini-agent', () => {
     );
   });
 
+  test('normaliza el payload de /run con aliases backward-compatible para n8n', async () => {
+    aiGenaiMock.models.generateContent.mockResolvedValue({
+      text: JSON.stringify({
+        reply: 'Respuesta normalizada',
+        memory_patch: { paso: 'cantidad', conversation_state: 'ESPERANDO_DIRECCION' },
+        warming_response: 'Preparando el siguiente paso',
+        task_payload: { tipo: 'seguimiento', prioridad: 'alta' }
+      })
+    });
+
+    const response = await request(app)
+      .post('/run')
+      .send({
+        tenantId: 'tenant-1',
+        prompt: 'Necesito ayuda',
+        systemInstruction: 'Eres útil',
+        history: [],
+        model: 'models/gemini-3.1-flash-lite',
+        temperature: 0.5
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      mensaje_whatsapp: 'Respuesta normalizada',
+      mensaje_calentamiento: 'Preparando el siguiente paso',
+      nuevo_contexto: { paso: 'cantidad', conversation_state: 'ESPERANDO_DIRECCION' },
+      usuario_intencion: null,
+      tarea: { tipo: 'seguimiento', prioridad: 'alta' },
+      memory_patch: { paso: 'cantidad', conversation_state: 'ESPERANDO_DIRECCION' },
+      warming_response: 'Preparando el siguiente paso',
+      task_payload: { tipo: 'seguimiento', prioridad: 'alta' }
+    });
+  });
+
+  test('usa fallback de reply/response para mensaje_calentamiento cuando la IA no lo trae', async () => {
+    aiGenaiMock.models.generateContent.mockResolvedValue({
+      text: JSON.stringify({
+        response: 'Mensaje de respuesta para enviar',
+        memory_patch: { estado: 'esperando_necesidad' }
+      })
+    });
+
+    const response = await request(app)
+      .post('/run')
+      .send({
+        tenantId: 'tenant-1',
+        prompt: 'Necesito ayuda',
+        systemInstruction: 'Eres útil',
+        history: [],
+        model: 'models/gemini-3.1-flash-lite',
+        temperature: 0.5
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      mensaje_whatsapp: 'Mensaje de respuesta para enviar',
+      mensaje_calentamiento: 'Mensaje de respuesta para enviar',
+      nuevo_contexto: { estado: 'esperando_necesidad' }
+    });
+  });
+
   test('convierte números a strings en el endpoint generate-response', async () => {
     aiGenaiMock.models.generateContent.mockResolvedValue({ text: 'Respuesta numérica' });
     axios.post.mockResolvedValue({ status: 200 });

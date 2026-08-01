@@ -22,11 +22,15 @@ class PrismaSessionMemoryRepositorio {
       where: { jid: registro.jid },
       update: {
         state_data: registro.state_data,
+        conversation_state: registro.conversation_state || registro.state_data?.conversation_state || null,
+        conversation_summary: registro.conversation_summary || null,
         updatedAt: new Date(),
       },
       create: {
         jid: registro.jid,
         state_data: registro.state_data,
+        conversation_state: registro.conversation_state || registro.state_data?.conversation_state || null,
+        conversation_summary: registro.conversation_summary || null,
         updatedAt: new Date(),
       },
     });
