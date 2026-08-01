@@ -79,8 +79,45 @@ test('la ruta convierte valores numéricos a string en sender y text', async () 
     const cuerpo = await respuesta.json();
     assert.equal(respuesta.status, 200);
     assert.equal(cuerpo.remoteJid, 'test@whatsapp.net');
-    assert.equal(cuerpo.sender, '67890');
-    assert.match(cuerpo.accumulatedText, /12345/);
+    assert.equal(cuerpo.sender, 'quiero 67890');
+    assert.match(cuerpo.accumulatedText, /quiero 12345/);
+  } finally {
+    servidor.close();
+  }
+});
+
+test('el buffer conserva un dígito y lo publica como texto al expirar', async () => {
+  const app = express();
+  app.use(express.json());
+  app.use('/', router);
+
+  const servidor = app.listen(0);
+  await once(servidor, 'listening');
+
+  try {
+    const direccion = servidor.address();
+    const payload = {
+      jid: 'digit-test@whatsapp.net',
+      text: 2,
+      sender: 'tenant-digit'
+    };
+
+    const respuesta = await fetch(`http://127.0.0.1:${direccion.port}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const cuerpo = await respuesta.json();
+    assert.equal(respuesta.status, 200);
+    assert.equal(cuerpo.accumulatedText, 'quiero 2');
+
+    const redisClient = redis;
+    const claves = await redisClient.keys('begabot:tenant:tenant-digit:user:digit-test-whatsapp-net:*');
+    const valorFinal = claves.length > 0
+      ? await redisClient.get(claves.find((clave) => clave.endsWith(':final')) || claves[0])
+      : null;
+    assert.equal(valorFinal, 'quiero 2');
   } finally {
     servidor.close();
   }

@@ -4,14 +4,25 @@ class ServicioAgenteHttp {
     this.httpClient = httpClient || null;
   }
 
-  async generarRespuesta({ jid, mensajeUsuario, historialConversacional, estadoActual }) {
+  async generarRespuesta({ jid, mensajeUsuario, historialConversacional, estadoActual, sender }) {
+    const textoUsuario = mensajeUsuario?.texto || '';
+    const contextoPrevio = estadoActual && Object.keys(estadoActual).length > 0
+      ? `[Estado: ${estadoActual.etapa || estadoActual.state || 'general'}]`
+      : '[Estado: general]';
+
     const body = {
-      tenantId: jid,
-      prompt: mensajeUsuario?.texto || '',
+      tenantId: sender || jid,
+      sender: sender || jid,
+      jid: jid || sender || null,
+      userConcatenatedMessage: textoUsuario,
+      contextoPrevio,
+      systemPrompt: '',
+      prompt: textoUsuario,
       systemInstruction: '',
       history: historialConversacional || [],
       context: estadoActual || {},
-      userMessage: mensajeUsuario?.texto || ''
+      userMessage: textoUsuario,
+      userContext: textoUsuario
     };
 
     const endpoint = `${this.url}/run`;
@@ -46,8 +57,10 @@ class ServicioAgenteHttp {
 
     const reply = rawResponse?.response || rawResponse?.responseText || parsedObj?.reply || parsedObj?.mensaje_whatsapp || rawText || '';
     const memory_patch = parsedObj?.memory_patch || parsedObj?.nuevo_contexto || parsedObj?.memoryPatch || null;
+    const warmingResponse = parsedObj?.warming_response || parsedObj?.mensaje_calentamiento || rawResponse?.warming_response || null;
+    const taskPayload = parsedObj?.task_payload || parsedObj?.tarea || rawResponse?.task_payload || null;
 
-    return { reply, memory_patch };
+    return { reply, memory_patch, warmingResponse, taskPayload };
   }
 }
 

@@ -34,16 +34,17 @@ async function acumularMensajeEnBuffer(remoteJid, messageBody, sender) {
 
   try {
     const textoExistente = await redis.get(claveCache);
+    const textoParaGuardar = normalizarTextoMensaje(messageBody);
     let nuevoTextoAcumulado;
     let esPrimero = false;
 
     if (!textoExistente) {
       console.log(`[1.5] ✓ PRIMERA VEZ - Creando nuevo acumulador`);
-      nuevoTextoAcumulado = messageBody;
+      nuevoTextoAcumulado = textoParaGuardar;
       esPrimero = true;
     } else {
       console.log(`[1.5] ✓ NO ES PRIMERA - Texto existente: "${textoExistente}"`);
-      nuevoTextoAcumulado = `${textoExistente} - ${messageBody}`;
+      nuevoTextoAcumulado = `${textoExistente} - ${textoParaGuardar}`;
     }
     console.log(`[1.6] Texto acumulado total: "${nuevoTextoAcumulado}"`);
 
@@ -106,12 +107,23 @@ async function acumularMensajeEnBuffer(remoteJid, messageBody, sender) {
   }
 }
 
+function normalizarTextoMensaje(raw) {
+  if (raw === undefined || raw === null) return '';
+  if (typeof raw === 'string') return raw;
+  if (typeof raw === 'number' || typeof raw === 'boolean') return `quiero ${String(raw)}`;
+  if (typeof raw === 'object') {
+    const extraido = extraerTextoDesdeEstructura(raw);
+    return extraido ? `quiero ${String(extraido)}` : '';
+  }
+  return `quiero ${String(raw)}`;
+}
+
 function extraerTextoDesdeCrudo(raw) {
   if (raw === undefined || raw === null) return undefined;
   
-  // Si es un número o booleano, conviértelo a string
+  // Si es un número o booleano, conviértelo a string con prefijo "quiero"
   if (typeof raw === 'number' || typeof raw === 'boolean') {
-    return String(raw);
+    return `quiero ${String(raw)}`;
   }
   
   if (typeof raw === 'string') {
@@ -194,8 +206,9 @@ async function gestionarVencimientoBuffer(claveLista, remoteJid, sender) {
         textoExtraido = mensajeCrudo;
       }
 
-      if (textoExtraido && typeof textoExtraido === 'string' && textoExtraido.trim().length > 0) {
-        partes.push(textoExtraido.trim());
+      const textoNormalizado = normalizarTextoMensaje(textoExtraido);
+      if (textoNormalizado && textoNormalizado.trim().length > 0) {
+        partes.push(textoNormalizado.trim());
       }
     }
 

@@ -7,13 +7,19 @@ class PrismaMensajeRepositorio extends MensajeRepositorio {
   }
 
   async guardar(mensaje) {
+    const textoNormalizado = typeof mensaje?.texto === 'string'
+      ? mensaje.texto
+      : mensaje?.texto === undefined || mensaje?.texto === null
+        ? ''
+        : String(mensaje.texto);
+
     if (this.prisma?.message) {
       return this.prisma.message.create({
         data: {
           jid: mensaje.jid,
           sender: mensaje.sender || 'user',
           role: mensaje.role || 'user',
-          content: mensaje.texto,
+          content: textoNormalizado,
         },
       });
     }
@@ -21,7 +27,7 @@ class PrismaMensajeRepositorio extends MensajeRepositorio {
     return this.prisma.messageHistory.create({
       data: {
         jid: mensaje.jid,
-        texto: mensaje.texto,
+        texto: textoNormalizado,
         isFromClient: mensaje.isFromClient,
         source: mensaje.source,
       },

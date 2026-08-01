@@ -33,7 +33,21 @@ router.post('/', async (req, res) => {
   function normalizarString(valor) {
     if (valor === undefined || valor === null) return undefined;
     if (typeof valor === 'string') return valor;
-    if (typeof valor === 'number' || typeof valor === 'boolean') return String(valor);
+    if (typeof valor === 'number' || typeof valor === 'boolean') return `quiero ${String(valor)}`;
+    if (typeof valor === 'object') {
+      try {
+        return JSON.stringify(valor);
+      } catch (e) {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+
+  function normalizarTextoMensaje(valor) {
+    if (valor === undefined || valor === null) return undefined;
+    if (typeof valor === 'string') return valor;
+    if (typeof valor === 'number' || typeof valor === 'boolean') return `quiero ${String(valor)}`;
     if (typeof valor === 'object') {
       try {
         return JSON.stringify(valor);
@@ -49,16 +63,16 @@ router.post('/', async (req, res) => {
 
     const sender = normalizarString(c.sender || (c.body && c.body.sender));
     const remoteJid = normalizarString(c.jid || c.remoteJid || (c.body && c.body.remoteJid));
-    let messageBody = normalizarString(c.text || c.messageBody);
+    let messageBody = normalizarTextoMensaje(c.text || c.messageBody);
 
     if (!messageBody && c.body) {
       if (typeof c.body === 'string' || typeof c.body === 'number' || typeof c.body === 'boolean') {
-        messageBody = normalizarString(c.body);
+        messageBody = normalizarTextoMensaje(c.body);
       } else {
-        messageBody = normalizarString(c.body.conversation)
-          || normalizarString(c.body.text)
-          || normalizarString(c.body.message)
-          || normalizarString(c.body.body);
+        messageBody = normalizarTextoMensaje(c.body.conversation)
+          || normalizarTextoMensaje(c.body.text)
+          || normalizarTextoMensaje(c.body.message)
+          || normalizarTextoMensaje(c.body.body);
       }
     }
 

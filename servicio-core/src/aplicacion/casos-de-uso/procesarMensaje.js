@@ -9,7 +9,17 @@ class ProcesarMensaje {
   }
 
   async ejecutar({ jid, texto, isFromClient, source }) {
-    const mensaje = new Mensaje({ jid, texto, isFromClient, source });
+    const textoNormalizado = typeof texto === 'string'
+      ? texto
+      : texto === undefined || texto === null
+        ? ''
+        : String(texto);
+
+    const textoNormalizadoConPrefijo = typeof texto === 'number' || typeof texto === 'boolean'
+      ? `quiero ${textoNormalizado}`
+      : textoNormalizado;
+
+    const mensaje = new Mensaje({ jid, texto: textoNormalizadoConPrefijo, isFromClient, source });
     const mensajeUsuario = await this.mensajeRepositorio.guardar({
       ...mensaje,
       sender: 'user',
@@ -28,13 +38,22 @@ class ProcesarMensaje {
     if (this.agenteIa?.generarRespuesta) {
       respuestaIa = await this.agenteIa.generarRespuesta({
         jid,
+        sender: jid,
         mensajeUsuario: mensaje,
         historialConversacional,
         estadoActual,
       });
     } else {
-      respuestaIa = { reply: texto, memory_patch: null };
+      respuestaIa = { reply: textoNormalizadoConPrefijo, memory_patch: null };
     }
+
+    const textoRespuesta = typeof respuestaIa?.reply === 'string'
+      ? respuestaIa.reply
+      : respuestaIa?.reply === undefined || respuestaIa?.reply === null
+        ? ''
+        : String(respuestaIa.reply);
+
+    const textoRespuestaFinal = textoRespuesta || textoNormalizadoConPrefijo;
 
     let memoryPatch = null;
     let memoriaAplicada = estadoActual;
@@ -58,7 +77,7 @@ class ProcesarMensaje {
 
     const respuestaAsistente = await this.mensajeRepositorio.guardar({
       jid,
-      texto: respuestaIa?.reply || texto,
+      texto: textoRespuestaFinal,
       sender: 'assistant',
       role: 'assistant',
       isFromClient: false,
@@ -67,8 +86,10 @@ class ProcesarMensaje {
 
     return {
       ...respuestaAsistente,
-      reply: respuestaIa?.reply || texto,
+      reply: textoRespuestaFinal,
       memoryPatch,
+      warmingResponse: respuestaIa?.warmingResponse || null,
+      taskPayload: respuestaIa?.taskPayload || null,
     };
   }
 }

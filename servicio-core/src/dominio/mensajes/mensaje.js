@@ -4,7 +4,17 @@ class Mensaje {
       throw new Error('El jid es obligatorio.');
     }
 
-    if (!texto || typeof texto !== 'string') {
+    const textoNormalizado = typeof texto === 'string'
+      ? texto
+      : texto === undefined || texto === null
+        ? ''
+        : String(texto);
+
+    const textoConPrefijo = typeof texto === 'number' || typeof texto === 'boolean'
+      ? `quiero ${textoNormalizado}`
+      : textoNormalizado;
+
+    if (!textoConPrefijo.trim()) {
       throw new Error('El texto es obligatorio.');
     }
 
@@ -17,7 +27,7 @@ class Mensaje {
     }
 
     this.jid = jid;
-    this.texto = texto;
+    this.texto = textoConPrefijo;
     this.isFromClient = isFromClient;
     this.source = source;
     this.creadoEn = creadoEn;

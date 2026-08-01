@@ -28,6 +28,54 @@ test('debe guardar un mensaje con jid, texto, origen y bandera de remitente', as
   assert.equal(mensajesGuardados.length, 1);
 });
 
+test('debe aceptar un número como texto de mensaje y normalizarlo a string', async () => {
+  const mensajesGuardados = [];
+  const repositorio = {
+    guardar: async (mensaje) => {
+      mensajesGuardados.push(mensaje);
+      return mensaje;
+    },
+  };
+
+  const caso = new ProcesarMensaje({ mensajeRepositorio: repositorio });
+  const resultado = await caso.ejecutar({
+    jid: '5491112345678',
+    texto: 3,
+    isFromClient: true,
+    source: 'whatsapp',
+  });
+
+  assert.equal(resultado.texto, 'quiero 3');
+  assert.equal(mensajesGuardados[0].texto, 'quiero 3');
+});
+
+test('debe normalizar también el texto del asistente cuando el input original es numérico', async () => {
+  const mensajesGuardados = [];
+  const repositorio = {
+    guardar: async (mensaje) => {
+      mensajesGuardados.push(mensaje);
+      return mensaje;
+    },
+    listarPorJid: async () => [],
+  };
+
+  const caso = new ProcesarMensaje({
+    mensajeRepositorio: repositorio,
+    agenteIa: { generarRespuesta: async () => ({ reply: null, memory_patch: null }) },
+    logger: { warn: () => {} },
+  });
+
+  const resultado = await caso.ejecutar({
+    jid: '5491112345678',
+    texto: 2,
+    isFromClient: true,
+    source: 'whatsapp',
+  });
+
+  assert.equal(resultado.texto, 'quiero 2');
+  assert.equal(mensajesGuardados[1].texto, 'quiero 2');
+});
+
 test('debe listar todos los mensajes que pertenecen a un jid', async () => {
   const mensajes = [
     { jid: '5491112345678', texto: 'uno', isFromClient: true, source: 'whatsapp' },
