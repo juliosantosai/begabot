@@ -1,5 +1,7 @@
 const Redis = require('ioredis');
+const { createLogger } = require('./logger');
 
+const logger = createLogger('conversation-memory');
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const redis = new Redis(redisUrl);
 
@@ -11,9 +13,10 @@ function slugify(value) {
     .replace(/^-+|-+$/g, '');
 }
 
-function buildConversationMemoryKey(sender) {
+function buildConversationMemoryKey(sender, tenantId = 'default') {
   const safeSender = slugify(sender || 'unknown');
-  return `begabot:autoreply:memory:${safeSender}`;
+  const safeTenant = slugify(tenantId || 'default');
+  return `begabot:autoreply:memory:tenant:${safeTenant}:user:${safeSender}`;
 }
 
 function mergeConversationContext(previousContext, currentData = {}) {
@@ -45,26 +48,33 @@ function mergeConversationContext(previousContext, currentData = {}) {
   };
 }
 
-async function getConversationMemory(sender) {
-  const key = buildConversationMemoryKey(sender);
-  const payload = await redis.get(key);
-  if (!payload) return null;
-
+async function getConversationMemory(sender, tenantId = 'default') {
+  const key = buildConversationMemoryKey(sender, tenantId);
   try {
+    const payload = await redis.get(key);
+    if (!payload) return null;
+
     return JSON.parse(payload);
   } catch (error) {
+    logger.error('redis memory fetch failed', { sender, tenantId, error: error.message });
     return null;
   }
 }
 
-async function saveConversationMemory(sender, context, ttlSeconds = 3600) {
-  const key = buildConversationMemoryKey(sender);
-  await redis.set(key, JSON.stringify(context), 'EX', ttlSeconds);
-  return context;
+async function saveConversationMemory(sender, context, ttlSeconds = 3600, tenantId = 'default') {
+  const key = buildConversationMemoryKey(sender, tenantId);
+  try {
+    await redis.set(key, JSON.stringify(context), 'EX', ttlSeconds);
+    logger.info('redis memory saved', { sender, tenantId, key, ttlSeconds });
+    return context;
+  } catch (error) {
+    logger.error('redis memory save failed', { sender, tenantId, key, error: error.message });
+    return context;
+  }
 }
 
-async function deleteConversationMemory(sender) {
-  const key = buildConversationMemoryKey(sender);
+async function deleteConversationMemory(sender, tenantId = 'default') {
+  const key = buildConversationMemoryKey(sender, tenantId);
   await redis.del(key);
 }
 

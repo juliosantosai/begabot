@@ -72,3 +72,24 @@ test('Integration: webhook autoreply + memory persistence simula flujo n8n', asy
   assert.equal(memoryResponse.body.memory.lastMessage, secondPayload.query.message);
   assert.equal(memoryResponse.body.memory.history.length, 2);
 });
+
+test('Integration: fallback graceful when Redis is unavailable', async () => {
+  const service = require('../src/services/conversationMemoryService');
+  const originalGet = service.redis?.get?.bind(service.redis);
+  const originalSet = service.redis?.set?.bind(service.redis);
+
+  if (service.redis) {
+    service.redis.get = async () => { throw new Error('redis disconnected'); };
+    service.redis.set = async () => { throw new Error('redis disconnected'); };
+  }
+
+  try {
+    const memory = await service.getConversationMemory('redis-down');
+    assert.equal(memory, null);
+  } finally {
+    if (service.redis) {
+      service.redis.get = originalGet;
+      service.redis.set = originalSet;
+    }
+  }
+});

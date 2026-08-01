@@ -14,11 +14,17 @@ redis.on('error', (err) => {
   console.error('[Redis Buffer] Error de conexión:', err.message);
 });
 
+function buildTenantScopedBufferKey(tenantId, remoteJid, suffix) {
+  const safeTenant = String(tenantId || 'default').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'default';
+  const safeRemoteJid = String(remoteJid || 'unknown').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'unknown';
+  return `begabot:tenant:${safeTenant}:user:${safeRemoteJid}:${suffix}`;
+}
+
 async function acumularMensajeEnBuffer(remoteJid, messageBody, sender) {
   const tiempoBufferMs = parseInt(process.env.MESSAGE_BUFFER_MS || '5000', 10);
-  const claveCache = `begabot:msg-buffer:${remoteJid}`;
-  const claveLista = `begabot:msg-list:${remoteJid}`;
-  const claveSender = `begabot:msg-sender:${remoteJid}`;
+  const claveCache = buildTenantScopedBufferKey(sender, remoteJid, 'msg-buffer');
+  const claveLista = buildTenantScopedBufferKey(sender, remoteJid, 'msg-list');
+  const claveSender = buildTenantScopedBufferKey(sender, remoteJid, 'msg-sender');
 
   console.log(`\n[🔄 FLUJO BUFFER] ========== ETAPA 1: ACUMULAR ==========`);
   console.log(`[1.1] Recibido POST para: ${remoteJid}`);
@@ -80,7 +86,7 @@ async function acumularMensajeEnBuffer(remoteJid, messageBody, sender) {
     console.log(`[1.9] Programando vencimiento en ${retraso}ms`);
     const temporizador = setTimeout(() => {
       console.log(`\n[⏰ FLUJO BUFFER] ========== ETAPA 2: VENCIMIENTO ==========`);
-      gestionarVencimientoBuffer(claveLista, remoteJid).catch((err) => console.error('[Redis Buffer] Error al gestionar el vencimiento del buffer:', err));
+      gestionarVencimientoBuffer(claveLista, remoteJid, sender).catch((err) => console.error('[Redis Buffer] Error al gestionar el vencimiento del buffer:', err));
     }, retraso);
     temporizadoresBuffer.set(claveLista, temporizador);
     console.log(`[1.10] ✓ ACUMULACIÓN COMPLETADA\n`);
@@ -142,7 +148,7 @@ function extraerTextoDesdeEstructura(parsed) {
   return undefined;
 }
 
-async function gestionarVencimientoBuffer(claveLista, remoteJid) {
+async function gestionarVencimientoBuffer(claveLista, remoteJid, sender) {
   try {
     console.log(`[2.1] ✓ Vencimiento disparado para: ${remoteJid}`);
     // Se lee y elimina la lista de forma atómica usando MULTI.
@@ -201,18 +207,19 @@ async function gestionarVencimientoBuffer(claveLista, remoteJid) {
       console.log(`[2.6] ✓ Texto válido, procediendo a guardar y enviar`);
       console.log(textoFinal);
       try {
-        await redis.set(`begabot:final:${remoteJid}`, textoFinal, 'PX', 40000);
+        const claveFinal = buildTenantScopedBufferKey(sender, remoteJid, 'final');
+        await redis.set(claveFinal, textoFinal, 'PX', 40000);
         console.log(`[2.7] ✓ Guardado en Redis como final`);
       } catch (e) {
         console.error('[Redis Buffer] No se pudo almacenar la clave de texto final:', e && e.message ? e.message : e);
       }
 
-        if (urlWebhookBuffer) {
-        const sender = await redis.get(`begabot:msg-sender:${remoteJid}`) || remoteJid;
+      if (urlWebhookBuffer) {
+        const senderFromRedis = await redis.get(buildTenantScopedBufferKey(sender, remoteJid, 'msg-sender')) || remoteJid;
         console.log(`\n[📤 FLUJO BUFFER] ========== ETAPA 3: ENVIAR WEBHOOK ==========`);
         console.log(`[3.1] URL destino: ${urlWebhookBuffer}`);
         await publicarResultadoBuffer(urlWebhookBuffer, {
-          sender,
+          sender: senderFromRedis,
           remoteJid,
           accumulatedText: textoFinal,
           timestamp: new Date().toISOString(),
@@ -220,7 +227,7 @@ async function gestionarVencimientoBuffer(claveLista, remoteJid) {
       }
     }
     try {
-      const claveCache = `begabot:msg-buffer:${remoteJid}`;
+      const claveCache = buildTenantScopedBufferKey(sender, remoteJid, 'msg-buffer');
       await redis.del(claveCache);
     } catch (e) {
       // Se ignora el error al limpiar el cache.

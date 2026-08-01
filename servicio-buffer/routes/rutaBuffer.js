@@ -73,6 +73,8 @@ router.post('/', async (req, res) => {
     });
   }
 
+  req.body.tenantId = req.body.tenantId || sender;
+
   const resultadoBuffer = await acumularMensajeEnBuffer(remoteJid, messageBody, sender);
 
   return res.status(200).json({

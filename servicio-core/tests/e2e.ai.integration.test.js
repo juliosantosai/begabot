@@ -138,3 +138,75 @@ test('POST /core/tenants/:tenantId/sesiones/persistencia filters dynamic data by
     await prisma.$disconnect();
   }
 });
+
+test('POST /core/tenants/:tenantId/sesiones/persistencia ignores dynamic data when tenant allowlist is absent', async () => {
+  const prisma = new PrismaClient();
+  const tenantId = `tenant-no-allowlist-${Date.now()}`;
+  const jid = `jid-no-allowlist-${Date.now()}`;
+
+  await prisma.tenantConfig.deleteMany({ where: { tenantId } });
+  await prisma.dynamicRecord.deleteMany({ where: { tenantId } });
+  await prisma.sessionMemoryTenant.deleteMany({ where: { tenantId, jid } });
+  await prisma.messageTenant.deleteMany({ where: { tenantId, jid } });
+
+  const app = crearAplicacion({ prisma });
+  const server = app.listen(0);
+  try {
+    const { port } = server.address();
+    const resp = await fetch(`http://127.0.0.1:${port}/core/tenants/${tenantId}/sesiones/persistencia`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jid,
+        mensaje_usuario: 'Hola',
+        respuesta_ia: 'Hola',
+        dynamic_record: {
+          entityName: 'cliente',
+          data: { nombre: 'Ana', password: 'x' }
+        }
+      })
+    });
+
+    assert.equal(resp.status, 201);
+    const dynamicRecord = await prisma.dynamicRecord.findFirst({ where: { tenantId, entityName: 'cliente', recordIdentifier: jid } });
+    assert.equal(dynamicRecord, null);
+  } finally {
+    server.close();
+    await prisma.$disconnect();
+  }
+});
+
+test('POST /core/tenants/:tenantId/sesiones/persistencia returns error when Prisma transaction fails', async () => {
+  const prisma = new PrismaClient();
+  const originalTransaction = prisma.$transaction.bind(prisma);
+  prisma.$transaction = async () => {
+    throw new Error('db unavailable');
+  };
+
+  const app = crearAplicacion({ prisma });
+  const server = app.listen(0);
+  try {
+    const { port } = server.address();
+    const resp = await fetch(`http://127.0.0.1:${port}/core/tenants/tenant-fail/sesiones/persistencia`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jid: 'jid-fail',
+        mensaje_usuario: 'Hola',
+        respuesta_ia: 'Hola',
+        dynamic_record: {
+          entityName: 'cliente',
+          data: { nombre: 'Ana' }
+        }
+      })
+    });
+
+    assert.equal(resp.status, 500);
+    const payload = await resp.json();
+    assert.equal(payload.error, 'Error interno al persistir la sesión');
+  } finally {
+    prisma.$transaction = originalTransaction;
+    server.close();
+    await prisma.$disconnect();
+  }
+});

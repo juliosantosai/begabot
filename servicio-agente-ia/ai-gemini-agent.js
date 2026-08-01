@@ -97,8 +97,16 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
       promptBase,
       userMessage,
       userContext,
-      context
+      context,
+      sender,
+      tenantId,
+      tenant
     } = req.body;
+
+    const resolvedTenantId = sender || tenantId || tenant || req.headers['x-tenant-id'] || null;
+    if (!resolvedTenantId) {
+      return res.status(400).json({ error: 'Se requiere sender o tenantId para aislar la conversación' });
+    }
 
     let iaRequest;
     try {
@@ -192,8 +200,16 @@ aplicacion.post('/api/ai/generate-from-prompts', async (req, res) => {
       basePrompt,
       systemPrompt,
       model,
-      temperature
+      temperature,
+      sender,
+      tenantId,
+      tenant
     } = req.body;
+
+    const resolvedTenantId = sender || tenantId || tenant || req.headers['x-tenant-id'] || null;
+    if (!resolvedTenantId) {
+      return res.status(400).json({ error: 'Se requiere sender o tenantId para aislar la conversación' });
+    }
 
     if (!basePrompt || !systemPrompt) {
       return res.status(400).json({
@@ -240,10 +256,11 @@ aplicacion.post('/api/ai/generate-from-prompts', async (req, res) => {
 // Endpoint genérico para integración con n8n: acepta prompt, systemInstruction, history e identificador de inquilino.
 aplicacion.post('/run', async (req, res) => {
   try {
-    const { tenantId, prompt, systemInstruction, history, model, temperature } = req.body;
+    const { tenantId, prompt, systemInstruction, history, model, temperature, sender, tenant } = req.body;
+    const resolvedTenantId = sender || tenantId || tenant || req.headers['x-tenant-id'] || null;
 
-    if (!prompt || !systemInstruction) {
-      return res.status(400).json({ error: 'Se requieren prompt y systemInstruction' });
+    if (!prompt || !systemInstruction || !resolvedTenantId) {
+      return res.status(400).json({ error: 'Se requieren prompt, systemInstruction y tenantId' });
     }
 
     const inicio = Date.now();
@@ -264,7 +281,7 @@ aplicacion.post('/run', async (req, res) => {
     const respuestaJsonParseada = intentarParsearJson(textoRespuestaIa);
     const respuestaNormalizada = {
       status: 'success',
-      tenantId,
+      tenantId: resolvedTenantId,
       mensaje_whatsapp: respuestaJsonParseada?.mensaje_whatsapp || null,
       mensaje_calentamiento: respuestaJsonParseada?.mensaje_calentamiento || null,
       nuevo_contexto: respuestaJsonParseada?.nuevo_contexto || null,

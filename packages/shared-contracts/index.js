@@ -7,11 +7,12 @@ const MESSAGE_TYPES = Object.freeze({
   DOCUMENT: 'document',
 });
 
-function createServiceEvent(service, payload) {
+function createServiceEvent(service, payload, tenantId = null) {
   return {
     service,
     payload,
     createdAt: new Date().toISOString(),
+    ...(tenantId ? { tenantId } : {}),
   };
 }
 
@@ -50,6 +51,7 @@ function createWhatsAppNormalizedMessage(rawPayload = {}) {
     timestamp: eventData?.messageTimestamp || Date.now(),
     instance: rawPayload?.instance || rawPayload?.data?.instance || null,
     instanceId: rawPayload?.instanceId || rawPayload?.data?.instanceId || null,
+    tenantId: rawPayload?.tenantId || rawPayload?.data?.tenantId || rawPayload?.context?.tenantId || null,
     serverUrl: rawPayload?.server_url || rawPayload?.serverUrl || rawPayload?.data?.server_url || rawPayload?.data?.serverUrl || null,
     rawPayload: rawPayload,
   };

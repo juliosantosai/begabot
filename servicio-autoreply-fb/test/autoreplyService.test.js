@@ -43,8 +43,8 @@ test('construye una respuesta lista para Autoreply.io', () => {
 });
 
 test('genera una clave estable para la memoria del sender', () => {
-  const key = buildConversationMemoryKey('John Smith');
-  assert.match(key, /begabot:autoreply:memory:john-smith/);
+  const key = buildConversationMemoryKey('John Smith', 'acme');
+  assert.match(key, /begabot:autoreply:memory:tenant:acme:user:john-smith/);
 });
 
 test('fusiona la memoria previa con el contexto actual', () => {

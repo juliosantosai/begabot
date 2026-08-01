@@ -21,6 +21,7 @@ const EstadoConversacionCasosDeUso = require('../../dominio/estadoConversacion/e
 const PrismaTareaRepositorio = require('../../infraestructura/repositorios/prismaTareaRepositorio');
 const CrearTarea = require('../../aplicacion/casos-de-uso/crearTarea');
 const ConsumirTarea = require('../../aplicacion/casos-de-uso/consumirTarea');
+const { withTenantContext, createTenantAwarePrismaClient } = require('../../infraestructura/prisma/tenantContextPrisma');
 
 function esClientePrismaValido(prisma) {
   return prisma && typeof prisma === 'object' && (
@@ -32,6 +33,20 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
   const app = express();
   app.use(express.json());
 
+  const tenantAwarePrisma = createTenantAwarePrismaClient(prisma);
+  app.use('/core/tenants/:tenantId', (req, res, next) => {
+    const routeTenantId = req.params?.tenantId;
+    const headerTenantId = req.headers['x-tenant-id'] || req.headers['x-tenantid'];
+    const bodyTenantId = req.body?.tenantId;
+    const tenantId = routeTenantId || headerTenantId || bodyTenantId;
+
+    if (headerTenantId && routeTenantId && headerTenantId !== routeTenantId) {
+      return res.status(400).json({ error: 'tenantId mismatch' });
+    }
+
+    return withTenantContext(tenantId, () => next());
+  });
+
   const mensajeRepositorio = new PrismaMensajeRepositorio(prisma);
   const evolutionApiRepositorioInstance = evolutionApiRepositorio || new PrismaEvolutionApiRepositorio(prisma);
   const promptRepositorio = new PrismaPromptRepositorio(prisma);
@@ -41,9 +56,9 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
   const estadoConversacionCasosDeUso = new EstadoConversacionCasosDeUso({ estadoConversacionRepositorio: estadoRepositorio });
 
   const sessionMemoryRepositorio = esClientePrismaValido(prisma) ? new PrismaSessionMemoryRepositorio(prisma) : null;
-  const tenantSessionMemoryRepositorio = prisma ? new PrismaTenantSessionMemoryRepositorio(prisma) : null;
-  const dynamicRecordRepositorio = prisma ? new PrismaDynamicRecordRepositorio(prisma) : null;
-  const tenantMessageRepositorio = prisma ? new PrismaTenantMessageRepositorio(prisma) : null;
+  const tenantSessionMemoryRepositorio = prisma ? new PrismaTenantSessionMemoryRepositorio(tenantAwarePrisma) : null;
+  const dynamicRecordRepositorio = prisma ? new PrismaDynamicRecordRepositorio(tenantAwarePrisma) : null;
+  const tenantMessageRepositorio = prisma ? new PrismaTenantMessageRepositorio(tenantAwarePrisma) : null;
   const agenteIa = new ServicioAgenteHttp({ url: process.env.AI_SERVICE_URL || process.env.AGENT_SERVICE_URL || 'http://localhost:3003', httpClient });
 
   const procesarMensaje = new ProcesarMensaje({ mensajeRepositorio, sessionMemoryRepositorio, agenteIa });
@@ -190,8 +205,8 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
 
       // required fields from tenant config (if available)
       let required_fields = [];
-      if (prisma && prisma.tenantConfig) {
-        const cfg = await prisma.tenantConfig.findUnique({ where: { tenantId } });
+      if (tenantAwarePrisma && tenantAwarePrisma.tenantConfig) {
+        const cfg = await tenantAwarePrisma.tenantConfig.findUnique({ where: { tenantId } });
         if (cfg && cfg.fields) required_fields = cfg.fields;
       }
 
@@ -219,15 +234,16 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
     }
 
     try {
-      const tenantConfig = prisma && prisma.tenantConfig ? await prisma.tenantConfig.findUnique({ where: { tenantId } }) : null;
+      const tenantConfig = tenantAwarePrisma && tenantAwarePrisma.tenantConfig ? await tenantAwarePrisma.tenantConfig.findUnique({ where: { tenantId } }) : null;
       const allowedFields = tenantConfig && Array.isArray(tenantConfig.fields) ? tenantConfig.fields : [];
 
       let filteredData = {};
       let recordIdentifier = jid;
+      const hasAllowlist = Array.isArray(allowedFields) && allowedFields.length > 0;
 
       if (dynamic_record && dynamic_record.data && typeof dynamic_record.data === 'object' && !Array.isArray(dynamic_record.data)) {
         for (const [key, value] of Object.entries(dynamic_record.data)) {
-          if (allowedFields.length === 0 || allowedFields.includes(key)) {
+          if (hasAllowlist && allowedFields.includes(key)) {
             filteredData[key] = value;
           }
         }
@@ -237,28 +253,30 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
         }
       }
 
-      const resultado = await prisma.$transaction(async (tx) => {
+      const resultado = await tenantAwarePrisma.$transaction(async (tx) => {
+        const txPrisma = createTenantAwarePrismaClient(tx);
+
         if (mensaje_usuario) {
-          await tx.messageTenant.create({
+          await txPrisma.messageTenant.create({
             data: { tenantId, jid, role: 'user', content: mensaje_usuario },
           });
         }
 
         if (respuesta_ia) {
-          await tx.messageTenant.create({
+          await txPrisma.messageTenant.create({
             data: { tenantId, jid, role: 'assistant', content: respuesta_ia },
           });
         }
 
         let updatedMemory = {};
         if (memory_patch && typeof memory_patch === 'object' && !Array.isArray(memory_patch)) {
-          const existingSession = await tx.sessionMemoryTenant.findUnique({
+          const existingSession = await txPrisma.sessionMemoryTenant.findUnique({
             where: { tenantId_jid: { tenantId, jid } },
           });
           const currentPatch = existingSession?.memoryPatch || {};
           updatedMemory = { ...currentPatch, ...memory_patch };
 
-          await tx.sessionMemoryTenant.upsert({
+          await txPrisma.sessionMemoryTenant.upsert({
             where: { tenantId_jid: { tenantId, jid } },
             update: { memoryPatch: updatedMemory },
             create: { tenantId, jid, memoryPatch: updatedMemory },
@@ -268,7 +286,7 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
         let savedRecord = null;
         const entityName = dynamic_record?.entityName || dynamic_record?.entity_name;
         if (dynamic_record && entityName && Object.keys(filteredData).length > 0) {
-          savedRecord = await tx.dynamicRecord.upsert({
+          savedRecord = await txPrisma.dynamicRecord.upsert({
             where: {
               tenantId_entityName_recordIdentifier: {
                 tenantId,
@@ -431,98 +449,6 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       res.status(201).json({ data: resultado });
     } catch (error) {
       res.status(400).json({ error: error.message });
-    }
-  });
-
-  // Endpoint 3: Persistir mensajes, memoria y registros dinámicos de forma atómica
-  app.post('/core/tenants/:tenantId/sesiones/persistencia', async (req, res) => {
-    const { tenantId } = req.params;
-    const { jid, mensaje_usuario, respuesta_ia, memory_patch, dynamic_record } = req.body || {};
-
-    if (!tenantId || !jid) {
-      return res.status(400).json({ error: 'tenantId y jid son obligatorios' });
-    }
-
-    try {
-      const tenantConfig = prisma && prisma.tenantConfig ? await prisma.tenantConfig.findUnique({ where: { tenantId } }) : null;
-      const allowedFields = tenantConfig && Array.isArray(tenantConfig.fields) ? tenantConfig.fields : [];
-
-      let filteredData = {};
-      let recordIdentifier = jid;
-
-      if (dynamic_record && dynamic_record.data && typeof dynamic_record.data === 'object' && !Array.isArray(dynamic_record.data)) {
-        for (const [key, value] of Object.entries(dynamic_record.data)) {
-          if (allowedFields.length === 0 || allowedFields.includes(key)) {
-            filteredData[key] = value;
-          }
-        }
-
-        if (filteredData.cedula) {
-          recordIdentifier = String(filteredData.cedula);
-        }
-      }
-
-      const resultado = await prisma.$transaction(async (tx) => {
-        if (mensaje_usuario) {
-          await tx.messageTenant.create({
-            data: { tenantId, jid, role: 'user', content: mensaje_usuario },
-          });
-        }
-
-        if (respuesta_ia) {
-          await tx.messageTenant.create({
-            data: { tenantId, jid, role: 'assistant', content: respuesta_ia },
-          });
-        }
-
-        let updatedMemory = {};
-        if (memory_patch && typeof memory_patch === 'object' && !Array.isArray(memory_patch)) {
-          const existingSession = await tx.sessionMemoryTenant.findUnique({
-            where: { tenantId_jid: { tenantId, jid } },
-          });
-          const currentPatch = existingSession?.memoryPatch || {};
-          updatedMemory = { ...currentPatch, ...memory_patch };
-
-          await tx.sessionMemoryTenant.upsert({
-            where: { tenantId_jid: { tenantId, jid } },
-            update: { memoryPatch: updatedMemory },
-            create: { tenantId, jid, memoryPatch: updatedMemory },
-          });
-        }
-
-        let savedRecord = null;
-        const entityName = dynamic_record?.entityName || dynamic_record?.entity_name;
-        if (dynamic_record && entityName && Object.keys(filteredData).length > 0) {
-          savedRecord = await tx.dynamicRecord.upsert({
-            where: {
-              tenantId_entityName_recordIdentifier: {
-                tenantId,
-                entityName,
-                recordIdentifier,
-              },
-            },
-            update: { data: filteredData },
-            create: {
-              tenantId,
-              entityName,
-              recordIdentifier,
-              data: filteredData,
-            },
-          });
-        }
-
-        return { updatedMemory, savedRecord };
-      });
-
-      return res.status(201).json({
-        status: 'success',
-        persisted: true,
-        session_memory: resultado.updatedMemory,
-        dynamic_record: resultado.savedRecord,
-      });
-    } catch (error) {
-      console.error('Error en persistencia multi-tenant:', error);
-      return res.status(500).json({ error: 'Error interno al persistir la sesión' });
     }
   });
 
