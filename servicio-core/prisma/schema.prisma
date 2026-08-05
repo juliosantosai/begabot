@@ -25,13 +25,19 @@ model Message {
   sender    String
   role      String
   content   String   @db.Text
-  createdAt DateTime @default(now())
-
-  @@index([jid, createdAt])
-}
-
+  id               String   @id @default(uuid())
+  tenantId         String   @map("tenant_id")
+  sender           String
+  version          Int      @default(1)
+  prompt           String   @db.Text
+  isActive         Boolean  @default(true) @map("is_active")
+  previousPromptId String?  @map("previous_prompt_id")
+  creadoEn         DateTime @default(now()) @map("creado_en")
+  actualizadoEn    DateTime @updatedAt @map("actualizado_en")
 model SessionMemory {
-  jid                String   @id
+  @@unique([tenantId, sender, version])
+  @@index([tenantId, sender])
+  @@map("prompts")
   state_data         Json     @default("{}")
   conversation_state String?  @default("general")
   conversation_summary String? @db.Text
@@ -99,11 +105,16 @@ model TenantConfig {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("tenant_configs")
-}
+  uuid      String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  jid       String
+  sender    String
+  bloqueado Boolean  @default(false)
+  contexto  Json?
+  numero    String?
 
-model DynamicRecord {
-  id               String   @id @default(uuid())
+  @@unique([tenantId, jid, sender])
+  @@map("estado_conversaciones")
   tenantId         String   @map("tenant_id")
   entityName       String   @map("entity_name")
   recordIdentifier String   @map("record_identifier")

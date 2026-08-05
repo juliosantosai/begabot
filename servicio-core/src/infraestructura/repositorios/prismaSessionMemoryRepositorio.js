@@ -13,6 +13,16 @@ class PrismaSessionMemoryRepositorio {
     });
   }
 
+  async eliminarPorJid(jid) {
+    if (!this.prisma?.sessionMemory) {
+      return null;
+    }
+
+    return this.prisma.sessionMemory.delete({
+      where: { jid },
+    });
+  }
+
   async guardar(registro) {
     if (!this.prisma?.sessionMemory) {
       return registro;

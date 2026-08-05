@@ -23,6 +23,10 @@ class TareaRepositorio {
     throw new Error('Debe implementar borrarTodos()');
   }
 
+  async borrarPorEstadoConversacionUuid(_estadoConversacionUuid) {
+    throw new Error('Debe implementar borrarPorEstadoConversacionUuid()');
+  }
+
   async eliminarPorId(_id) {
     throw new Error('Debe implementar eliminarPorId()');
   }

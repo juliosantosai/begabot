@@ -91,15 +91,19 @@ El módulo `servicio-agente-ia` es un microservicio que expone una capa HTTP par
 }
 ```
 
-- Campos aceptados equivalentes:
-  - `system_instruction` en lugar de `systemPrompt`
-  - `basePrompt`, `promptBase`, `userMessage` en lugar de `userConcatenatedMessage`
-  - `userContext`, `context` para incluir contexto adicional del usuario
+- Campos esperados:
+  - `systemPrompt` obligatorio
+  - `userConcatenatedMessage` obligatorio
+  - `userContext` opcional
+  - `aiModel` opcional
+  - `temperature` opcional
+
+- Nota: ya no se aceptan alias legacy como `system_instruction`, `basePrompt`, `promptBase`, `userMessage` o `context`.
 
 - Validaciones mínimas:
-  - `systemPrompt` / `system_instruction` obligatorio
-  - `userConcatenatedMessage` / `basePrompt` / `promptBase` / `userMessage` obligatorio
-  - `userContext` / `context` opcional, pero si existe se incluye en el prompt enviado a IA
+  - `systemPrompt` obligatorio
+  - `userConcatenatedMessage` obligatorio
+  - `userContext` opcional, si existe se incluye en el prompt enviado a IA
 
 - Response success 200:
 ```json
@@ -122,7 +126,7 @@ El módulo `servicio-agente-ia` es un microservicio que expone una capa HTTP par
 - Response error 400:
 ```json
 {
-  "error": "Faltan parámetros obligatorios (basePrompt o userConcatenatedMessage, systemPrompt)"
+  "error": "Faltan parámetros obligatorios (userConcatenatedMessage, systemPrompt)"
 }
 ```
 

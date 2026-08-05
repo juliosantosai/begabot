@@ -7,15 +7,15 @@ const ConsultarPrompt = require('../src/aplicacion/casos-de-uso/consultarPrompt'
 test('debe crear un nuevo prompt para un sender', async () => {
   let guardado = null;
   const repositorio = {
-    buscarPorSender: async () => null,
-    guardar: async (prompt) => {
-      guardado = prompt;
-      return prompt;
+    buscarPorSenderYTenant: async () => null,
+    guardarConVersion: async (data, tenantId) => {
+      guardado = { ...data, tenantId };
+      return guardado;
     },
   };
 
   const caso = new RegistrarPrompt({ promptRepositorio: repositorio });
-  const resultado = await caso.ejecutar({ sender: 'empresa123', prompt: 'Texto de prompt inicial' });
+  const resultado = await caso.ejecutar({ sender: 'empresa123', prompt: 'Texto de prompt inicial', tenantId: 'default-tenant' });
 
   assert.equal(resultado.sender, 'empresa123');
   assert.equal(resultado.prompt, 'Texto de prompt inicial');
@@ -38,15 +38,19 @@ test('debe actualizar el prompt existente para un sender', async () => {
   };
 
   const repositorio = {
-    buscarPorSender: async () => existente,
+    buscarPorSenderYTenant: async () => existente,
     guardar: async (prompt) => {
       guardado = prompt;
       return prompt;
     },
+    guardarConVersion: async (data, tenantId) => {
+      guardado = { ...data, tenantId };
+      return guardado;
+    },
   };
 
   const caso = new RegistrarPrompt({ promptRepositorio: repositorio });
-  const resultado = await caso.ejecutar({ sender: 'empresa123', prompt: 'Prompt actualizado' });
+  const resultado = await caso.ejecutar({ sender: 'empresa123', prompt: 'Prompt actualizado', tenantId: 'default-tenant' });
 
   assert.equal(resultado.sender, 'empresa123');
   assert.equal(resultado.prompt, 'Prompt actualizado');
@@ -60,7 +64,7 @@ test('debe actualizar el prompt existente para un sender', async () => {
 
 test('debe consultar un prompt existente por sender', async () => {
   const repositorio = {
-    buscarPorSender: async () => ({
+    buscarPorSenderYTenant: async () => ({
       id: 'id-2',
       sender: 'empresa123',
       prompt: 'Prompt consultado',
@@ -70,7 +74,7 @@ test('debe consultar un prompt existente por sender', async () => {
   };
 
   const caso = new ConsultarPrompt({ promptRepositorio: repositorio });
-  const resultado = await caso.ejecutar('empresa123');
+  const resultado = await caso.ejecutar('empresa123', 'default-tenant');
 
   assert.equal(resultado.sender, 'empresa123');
   assert.equal(resultado.prompt, 'Prompt consultado');
@@ -78,12 +82,12 @@ test('debe consultar un prompt existente por sender', async () => {
 
 test('debe fallar al consultar un prompt inexistente', async () => {
   const repositorio = {
-    buscarPorSender: async () => null,
+    buscarPorSenderYTenant: async () => null,
   };
 
   const caso = new ConsultarPrompt({ promptRepositorio: repositorio });
   await assert.rejects(async () => {
-    await caso.ejecutar('empresa123');
+    await caso.ejecutar('empresa123', 'default-tenant');
   }, {
     message: 'No existe prompt para el sender proporcionado',
   });

@@ -7,10 +7,10 @@ class PrismaEstadoConversacionRepositorio extends EstadoConversacionRepositorio 
     this.prisma = prisma;
   }
 
-  async obtenerPorJidYSender(jid, sender) {
-    const registro = await this.prisma.estadoConversacion.findFirst({
-      where: { jid, sender },
-    });
+  async obtenerPorJidYSender(jid, sender, tenantId) {
+    const where = { jid, sender };
+    if (tenantId) where.tenantId = tenantId;
+    const registro = await this.prisma.estadoConversacion.findFirst({ where });
     if (!registro) return null;
     return new EstadoConversacion({
       uuid: registro.uuid,
@@ -23,9 +23,7 @@ class PrismaEstadoConversacionRepositorio extends EstadoConversacionRepositorio 
   }
 
   async obtenerPorUuid(uuid) {
-    const registro = await this.prisma.estadoConversacion.findUnique({
-      where: { uuid },
-    });
+    const registro = await this.prisma.estadoConversacion.findUnique({ where: { uuid } });
     if (!registro) return null;
     return new EstadoConversacion({
       uuid: registro.uuid,
@@ -40,8 +38,11 @@ class PrismaEstadoConversacionRepositorio extends EstadoConversacionRepositorio 
   async guardar(estadoConversacion) {
     const registro = estadoConversacion.toPlainObject();
 
+    const whereQuery = { jid: registro.jid, sender: registro.sender };
+    if (registro.tenantId) whereQuery.tenantId = registro.tenantId;
+
     const existente = await this.prisma.estadoConversacion.findFirst({
-      where: { jid: registro.jid, sender: registro.sender },
+      where: whereQuery,
     });
 
     if (existente) {
@@ -55,20 +56,40 @@ class PrismaEstadoConversacionRepositorio extends EstadoConversacionRepositorio 
       });
     }
 
+    const createData = {
+      uuid: registro.uuid,
+      jid: registro.jid,
+      sender: registro.sender,
+      bloqueado: registro.bloqueado,
+      contexto: registro.contexto,
+      numero: registro.numero,
+    };
+
+    if (registro.tenantId) createData.tenantId = registro.tenantId;
+
     return this.prisma.estadoConversacion.create({
-      data: {
-        uuid: registro.uuid,
-        jid: registro.jid,
-        sender: registro.sender,
-        bloqueado: registro.bloqueado,
-        contexto: registro.contexto,
-        numero: registro.numero,
-      },
+      data: createData,
     });
   }
 
   async listarTodos() {
     const registros = await this.prisma.estadoConversacion.findMany();
+    return registros.map((registro) => new EstadoConversacion({
+      uuid: registro.uuid,
+      jid: registro.jid,
+      sender: registro.sender,
+      bloqueado: registro.bloqueado,
+      contexto: registro.contexto,
+      numero: registro.numero,
+    }));
+  }
+
+  async listarPorTenant(tenantId, { jid, sender, take = 50 } = {}) {
+    if (!tenantId) throw new Error('tenantId es requerido para listar estados');
+    const where = { tenantId };
+    if (jid) where.jid = jid;
+    if (sender) where.sender = sender;
+    const registros = await this.prisma.estadoConversacion.findMany({ where, orderBy: { uuid: 'desc' }, take });
     return registros.map((registro) => new EstadoConversacion({
       uuid: registro.uuid,
       jid: registro.jid,

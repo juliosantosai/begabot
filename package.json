@@ -1,7 +1,7 @@
 {
   "name": "begabot-3-monorepo",
   "private": true,
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Monorepo para Begabot",
   "repository": {
     "type": "git",
@@ -11,6 +11,7 @@
   "workspaces": [
     "servicio-buffer",
     "servicio-core",
+    "servicio-admin",
     "servicio-agente-ia",
     "servicio-autoreply-fb",
     "packages/*"
@@ -27,6 +28,7 @@
     "test": "npm run test --workspaces --if-present",
     "check-deps": "npx syncpack list-mismatches",
     "dev:buffer": "npm --workspace servicio-buffer run dev",
+    "dev:admin": "npm --workspace servicio-admin run dev",
     "dev:ai": "npm --workspace servicio-agente-ia run start"
   }
 }

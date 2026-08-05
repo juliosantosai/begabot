@@ -64,7 +64,7 @@ describe('Unit tests for ai-gemini-agent', () => {
     );
   });
 
-  test('normaliza el payload de /run con aliases backward-compatible para n8n', async () => {
+  test('returns normalized output for /run with memory_patch and warming_response', async () => {
     aiGenaiMock.models.generateContent.mockResolvedValue({
       text: JSON.stringify({
         reply: 'Respuesta normalizada',
@@ -87,14 +87,11 @@ describe('Unit tests for ai-gemini-agent', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
-      mensaje_whatsapp: 'Respuesta normalizada',
-      mensaje_calentamiento: 'Preparando el siguiente paso',
-      nuevo_contexto: { paso: 'cantidad', conversation_state: 'ESPERANDO_DIRECCION' },
-      usuario_intencion: null,
-      tarea: { tipo: 'seguimiento', prioridad: 'alta' },
+      reply: 'Respuesta normalizada',
       memory_patch: { paso: 'cantidad', conversation_state: 'ESPERANDO_DIRECCION' },
       warming_response: 'Preparando el siguiente paso',
-      task_payload: { tipo: 'seguimiento', prioridad: 'alta' }
+      task_payload: { tipo: 'seguimiento', prioridad: 'alta' },
+      intent: null
     });
   });
 

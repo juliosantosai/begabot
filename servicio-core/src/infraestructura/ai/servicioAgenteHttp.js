@@ -26,9 +26,6 @@ class ServicioAgenteHttp {
 
   async generarRespuesta({ jid, mensajeUsuario, historialConversacional, estadoActual, sender }) {
     const textoUsuario = mensajeUsuario?.texto || '';
-    const contextoPrevio = estadoActual && Object.keys(estadoActual).length > 0
-      ? `[Estado: ${estadoActual.etapa || estadoActual.state || 'general'}]`
-      : '[Estado: general]';
     const conversationState = estadoActual?.conversation_state || estadoActual?.state || estadoActual?.etapa || null;
     const conversationSummary = estadoActual?.conversation_summary || null;
 
@@ -36,17 +33,11 @@ class ServicioAgenteHttp {
       tenantId: sender || jid,
       sender: sender || jid,
       jid: jid || sender || null,
-      userConcatenatedMessage: textoUsuario,
-      contextoPrevio,
-      conversationState,
-      conversationSummary,
-      systemPrompt: '',
       prompt: textoUsuario,
       systemInstruction: '',
       history: historialConversacional || [],
-      context: estadoActual || {},
-      userMessage: textoUsuario,
-      userContext: textoUsuario
+      conversationState,
+      conversationSummary,
     };
 
     const endpoint = `${this.url}/run`;

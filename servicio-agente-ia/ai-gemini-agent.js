@@ -64,28 +64,28 @@ function normalizarRespuestaIa({ textoRespuestaIa, respuestaJsonParseada, metric
     : {};
 
   const reply = payloadParseado.reply
-    || payloadParseado.mensaje_whatsapp
     || payloadParseado.response
     || payloadParseado.text
     || payloadParseado.message
+    || payloadParseado.mensaje_whatsapp
     || textoRespuestaIa
     || null;
 
   const memoryPatchRaw = payloadParseado.memory_patch
-    || payloadParseado.nuevo_contexto
     || payloadParseado.memoryPatch
+    || payloadParseado.nuevo_contexto
     || null;
   const memoryPatch = typeof memoryPatchRaw === 'string'
     ? normalizarMemoryPatchString(memoryPatchRaw)
     : (memoryPatchRaw || null);
 
   const warmingResponse = payloadParseado.warming_response
+    || payloadParseado.warmingResponse
     || payloadParseado.mensaje_calentamiento
-    || payloadParseado.response
-    || payloadParseado.reply
+    || reply
     || null;
-  const taskPayload = payloadParseado.task_payload || payloadParseado.tarea || null;
-  const userIntent = payloadParseado.intent || payloadParseado.usuario_intencion || payloadParseado.user_intent || null;
+  const taskPayload = payloadParseado.task_payload || payloadParseado.taskPayload || payloadParseado.tarea || null;
+  const intent = payloadParseado.intent || payloadParseado.userIntent || payloadParseado.usuario_intencion || null;
   const conversationState = payloadParseado.conversationState || payloadParseado.conversation_state || memoryPatch?.conversation_state || null;
   const conversationSummary = payloadParseado.conversationSummary || payloadParseado.conversation_summary || null;
 
@@ -93,18 +93,12 @@ function normalizarRespuestaIa({ textoRespuestaIa, respuestaJsonParseada, metric
     status: 'success',
     tenantId: tenantId || null,
     reply,
-    mensaje_whatsapp: reply,
-    mensaje_calentamiento: warmingResponse,
-    nuevo_contexto: memoryPatch,
-    usuario_intencion: userIntent,
-    tarea: taskPayload,
     memory_patch: memoryPatch,
     warming_response: warmingResponse,
     task_payload: taskPayload,
+    intent,
     conversationState,
     conversationSummary,
-    conversation_state: conversationState,
-    conversation_summary: conversationSummary,
     output: {
       response: textoRespuestaIa,
       parsedResponse: payloadParseado,
@@ -168,14 +162,10 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
       systemPrompt,
       temperature,
       userConcatenatedMessage,
-      basePrompt,
-      promptBase,
-      userMessage,
       userContext,
-      context,
       sender,
       tenantId,
-      tenant
+      tenant,
     } = req.body;
 
     const resolvedTenantId = sender || tenantId || tenant || req.headers['x-tenant-id'] || null;
@@ -183,13 +173,9 @@ aplicacion.post('/api/ai/generate-response', async (req, res) => {
     let iaRequest;
     try {
       iaRequest = new IaRequest({
-        systemPrompt: systemPrompt || req.body.system_instruction,
+        systemPrompt,
         userConcatenatedMessage,
-        basePrompt,
-        promptBase,
-        userMessage,
         userContext,
-        context,
         aiModel,
         temperature,
       });

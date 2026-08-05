@@ -22,6 +22,7 @@ const PrismaTareaRepositorio = require('../../infraestructura/repositorios/prism
 const CrearTarea = require('../../aplicacion/casos-de-uso/crearTarea');
 const ConsumirTarea = require('../../aplicacion/casos-de-uso/consumirTarea');
 const { withTenantContext, createTenantAwarePrismaClient } = require('../../infraestructura/prisma/tenantContextPrisma');
+const tenantScope = require('./middleware/tenantScope');
 
 function esClientePrismaValido(prisma) {
   return prisma && typeof prisma === 'object' && (
@@ -43,6 +44,26 @@ function enrichConversationState(estado) {
   };
 }
 
+function normalizarContextoPayload(contexto) {
+  if (typeof contexto === 'string') {
+    try {
+      return JSON.parse(contexto);
+    } catch (_error) {
+      return { rawContext: contexto };
+    }
+  }
+
+  if (Array.isArray(contexto)) {
+    return { rawContext: JSON.stringify(contexto) };
+  }
+
+  if (contexto && typeof contexto === 'object') {
+    return contexto;
+  }
+
+  return { rawContext: String(contexto) };
+}
+
 function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRepositorio, tareaRepositorio: tareaRepositorioParam } = {}) {
   const app = express();
   app.use(express.json());
@@ -58,7 +79,33 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       return res.status(400).json({ error: 'tenantId mismatch' });
     }
 
-    return withTenantContext(tenantId, () => next());
+    return withTenantContext(tenantId, async () => {
+      // set DB session variable for RLS policies (defense in depth)
+      if (prisma && tenantId) {
+        try {
+          await prisma.$executeRaw`SELECT set_config('app.current_tenant', ${tenantId}, false)`;
+        } catch (e) {
+          // non-fatal: log and continue
+          // eslint-disable-next-line no-console
+          console.warn('No se pudo setear app.current_tenant en la sesión DB:', e.message || e);
+        }
+
+        // Ensure we attempt to clear the session variable when the response finishes
+        const cleanup = async () => {
+          try {
+            await prisma.$executeRaw`SELECT set_config('app.current_tenant', '', false)`;
+          } catch (err) {
+            // eslint-disable-next-line no-console
+            console.warn('No se pudo limpiar app.current_tenant en la sesión DB:', err.message || err);
+          }
+        };
+
+        res.once('finish', cleanup);
+        res.once('close', cleanup);
+      }
+
+      return next();
+    });
   });
 
   const mensajeRepositorio = new PrismaMensajeRepositorio(prisma);
@@ -157,6 +204,83 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       const data = instancias.map((entidad) => ({
         ...entidad,
         configuracionHttp: {
+        // Tenant-scoped Prompt endpoints (MVP)
+        app.get('/core/tenants/:tenantId/prompts', tenantScope, async (req, res) => {
+          try {
+            const { tenantId } = req;
+            const prompts = await promptRepositorio.listarPorTenant
+              ? await promptRepositorio.listarPorTenant(tenantId)
+              : await prisma.prompt.findMany({ where: { tenantId, isActive: true }, orderBy: { actualizadoEn: 'desc' } });
+            res.json({ success: true, data: prompts });
+          } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+          }
+        });
+
+        app.post('/core/tenants/:tenantId/prompts', tenantScope, async (req, res) => {
+          try {
+            const { tenantId } = req;
+            const { sender, prompt } = req.body || {};
+            if (!sender || !prompt) {
+              return res.status(400).json({ success: false, error: 'sender y prompt son obligatorios' });
+            }
+
+            const resultado = typeof promptRepositorio.guardarConVersion === 'function'
+              ? await promptRepositorio.guardarConVersion({ sender, prompt }, tenantId)
+              : await prisma.prompt.create({ data: { tenantId, sender, prompt } });
+
+            res.status(201).json({ success: true, data: resultado });
+          } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+          }
+        });
+
+        app.post('/core/tenants/:tenantId/prompts/:sender/rollback', tenantScope, async (req, res) => {
+          try {
+            const { tenantId } = req;
+            const { sender } = req.params;
+            const { version } = req.body || {};
+            if (!version) return res.status(400).json({ success: false, error: 'version es obligatorio' });
+
+            if (typeof promptRepositorio.rollback === 'function') {
+              const resultado = await promptRepositorio.rollback(tenantId, sender, version);
+              return res.json({ success: true, data: resultado });
+            }
+
+            // default behaviour: activate the requested version and deactivate others
+            const target = await prisma.prompt.findFirst({ where: { tenantId, sender, version } });
+            if (!target) return res.status(404).json({ success: false, error: 'version no encontrada' });
+
+            await prisma.$transaction(async (tx) => {
+              await tx.prompt.updateMany({ where: { tenantId, sender, isActive: true }, data: { isActive: false } });
+              await tx.prompt.update({ where: { id: target.id }, data: { isActive: true } });
+            });
+
+            const activo = await prisma.prompt.findFirst({ where: { tenantId, sender, isActive: true } });
+            return res.json({ success: true, data: activo });
+          } catch (error) {
+            return res.status(500).json({ success: false, error: error.message });
+          }
+        });
+
+        // Tenant-scoped conversation states
+        app.get('/core/tenants/:tenantId/estados', tenantScope, async (req, res) => {
+          try {
+            const { tenantId } = req;
+            const { jid, sender } = req.query || {};
+            const where = { tenantId };
+            if (jid) where.jid = jid;
+            if (sender) where.sender = sender;
+
+                  const estados = typeof estadoRepositorio.listarPorTenant === 'function'
+                    ? await estadoRepositorio.listarPorTenant(tenantId, { jid, sender, take: 50 })
+                    : await prisma.estadoConversacion.findMany({ where, orderBy: { uuid: 'desc' }, take: 50 });
+
+            return res.json({ success: true, data: estados });
+          } catch (error) {
+            return res.status(500).json({ success: false, error: error.message });
+          }
+        });
           method: 'POST',
           url: `${entidad.serverUrl.replace(/\/$/, '')}/message/sendText/${entidad.instancia}`,
           headers: {
@@ -373,7 +497,8 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       if (!jid || !sender) {
         return res.status(400).json({ error: 'jid y sender son obligatorios' });
       }
-      const estado = await estadoConversacionCasosDeUso.obtenerEstado(jid, sender);
+      const headerTenantId = req.headers['x-tenant-id'] || req.headers['x-tenantid'];
+      const estado = await estadoConversacionCasosDeUso.obtenerEstado(jid, sender, headerTenantId);
       return res.status(200).json(enrichConversationState(estado));
     } catch (error) {
       return res.status(500).json({ error: error.message });
@@ -386,7 +511,8 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       if (!jid || !sender) {
         return res.status(400).json({ error: 'jid y sender son obligatorios' });
       }
-      const estado = await estadoConversacionCasosDeUso.obtenerEstadoSinIncrementar(jid, sender);
+      const headerTenantId = req.headers['x-tenant-id'] || req.headers['x-tenantid'];
+      const estado = await estadoConversacionCasosDeUso.obtenerEstadoSinIncrementar(jid, sender, headerTenantId);
       return res.status(200).json(enrichConversationState(estado));
     } catch (error) {
       return res.status(500).json({ error: error.message });
@@ -434,13 +560,60 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
         bloqueado = String(bloqueadoQuery).toLowerCase() === 'true';
       }
 
+      const headerTenantId = req.headers['x-tenant-id'] || req.headers['x-tenantid'];
       const estado = await estadoConversacionCasosDeUso.actualizarBloqueoPorUuid(
         uuid,
         bloqueado,
         { jid, sender },
         shouldReset,
+        headerTenantId,
       );
       return res.status(200).json(estado);
+    } catch (error) {
+      const statusCode = error.message.includes('No existe estado y faltan jid/sender para crear uno nuevo') ? 404 : 500;
+      return res.status(statusCode).json({ error: error.message });
+    }
+  });
+
+  app.post('/core/estado-conversacion/:uuid/reset', async (req, res) => {
+    try {
+      const { uuid } = req.params;
+      const { jid, sender } = req.body || {};
+      if (!uuid) {
+        return res.status(400).json({ error: 'uuid es obligatorio' });
+      }
+      if (!jid || !sender) {
+        return res.status(400).json({ error: 'jid y sender son obligatorios' });
+      }
+
+      const headerTenantId = req.headers['x-tenant-id'] || req.headers['x-tenantid'];
+      const estado = await estadoConversacionCasosDeUso.actualizarBloqueoPorUuid(
+        uuid,
+        false,
+        { jid, sender },
+        true,
+        headerTenantId,
+      );
+
+      const resultado = { estado, sessionMemory: null, tareasBorradas: null };
+
+      if (sessionMemoryRepositorio && typeof sessionMemoryRepositorio.eliminarPorJid === 'function') {
+        try {
+          resultado.sessionMemory = await sessionMemoryRepositorio.eliminarPorJid(jid);
+        } catch (e) {
+          resultado.sessionMemory = { error: e.message };
+        }
+      }
+
+      if (tareaRepositorio && typeof tareaRepositorio.borrarPorEstadoConversacionUuid === 'function') {
+        try {
+          resultado.tareasBorradas = await tareaRepositorio.borrarPorEstadoConversacionUuid(uuid);
+        } catch (e) {
+          resultado.tareasBorradas = { error: e.message };
+        }
+      }
+
+      return res.status(200).json(resultado);
     } catch (error) {
       const statusCode = error.message.includes('No existe estado y faltan jid/sender para crear uno nuevo') ? 404 : 500;
       return res.status(statusCode).json({ error: error.message });
@@ -457,7 +630,9 @@ function crearAplicacion({ prisma, estadoConversacionRepositorio, evolutionApiRe
       if (contexto === undefined) {
         return res.status(400).json({ error: 'contexto es obligatorio' });
       }
-      const estado = await estadoConversacionCasosDeUso.actualizarContextoPorUuid(uuid, contexto, { jid, sender });
+      const contextoNormalizado = normalizarContextoPayload(contexto);
+      const headerTenantId = req.headers['x-tenant-id'] || req.headers['x-tenantid'];
+      const estado = await estadoConversacionCasosDeUso.actualizarContextoPorUuid(uuid, contextoNormalizado, { jid, sender }, headerTenantId);
       return res.status(200).json(estado);
     } catch (error) {
       return res.status(500).json({ error: error.message });

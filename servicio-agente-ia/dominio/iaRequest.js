@@ -16,17 +16,13 @@ class IaRequest {
   constructor({
     systemPrompt,
     userConcatenatedMessage,
-    basePrompt,
-    promptBase,
-    userMessage,
     userContext,
-    context,
     aiModel,
     temperature,
   }) {
     this.systemPrompt = normalizarString(systemPrompt || '');
-    this.userText = normalizarString(userConcatenatedMessage || basePrompt || promptBase || userMessage || '');
-    this.userContext = normalizarString(userContext || context || '');
+    this.userText = normalizarString(userConcatenatedMessage || '');
+    this.userContext = normalizarString(userContext || '');
     this.aiModel = aiModel;
     this.temperature = temperature;
 
@@ -39,7 +35,7 @@ class IaRequest {
     }
 
     if (!this.userText) {
-      throw new Error('userConcatenatedMessage o su alias es obligatorio y debe ser un string');
+      throw new Error('userConcatenatedMessage es obligatorio y debe ser un string');
     }
   }
 

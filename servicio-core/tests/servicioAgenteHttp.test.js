@@ -85,11 +85,10 @@ test('envía el payload estructurado con userConcatenatedMessage y contexto al a
     estadoActual: { etapa: 'cantidad', conversation_state: 'ESPERANDO_DIRECCION', conversation_summary: 'Quiero comprar - Hola' },
   });
 
-  assert.equal(capturedBody.userConcatenatedMessage, '2');
+  assert.equal(capturedBody.prompt, '2');
   assert.equal(capturedBody.sender, 'empresa-a');
   assert.equal(capturedBody.jid, 'empresa-a');
-  assert.equal(capturedBody.contextoPrevio, '[Estado: cantidad]');
   assert.equal(capturedBody.conversationState, 'ESPERANDO_DIRECCION');
   assert.equal(capturedBody.conversationSummary, 'Quiero comprar - Hola');
-  assert.equal(capturedBody.systemPrompt, '');
+  assert.equal(capturedBody.systemInstruction, '');
 });

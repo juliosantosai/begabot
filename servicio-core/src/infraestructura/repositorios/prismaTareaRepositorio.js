@@ -97,6 +97,21 @@ class PrismaTareaRepositorio extends TareaRepositorio {
     };
   }
 
+  async borrarPorEstadoConversacionUuid(estadoConversacionUuid) {
+    const result = await this.prisma.task.updateMany({
+      where: {
+        estadoConversacionUuid,
+        eliminado: false,
+      },
+      data: {
+        eliminado: true,
+        deletedAt: new Date(),
+        estado: 'eliminada',
+      },
+    });
+    return result.count || 0;
+  }
+
   async guardarLog(log) {
     return this.prisma.taskLog.create({
       data: {

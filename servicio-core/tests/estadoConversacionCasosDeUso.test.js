@@ -244,6 +244,43 @@ test('actualizarContextoPorUuid actualiza el contexto de un estado existente por
   assert.equal(resultado.sender, 'sender-e');
 });
 
+test('actualizarContextoPorUuid concatena conversationSummary en lugar de sobrescribirlo', async () => {
+  const almacen = new Map();
+  const uuid = 'uuid-actualizar-summary';
+  const registro = new EstadoConversacion({
+    uuid,
+    jid: 'jid-f',
+    sender: 'sender-f',
+    contexto: { paso: 1, conversation_summary: 'Primera parte' }
+  }).toPlainObject();
+  almacen.set('jid-f::sender-f', registro);
+  almacen.set(uuid, 'jid-f::sender-f');
+
+  const repo = {
+    obtenerPorUuid: async (searchUuid) => {
+      const clave = almacen.get(searchUuid);
+      return clave ? new EstadoConversacion(almacen.get(clave)) : null;
+    },
+    guardar: async (estado) => {
+      const registro = estado.toPlainObject();
+      almacen.set(`${registro.jid}::${registro.sender}`, registro);
+      almacen.set(registro.uuid, `${registro.jid}::${registro.sender}`);
+      return registro;
+    },
+  };
+
+  const caso = new EstadoConversacionCasosDeUso({ estadoConversacionRepositorio: repo });
+  const nuevoContexto = { conversation_summary: 'Segunda parte', otro: 'valor' };
+  const resultado = await caso.actualizarContextoPorUuid(uuid, nuevoContexto, { jid: 'jid-f', sender: 'sender-f' });
+
+  assert.equal(resultado.contexto.conversation_summary, 'Primera parte - Segunda parte');
+  assert.equal(resultado.contexto.conversationSummary, 'Primera parte - Segunda parte');
+  assert.equal(resultado.contexto.otro, 'valor');
+  assert.equal(resultado.uuid, uuid);
+  assert.equal(resultado.jid, 'jid-f');
+  assert.equal(resultado.sender, 'sender-f');
+});
+
 test('actualizarContextoPorUuid crea un nuevo estado cuando no existe y recibe fallback', async () => {
   let guardado;
   const repo = {
